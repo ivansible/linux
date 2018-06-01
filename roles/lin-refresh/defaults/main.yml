@@ -1,2 +1,26 @@
 ---
-# defaults file for lin-refresh
+# True setting will point /etc/apt/sources.list to yandex mirrors
+# if host belongs to the "vagrant" group. To keep your apt sources
+# intact, set this to false.
+lin_refresh_apt_sources: true
+
+lin_refresh_allow_universe: true
+
+lin_refresh_allow_src: true
+
+lin_refresh_allow_backports: true
+
+lin_refresh_time_server: pool.ntp.org
+
+lin_refresh_time_visible_changes: false
+
+lin_refresh_reboot_marker: /var/run/reboot-required
+
+lin_refresh_reboot_allow: true
+
+# let 10 seconds to commence reboot
+lin_refresh_reboot_delay: 10
+
+# 5 minute timeout
+lin_refresh_reboot_timeout: 300
+...

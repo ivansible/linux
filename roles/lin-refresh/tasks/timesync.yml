@@ -1,0 +1,27 @@
+---
+# synchronize system time
+
+- name: install time packages
+  apt:
+    name:
+      - ntp
+      - ntpdate
+    update-cache: yes
+
+- name: pause ntp daemon
+  systemd:
+    name: ntp
+    state: stopped
+  changed_when: "lin_refresh_time_visible_changes | bool"
+
+- name: step-sync local time
+  command: ntpdate "{{ lin_refresh_time_server }}"
+  changed_when: "lin_refresh_time_visible_changes | bool"
+
+- name: resume ntp daemon
+  systemd:
+    name: ntp
+    state: started
+    enabled: yes
+  changed_when: "lin_refresh_time_visible_changes | bool"
+...

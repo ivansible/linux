@@ -1,38 +1,41 @@
-Role Name
-=========
+# lin-refresh
 
-A brief description of the role goes here.
+Instantly updates time, packages and kernel on a linux machine.
 
-Requirements
-------------
+## Requirements
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+None
 
-Role Variables
---------------
+## Role Variables
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+    lin_refresh_apt_sources: true
 
-Dependencies
-------------
+By default, if host belongs to the `vagrant` group, the role will replace
+packet sources in `/etc/apt/sources.list` with links to presumably faster
+`mirror.yandex.ru`.
+To keep your apt sources intact, set this to `false`.
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+## Dependencies
 
-Example Playbook
-----------------
+None
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+## Example Playbook
 
-    - hosts: servers
+    - hosts: vagrant-boxes
+      strategy: free
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: ivansible.lin-refresh, lin_refresh_apt_sources: false }
 
-License
--------
+## Usage
 
-BSD
+    ansible-playbook plays/lin-refresh.yml -l dock2,dock3
 
-Author Information
-------------------
+Make sure your hosts do not fall in the `vagrant` group.
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## License
+
+MIT
+
+## Author Information
+
+Created in 2018 by [IvanSible](https://github.com/ivansible)

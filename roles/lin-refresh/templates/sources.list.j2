@@ -1,0 +1,31 @@
+{% set mirror = "http://mirror.yandex.ru/ubuntu/" %}
+{% set release = ansible_distribution_release %}
+{% set src_ok = lin_refresh_allow_src | bool %}
+{% if lin_refresh_allow_universe | bool %}
+{% set channels = "main restricted universe multiverse" %}
+{% else %}
+{% set channels = "main restricted" %}
+{% endif %}
+# created by ansible
+
+deb {{mirror}} {{release}} {{channels}}
+{% if src_ok %}
+deb-src {{mirror}} {{release}} {{channels}}
+{% endif %}
+
+deb {{mirror}} {{release}}-updates {{channels}}
+{% if src_ok %}
+deb-src {{mirror}} {{release}}-updates {{channels}}
+{% endif %}
+
+deb {{mirror}} {{release}}-security {{channels}}
+{% if src_ok %}
+deb-src {{mirror}} {{release}}-security {{channels}}
+{% endif %}
+
+{% if lin_refresh_allow_backports | bool %}
+deb {{mirror}} {{release}}-backports {{channels}}
+{% if src_ok %}
+deb-src {{mirror}} {{release}}-backports {{channels}}
+{% endif %}
+{% endif %}

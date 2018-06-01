@@ -1,0 +1,10 @@
+---
+- name: dist-upgrade packages
+  apt:
+    update-cache: yes
+    upgrade: dist
+
+- name: remove stale dependencies
+  apt:
+    autoremove: yes
+...

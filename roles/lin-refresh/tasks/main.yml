@@ -1,2 +1,36 @@
 ---
-# tasks file for lin-refresh
+- name: switch to fast apt mirrors
+  when: "'vagrant' in group_names and lin_refresh_apt_sources | bool"
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+    backup: yes
+  become: yes
+  tags: linref_mirrors
+
+- name: synchronize system time
+  # use import to inherit "become" attribute
+  import_tasks: timesync.yml
+  become: yes
+  tags: linref_timesync
+
+- name: perform upgrade
+  # use import to inherit "become" attribute
+  import_tasks: upgrade.yml
+  become: yes
+  tags: linref_upgrade
+
+- name: check for reboot marker
+  stat:
+    path: "{{ lin_refresh_reboot_marker }}"
+    get_checksum: no
+    get_mime: no
+  register: reboot_marker
+  tags: linref_reboot
+
+- name: reboot and wait to come back
+  # use include to avoid multiple "skipping" messages
+  include_tasks: reboot.yml
+  when: "reboot_marker.stat.exists == true"
+  tags: linref_reboot
+...
