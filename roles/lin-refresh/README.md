@@ -1,4 +1,4 @@
-# lin-refresh
+# ivansible.lin-refresh
 
 Instantly updates time, packages and kernel on a linux machine.
 
@@ -6,7 +6,9 @@ Instantly updates time, packages and kernel on a linux machine.
 
 None
 
-## Role Variables
+## Variables
+
+Available variables are listed below, along with default values.
 
     lin_refresh_apt_sources: true
 
@@ -14,6 +16,13 @@ By default, if host belongs to the `vagrant` group, the role will replace
 packet sources in `/etc/apt/sources.list` with links to presumably faster
 `mirror.yandex.ru`.
 To keep your apt sources intact, set this to `false`.
+
+## Tags
+
+- `linref_mirrors` - Switch to yandex apt mirrors
+- `linref_timesync` - Synchronize system time
+- `linref_upgrade` - Perform dist-upgrade
+- `linref_reboot` - Check for reboot marker, reboot and wait to come back
 
 ## Dependencies
 
@@ -24,7 +33,9 @@ None
     - hosts: vagrant-boxes
       strategy: free
       roles:
-         - { role: ivansible.lin-refresh, lin_refresh_apt_sources: false }
+         - role: ivansible.lin-refresh
+           become: yes
+           lin_refresh_apt_sources: false
 
 ## Usage
 

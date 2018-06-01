@@ -1,0 +1,31 @@
+---
+- name: switch to fast apt mirrors
+  when: "'vagrant' in group_names and lin_refresh_apt_sources | bool"
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+    backup: yes
+  tags: linref_mirrors
+
+- name: synchronize system time
+  # use include to avoid multiple "skipping" messages
+  include_tasks: timesync.yml
+  tags: linref_timesync
+
+- name: perform upgrade
+  include_tasks: upgrade.yml
+  tags: linref_upgrade
+
+- name: check for reboot marker
+  stat:
+    path: "{{ lin_refresh_reboot_marker }}"
+    get_checksum: no
+    get_mime: no
+  register: reboot_marker
+  tags: linref_reboot
+
+- name: reboot and wait to come back
+  include_tasks: reboot.yml
+  when: "reboot_marker.stat.exists == true"
+  tags: linref_reboot
+...

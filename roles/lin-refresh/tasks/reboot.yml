@@ -3,7 +3,6 @@
 - name: reboot machine
   when: "lin_refresh_reboot_allow | bool == true"
   shell: sleep 2 && shutdown -r now
-  become: yes
   # async+poll prevents conection errors
   # see: https://superuser.com/a/1106350
   async: 1
