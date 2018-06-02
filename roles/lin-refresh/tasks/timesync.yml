@@ -2,11 +2,13 @@
 # synchronize system time
 
 - name: install time packages
-  apt:
-    name:
-      - ntp
-      - ntpdate
-    update-cache: yes
+  block:
+    - apt:
+        name: [ ntp, ntpdate ]
+  rescue:
+    - apt:
+        name: [ ntp, ntpdate ]
+        update-cache: yes
 
 - name: pause ntp daemon
   systemd:

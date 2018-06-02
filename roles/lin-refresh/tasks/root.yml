@@ -8,12 +8,11 @@
   tags: linref_mirrors
 
 - name: synchronize system time
-  # use include to avoid multiple "skipping" messages
-  include_tasks: timesync.yml
+  import_tasks: timesync.yml
   tags: linref_timesync
 
 - name: perform upgrade
-  include_tasks: upgrade.yml
+  import_tasks: upgrade.yml
   tags: linref_upgrade
 
 - name: check for reboot marker
@@ -25,7 +24,7 @@
   tags: linref_reboot
 
 - name: reboot and wait to come back
-  include_tasks: reboot.yml
+  import_tasks: reboot.yml
   when: "reboot_marker.stat.exists == true"
   tags: linref_reboot
 ...
