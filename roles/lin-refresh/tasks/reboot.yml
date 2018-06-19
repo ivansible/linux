@@ -1,7 +1,7 @@
 ---
 # reboot and wait to come back
 - name: reboot machine
-  when: "lin_refresh_reboot_allow | bool == true"
+  when: "linref_reboot_allow | bool == true"
   shell: sleep 2 && shutdown -r now
   # async+poll prevents conection errors
   # see: https://superuser.com/a/1106350
@@ -14,8 +14,8 @@
     msg: "{{ inventory_hostname }} is rebooting.."
 
 - wait_for_connection:
-    delay: "{{ lin_refresh_reboot_delay }}"
-    timeout: "{{ lin_refresh_reboot_timeout }}"
+    delay: "{{ linref_reboot_delay }}"
+    timeout: "{{ linref_reboot_timeout }}"
   register: wait_result
 
 - debug:

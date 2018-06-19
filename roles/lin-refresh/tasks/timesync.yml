@@ -14,16 +14,16 @@
   systemd:
     name: ntp
     state: stopped
-  changed_when: "lin_refresh_time_visible_changes | bool"
+  changed_when: "linref_time_visible_changes | bool"
 
 - name: step-sync local time
-  command: ntpdate "{{ lin_refresh_time_server }}"
-  changed_when: "lin_refresh_time_visible_changes | bool"
+  command: ntpdate "{{ linref_time_server }}"
+  changed_when: "linref_time_visible_changes | bool"
 
 - name: resume ntp daemon
   systemd:
     name: ntp
     state: started
     enabled: yes
-  changed_when: "lin_refresh_time_visible_changes | bool"
+  changed_when: "linref_time_visible_changes | bool"
 ...

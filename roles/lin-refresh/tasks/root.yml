@@ -1,6 +1,6 @@
 ---
 - name: switch to fast apt mirrors
-  when: "'vagrant' in group_names and lin_refresh_apt_sources | bool"
+  when: "'vagrant' in group_names and linref_apt_sources | bool"
   template:
     src: sources.list.j2
     dest: /etc/apt/sources.list
@@ -17,7 +17,7 @@
 
 - name: check for reboot marker
   stat:
-    path: "{{ lin_refresh_reboot_marker }}"
+    path: "{{ linref_reboot_marker }}"
     get_checksum: no
     get_mime: no
   register: reboot_marker

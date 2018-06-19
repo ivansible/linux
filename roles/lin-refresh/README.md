@@ -10,7 +10,7 @@ None
 
 Available variables are listed below, along with default values.
 
-    lin_refresh_apt_sources: true
+    linref_apt_sources: true
 
 By default, if host belongs to the `vagrant` group, the role will replace
 packet sources in `/etc/apt/sources.list` with links to presumably faster
@@ -35,7 +35,7 @@ None
       roles:
          - role: ivansible.lin-refresh
            become: yes
-           lin_refresh_apt_sources: false
+           linref_apt_sources: false
 
 ## Usage
 
