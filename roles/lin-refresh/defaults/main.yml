@@ -17,10 +17,15 @@ linref_time_visible_changes: false
 linref_reboot_marker: /var/run/reboot-required
 
 linref_reboot_allow: true
+linref_reboot_always: false
+
+# time to wait for user keypress before reboot
+# can be: 'nowait', 'pause' (until keypress) or integer (number of seconds)
+linref_reboot_pause: nowait
 
 # let 10 seconds to commence reboot
-linref_reboot_delay: 10
+linref_reboot_probe_delay: 10
 
 # 5 minute timeout
-linref_reboot_timeout: 300
+linref_reboot_probe_timeout: 300
 ...

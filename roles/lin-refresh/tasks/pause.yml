@@ -1,0 +1,18 @@
+---
+# Ansible will fail with error
+# "The 'pause' module ... not supported in the free strategy"
+# even if pause is disabled by the 'when' condition.
+# As a workaround, we put 'pause' into a separate task list
+# and guard 'include_task' with the 'when' condition.
+
+- debug:
+    msg:
+      - "{{ inventory_hostname }} will be rebooted {{
+            'after keypress' if linref_reboot_pause == 'pause'
+            else 'in %s seconds' % linref_reboot_pause }}"
+      - "press 'Ctrl-C A' to abort"
+
+- pause:
+    seconds: "{{ (linref_reboot_pause == 'pause')
+                | ternary(omit, linref_reboot_pause) }}"
+...

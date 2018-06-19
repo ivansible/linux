@@ -1,12 +1,13 @@
 ---
 # synchronize system time
 
-- name: install time packages
-  block:
-    - apt:
+- block:
+    - name: install time packages
+      apt:
         name: [ ntp, ntpdate ]
   rescue:
-    - apt:
+    - name: install time packages and update apt
+      apt:
         name: [ ntp, ntpdate ]
         update-cache: yes
 
