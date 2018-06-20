@@ -1,0 +1,15 @@
+---
+- name: add target user in the docker group
+  user:
+    name: "{{ ansible_user_id }}"
+    groups: docker
+    append: yes
+  become: yes
+
+- name: authenticate target user with docker hub
+  command: >
+    docker login
+      --username={{ docker_hub_username }}
+      --password={{ docker_hub_password }}
+  when: docker_hub_username != '' and docker_hub_password != ''
+...

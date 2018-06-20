@@ -1,0 +1,31 @@
+---
+- name: add docker signing key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+
+- name: add docker repository
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
+    filename: docker-ce
+
+- name: install docker and friends
+  apt:
+    name:
+      - docker-ce
+      # jq makes parsing docker output convenient
+      - jq
+      - bash-completion
+    state: present
+
+- name: bash completion script for docker
+  file:
+    src: /usr/share/bash-completion/completions/docker
+    dest: /etc/bash_completion.d/docker
+    state: link
+
+- name: enable docker service
+  systemd:
+    name: docker
+    state: started
+    enabled: yes
+...

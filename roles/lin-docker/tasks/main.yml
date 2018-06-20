@@ -1,0 +1,31 @@
+---
+# tasks file for ivansible.lin-docker
+
+- setup:
+
+- name: install docker core
+  import_tasks: docker-core.yml
+  become: yes
+  tags: lin_docker_core
+
+- name: install docker-compose
+  import_tasks: docker-compose.yml
+  become: yes
+  tags: lin_docker_compose
+
+- name: install docker machine
+  import_tasks: docker-machine.yml
+  become: yes
+  tags: lin_docker_machine
+
+- name: create docker-enabled group
+  group:
+    name: docker
+    state: present
+  become: yes
+
+- name: give target user permissions for docker group/hub
+  import_tasks: docker-user.yml
+  when: "'workspace' in group_names"
+  tags: lin_docker_user
+...

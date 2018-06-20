@@ -1,0 +1,36 @@
+---
+- name: detect latest docker-machine release
+  uri:
+    url: https://github.com/docker/machine/releases/latest
+    method: HEAD
+  connection: local
+  register: latest_dman_release
+  when: docker_machine_release == 'latest'
+
+- set_fact:
+    docker_machine_release: "{{ latest_dman_release.url | basename }}"
+  when: latest_dman_release is not skipped
+
+- debug:
+    msg: "latest docker-machine release: {{ docker_machine_release }}"
+  run_once: true
+  when: latest_dman_release is not skipped
+
+- name: download docker-machine
+  get_url:
+    url: https://github.com/docker/machine/releases/download/{{ docker_machine_release }}/docker-machine-Linux-x86_64
+    dest: /usr/local/bin/docker-machine
+    mode: 0755
+    force: "{{ docker_allow_reinstall | bool }}"
+
+- name: bash completion scripts for docker-machine
+  get_url:
+    url: https://raw.githubusercontent.com/docker/machine/{{ docker_machine_release }}/contrib/completion/bash/{{ item }}.bash
+    dest: /etc/bash_completion.d/{{ item }}
+    mode: 0644
+    force: "{{ docker_allow_reinstall | bool }}"
+  loop:
+    - docker-machine-prompt
+    - docker-machine-wrapper
+    - docker-machine
+...

@@ -1,0 +1,40 @@
+---
+- name: uninstall stock docker-compose
+  apt:
+    name:
+      - docker-compose
+      # stock pyopenssl on xenial is incompoatible with docker-compose
+      #- python-openssl
+    state: absent
+
+- name: detect latest docker-compose release
+  uri:
+    url: https://github.com/docker/compose/releases/latest
+    method: HEAD
+  connection: local
+  register: latest_dcomp_release
+  when: docker_compose_release == 'latest'
+
+- set_fact:
+    docker_compose_release: "{{ latest_dcomp_release.url | basename }}"
+  when: latest_dcomp_release is not skipped
+
+- debug:
+    msg: "latest docker-compose release: {{ docker_compose_release }}"
+  run_once: true
+  when: latest_dcomp_release is not skipped
+
+- name: download docker-compose
+  get_url:
+    url: https://github.com/docker/compose/releases/download/{{ docker_compose_release }}/docker-compose-Linux-x86_64
+    dest: /usr/local/bin/docker-compose
+    mode: 0755
+    force: "{{ docker_allow_reinstall | bool }}"
+
+- name: bash completion script for docker-compose
+  get_url:
+    url: https://raw.githubusercontent.com/docker/compose/{{ docker_compose_release }}/contrib/completion/bash/docker-compose
+    dest: /etc/bash_completion.d/docker-compose
+    mode: 0644
+    force: "{{ docker_allow_reinstall | bool }}"
+...

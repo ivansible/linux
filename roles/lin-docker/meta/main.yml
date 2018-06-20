@@ -1,0 +1,23 @@
+---
+dependencies: []
+
+galaxy_info:
+
+  author: "Ivan Andreev"
+  description: "Install docker, docker-compose, docker-machine"
+  company: "IvanSible"
+  license: MIT
+  min_ansible_version: 2.5
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - xenial
+        - bionic
+
+  galaxy_tags:
+    - linux
+    - docker
+
+  github_branch: master
+...
