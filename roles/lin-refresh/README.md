@@ -12,13 +12,6 @@ None
 
 Available variables are listed below, along with default values.
 
-    linref_apt_sources: true
-
-By default, if host belongs to the `vagrant` group, the role will replace
-packet sources in `/etc/apt/sources.list` with links to presumably faster
-`mirror.yandex.ru`.
-To keep your apt sources intact, set this to `false`.
-
     linref_reboot_allow: true
 
 If `true`, the script will reboot target host after critical updagrade.
@@ -38,10 +31,9 @@ and allows to upgrade many targets in parallel.
 
 ## Tags
 
-- `linref_mirrors` - Switch to yandex apt mirrors
-- `linref_timesync` - Synchronize system time
-- `linref_upgrade` - Perform dist-upgrade
-- `linref_reboot` - Check for reboot marker, reboot and wait to come back
+- `linref_timesync` -- synchronize system time
+- `linref_upgrade` -- perform dist-upgrade
+- `linref_reboot` -- reboot and wait to come back if reboot flag is set
 
 
 ## Dependencies

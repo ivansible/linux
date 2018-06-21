@@ -1,18 +1,7 @@
 ---
-# True setting will point /etc/apt/sources.list to yandex mirrors
-# if host belongs to the "vagrant" group. To keep your apt sources
-# intact, set this to false.
-linref_apt_sources: true
-
-linref_allow_universe: true
-
-linref_allow_src: true
-
-linref_allow_backports: true
-
+linref_time_sync: true
 linref_time_server: pool.ntp.org
-
-linref_time_visible_changes: false
+linref_time_hide_changes: true
 
 linref_reboot_marker: /var/run/reboot-required
 

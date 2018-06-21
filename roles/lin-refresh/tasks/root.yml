@@ -1,14 +1,7 @@
 ---
-- name: switch to fast apt mirrors
-  when: "'vagrant' in group_names and linref_apt_sources | bool"
-  template:
-    src: sources.list.j2
-    dest: /etc/apt/sources.list
-    backup: yes
-  tags: linref_mirrors
-
 - name: synchronize system time
   import_tasks: timesync.yml
+  when: linref_time_sync | bool == true
   tags: linref_timesync
 
 - name: perform upgrade
