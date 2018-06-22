@@ -1,0 +1,123 @@
+---
+- name: remove requiretty from sudoers
+  lineinfile:
+    dest: /etc/sudoers
+    regexp: '^(Defaults\s+requiretty.*)'
+    state: absent
+    backup: yes
+  tags: linbase_settings
+
+
+- name: switch to fast apt mirrors
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+    backup: yes
+  register: apt_switch_mirrors
+  when: linbase_apt_fast_mirrors | bool == true
+  tags: linbase_mirrors
+
+- name: update apt caches
+  apt:
+    update_cache: yes
+  when: apt_switch_mirrors is changed
+  tags: linbase_mirrors
+
+
+- block:
+    - name: install packages
+      apt:
+        name: "{{ linbase_packages }}"
+  rescue:
+    - name: install packages and update apt
+      apt:
+        name: "{{ linbase_packages }}"
+        update-cache: yes
+  tags: linbase_packages
+
+- import_tasks: ngrok.yml
+  tags: linbase_packages
+
+
+- name: set system locale
+  command: >
+    localectl set-locale
+      LANG={{ linbase_system_locale }}
+      LANGUAGE={{ linbase_system_locale }}
+  changed_when: linbase_hide_changes | bool == false
+  when: linbase_system_locale != ''
+  tags: linbase_settings
+
+
+- name: check timezone
+  command: timedatectl
+  register: tz_check
+  changed_when:
+    tz_check.stdout.find('Time zone:' + ' ' + linbase_timezone) == -1
+  when: linbase_timezone != ''
+  tags: linbase_settings
+
+- name: set timezone
+  command: timedatectl set-timezone {{ linbase_timezone }}
+  when: tz_check is changed
+  tags: linbase_settings
+
+
+- name: synchronize system time
+  import_tasks: timesync.yml
+  when: linbase_time_sync | bool == true
+  tags: linbase_timesync
+
+
+- name: tune kernel parameters
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/77-basics.conf
+  with_dict: "{{ linbase_sysctl }}"
+  loop_control:
+    label: "{{ item.key | regex_replace('^net\\.') }}"
+  tags: linbase_sysctl
+
+
+- name: configure firewall
+  import_tasks: firewall.yml
+  when: linbase_secure | bool == true
+  tags: linbase_firewall
+
+
+- name: set some common ssh settings
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    regexp: "{{ item.key }}"
+    line: "{{ item.value }}"
+    backrefs: yes
+  with_dict:
+    #'^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
+    '^#*\s*(Pub[Kk]eyAuthentication)\b': '\1 yes'
+    '^#*\s*(PermitEmptyPasswords)\b': '\1 no'
+    '^#*\s*(UseDNS)\b': '\1 no'
+  loop_control:
+    label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
+  when: linbase_secure | bool == true
+  notify: lin_basics restart ssh
+  tags: linbase_ssh
+
+- name: harden permissions on ssh_known_hosts
+  file:
+    path: /etc/ssh/ssh_known_hosts
+    owner: root
+    group: root
+    mode: 0644
+  when: linbase_secure | bool == true
+  tags: linbase_ssh
+
+
+- name: disable help motd banner
+  file:
+    path: /etc/update-motd.d/10-help-text
+    mode: 0644
+  ignore_errors: yes
+  tags: linbase_settings
+...

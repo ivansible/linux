@@ -1,0 +1,24 @@
+---
+# synchronize system time
+
+- name: enable ntp
+  command: timedatectl set-ntp true
+  changed_when: linbase_hide_changes | bool == false
+
+- name: pause ntp daemon
+  systemd:
+    name: ntp
+    state: stopped
+  changed_when: linbase_hide_changes | bool == false
+
+- name: step-sync local time
+  command: ntpdate "{{ linbase_time_server }}"
+  changed_when: linbase_hide_changes | bool == false
+
+- name: resume ntp daemon
+  systemd:
+    name: ntp
+    state: started
+    enabled: yes
+  changed_when: linbase_hide_changes | bool == false
+...

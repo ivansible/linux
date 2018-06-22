@@ -1,2 +1,57 @@
 ---
 # defaults file for ivansible.lin-basics
+
+ngrok_zip_url: latest
+
+linbase_secure: true
+
+linbase_system_locale: ''
+
+linbase_timezone: ''
+
+linbase_sysctl: {}
+
+linbase_time_sync: true
+linbase_time_server: pool.ntp.org
+
+
+linbase_apt_fast_mirrors: false
+
+linbase_apt_allow_universe: true
+linbase_apt_allow_src: true
+linbase_apt_allow_backports: true
+
+
+linbase_packages:
+  - ntp
+  - ntpdate
+  - git
+  - jq
+  - curl
+  - wget
+  - netcat
+  - ufw
+  - vim
+  - nano
+  - unzip
+  - unrar
+  - tmux
+  - htop             # similar to top, but allows to scroll
+  - iotop
+  - aptitude
+  - apt-file
+  - python
+  - python3
+  - virtualenv
+  - build-essential
+  - bash-completion
+  #- python-apt
+  #- python-passlib   # for ansible htpasswd module
+  #- python-virtualenv
+  #- python-psycopg2
+  #- python-pymongo
+  #- python-keyczar   # for ansible accelerated mode (??)
+
+
+linbase_hide_changes: true
+...

@@ -1,38 +1,79 @@
-Role Name
-=========
+# ivansible.lin-basics
 
-A brief description of the role goes here.
+Perform basic configuration of a linux box:
+ - switch to fast apt mirrors;
+ - enable ntp and step-sync system time;
+ - install common software;
+ - adjust system locale and time zone;
+ - tune kernel parameters (sysctl);
+ - disable empty passwords and harden ssh permissions;
+ - enable firewall;
 
-Requirements
-------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+## Requirements
 
-Role Variables
---------------
+None
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
 
-Dependencies
-------------
+## Variables
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Available variables are listed below, along with default values.
 
-Example Playbook
-----------------
+    linbase_secure: true
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Enable firewall and disable empty ssh passwords.
 
-    - hosts: servers
+    linbase_apt_fast_mirrors: false
+
+If this setting is `true` (usually in the `vagrant` host group),
+the role will replace package sources in `/etc/apt/sources.list`
+with links to presumably faster `mirror.yandex.ru`.
+
+    linbase_system_locale: ''
+
+Preferred system locale, e.g. `en_US.UTF-8`
+
+    linbase_timezone: ''
+
+Preferred time zone, e.g. `Europe/Moscow`.
+
+    linbase_sysctl:
+      name: value
+      ...
+
+Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-basics.conf`
+
+
+## Tags
+
+- `linbase_mirrors` -- switch to fast apt mirrors
+- `linbase_packages` -- install common software
+- `linbase_timesync` -- synchronize system time
+- `linbase_sysctl` -- kernel parameter adjustments
+- `linbase_ssh` -- ssh adjustments
+- `linbase_firewall` -- firewall adjustments
+- `linbase_settings` -- system settings adjustments
+
+
+## Dependencies
+
+None
+
+
+## Example Playbook
+
+    - hosts: vagrant-boxes
+      strategy: free
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: ivansible.lin-basics
+           linbase_apt_fast_mirrors: true
+           linbase_secure: false
 
-License
--------
 
-BSD
+## License
 
-Author Information
-------------------
+MIT
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+## Author Information
+
+Created in 2018 by [IvanSible](https://github.com/ivansible)

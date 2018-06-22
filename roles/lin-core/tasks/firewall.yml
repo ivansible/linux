@@ -1,0 +1,41 @@
+---
+- name: detect ssh port
+  set_fact:
+    real_ssh_port: "{{ ansible_port
+                     | default(ansible_ssh_port)
+                     | default(22) }}"
+
+- name: open ssh port
+  ufw:
+    rule: allow
+    port: "{{ real_ssh_port }}"
+    proto: tcp
+
+- name: close port 22/tcp, if not used
+  ufw:
+    rule: allow
+    port: 22
+    proto: tcp
+    delete: yes
+  when: "real_ssh_port|int != 22"
+
+- name: close port 22, if not used
+  ufw:
+    rule: allow
+    port: 22
+    delete: yes
+  when: "real_ssh_port|int != 22"
+
+- name: open ntp port
+  ufw:
+    rule: allow
+    port: 123
+    proto: udp
+
+- name: enable ubuntu firewall
+  ufw:
+    state: enabled
+
+- name: test connection
+  ping:
+...
