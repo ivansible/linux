@@ -23,22 +23,6 @@
   when: apt_switch_mirrors is changed
   tags: linbase_mirrors
 
-
-- block:
-    - name: install packages
-      apt:
-        name: "{{ linbase_packages }}"
-  rescue:
-    - name: install packages and update apt
-      apt:
-        name: "{{ linbase_packages }}"
-        update-cache: yes
-  tags: linbase_packages
-
-- import_tasks: ngrok.yml
-  tags: linbase_packages
-
-
 - name: set system locale
   command: >
     localectl set-locale
@@ -61,6 +45,20 @@
   command: timedatectl set-timezone {{ linbase_timezone }}
   when: tz_check is changed
   tags: linbase_settings
+
+
+- block:
+    - name: install packages
+      apt:
+  rescue:
+    - name: install packages and update apt
+      apt:
+        name: "{{ linbase_packages }}"
+        update-cache: yes
+  tags: linbase_packages
+
+- import_tasks: ngrok.yml
+  tags: linbase_packages
 
 
 - name: synchronize system time
