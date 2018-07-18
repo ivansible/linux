@@ -50,11 +50,14 @@
 - block:
     - name: install packages
       apt:
+        name: "{{ linbase_packages }}"
+        state: present
   rescue:
-    - name: install packages and update apt
+    - name: install packages, update apt cache
       apt:
         name: "{{ linbase_packages }}"
-        update-cache: yes
+        state: present
+        update_cache: yes
   tags: linbase_packages
 
 - import_tasks: ngrok.yml
