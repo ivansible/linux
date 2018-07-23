@@ -3,6 +3,8 @@
   uri:
     url: https://github.com/docker/machine/releases/latest
     method: HEAD
+    creates: "{{ docker_allow_reinstall | bool
+               | ternary(omit, docker_machine_binary_file) }}"
   connection: local
   register: latest_dman_release
   when: docker_machine_release == 'latest'
@@ -10,16 +12,18 @@
 - set_fact:
     docker_machine_release: "{{ latest_dman_release.url | basename }}"
   when: latest_dman_release is not skipped
+        and latest_dman_release.url is defined
 
 - debug:
     msg: "latest docker-machine release: {{ docker_machine_release }}"
   run_once: true
   when: latest_dman_release is not skipped
+        and latest_dman_release.url is defined
 
 - name: download docker-machine
   get_url:
     url: https://github.com/docker/machine/releases/download/{{ docker_machine_release }}/docker-machine-Linux-x86_64
-    dest: /usr/local/bin/docker-machine
+    dest: "{{ docker_machine_binary_file }}"
     mode: 0755
     force: "{{ docker_allow_reinstall | bool }}"
 
