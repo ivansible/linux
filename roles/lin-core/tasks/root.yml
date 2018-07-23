@@ -61,7 +61,9 @@
   tags: linbase_packages
 
 - import_tasks: ngrok.yml
-  tags: linbase_packages
+  tags:
+    - linbase_packages
+    - linbase_ngrok
 
 
 - name: synchronize system time
