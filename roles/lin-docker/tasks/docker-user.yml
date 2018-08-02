@@ -6,7 +6,7 @@
     append: yes
   become: yes
 
-- name: authenticate target user with docker hub
+- name: authenticate target user with docker hub (optional)
   command:
     argv:
       - docker

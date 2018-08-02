@@ -37,4 +37,5 @@
     - docker-machine-prompt
     - docker-machine-wrapper
     - docker-machine
+  ignore_errors: yes  # stuff of low importance
 ...
