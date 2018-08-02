@@ -2,9 +2,9 @@
 - name: detect ngrok download location
   uri:
     url: https://ngrok.com/download
-    connection: local
     return_content: yes
     creates: /usr/local/bin/ngrok
+  #connection: local  # never use this with "creates"
   register: ngrok_download_html
   when: "ngrok_zip_url == 'latest'"
 
