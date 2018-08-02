@@ -19,4 +19,5 @@
   register: login_result
   # maybe user is not actually in the docker group yet, wait a little
   until: "(login_result.stderr | default('')).find('docker.sock: connect: permission denied') < 0"
+  ignore_errors: yes  # sometimes this continues forever. life is pain.
 ...
