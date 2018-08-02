@@ -16,4 +16,7 @@
     stdin: "{{ docker_hub_password }}"
     creates: ~/.docker/config.json
   when: docker_hub_username != '' and docker_hub_password != ''
+  register: login_result
+  # maybe user is not actually in the docker group yet, wait a little
+  until: "(login_result.stderr | default('')).find('docker.sock: connect: permission denied') < 0"
 ...
