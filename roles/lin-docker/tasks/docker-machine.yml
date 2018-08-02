@@ -5,7 +5,7 @@
     method: HEAD
     creates: "{{ docker_allow_reinstall | bool
                | ternary(omit, docker_machine_binary_file) }}"
-  connection: local
+  #connection: local  # never use this with "creates"
   register: latest_dman_release
   when: docker_machine_release == 'latest'
 

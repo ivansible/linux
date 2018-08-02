@@ -13,7 +13,7 @@
     method: HEAD
     creates: "{{ docker_allow_reinstall | bool
                | ternary(omit, docker_compose_binary_file) }}"
-  connection: local
+  #connection: local  # never use this with "creates"
   register: latest_dcomp_release
   when: docker_compose_release == 'latest'
 
