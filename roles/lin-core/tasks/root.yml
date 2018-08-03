@@ -1,7 +1,7 @@
 ---
 - name: remove requiretty from sudoers
   lineinfile:
-    dest: /etc/sudoers
+    path: /etc/sudoers
     regexp: '^(Defaults\s+requiretty.*)'
     state: absent
     backup: yes
@@ -65,7 +65,6 @@
     - linbase_packages
     - linbase_ngrok
 
-
 - name: synchronize system time
   import_tasks: timesync.yml
   when: linbase_time_sync | bool == true
@@ -92,7 +91,7 @@
 
 - name: set some common ssh settings
   lineinfile:
-    dest: /etc/ssh/sshd_config
+    path: /etc/ssh/sshd_config
     regexp: "{{ item.key }}"
     line: "{{ item.value }}"
     backrefs: yes
