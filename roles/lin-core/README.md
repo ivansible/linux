@@ -8,6 +8,7 @@ Perform basic configuration of a linux box:
  - tune kernel parameters (sysctl);
  - disable empty passwords and harden ssh permissions;
  - enable firewall;
+ - disable telemetry on bionic (see https://askubuntu.com/a/1030168);
 
 
 ## Requirements
@@ -48,6 +49,7 @@ Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-basics.conf`
 
 - `linbase_mirrors` -- switch to fast apt mirrors
 - `linbase_packages` -- install common software
+- `linbase_telemetry` -- disable telemetry on bionic
 - `linbase_timesync` -- synchronize system time
 - `linbase_sysctl` -- kernel parameter adjustments
 - `linbase_ssh` -- ssh adjustments

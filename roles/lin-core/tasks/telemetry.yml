@@ -1,0 +1,19 @@
+---
+# disable bionic telemetry
+# see: https://askubuntu.com/a/1030168
+
+- name: disable telemetry host
+  lineinfile:
+    path: /etc/hosts
+    line: "127.0.0.1\tmetrics.ubuntu.compopcon.ubuntu.com"
+
+- name: remove telemetry packages
+  apt:
+    name:
+      - ubuntu-report
+      - popularity-contest
+      - apport
+      - whoopsie
+    state: absent
+    purge: yes
+...

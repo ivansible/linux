@@ -60,10 +60,15 @@
         update_cache: yes
   tags: linbase_packages
 
+- import_tasks: telemetry.yml
+  when: "ansible_distribution_release == 'bionic'"
+  tags: linbase_telemetry
+
 - import_tasks: ngrok.yml
   tags:
     - linbase_packages
     - linbase_ngrok
+
 
 - name: synchronize system time
   import_tasks: timesync.yml
