@@ -7,6 +7,7 @@
   apt_repository:
     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable
     filename: docker-ce
+
 - block:
     - name: install docker and friends
       apt:
@@ -24,6 +25,7 @@
           - bash-completion
         state: present
         update_cache: yes
+
 - name: bash completion script for docker
   file:
     src: /usr/share/bash-completion/completions/docker
