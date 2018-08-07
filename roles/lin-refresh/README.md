@@ -53,7 +53,7 @@ None
 
 ## Usage
 
-    ansible-playbook plays/lin-refresh.yml -l dock2,dock3
+    ansible-playbook plays/lin-refresh.yml -l vag2,vag3
 
 `Warning`: make sure your production hosts do not fall in the `vagrant` group.
 
