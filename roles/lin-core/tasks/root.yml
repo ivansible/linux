@@ -48,12 +48,12 @@
 
 
 - block:
-    - name: install packages
+    - name: install basic packages
       apt:
         name: "{{ linbase_packages }}"
         state: present
   rescue:
-    - name: install packages, update apt cache
+    - name: install basic packages, update apt cache
       apt:
         name: "{{ linbase_packages }}"
         state: present
