@@ -99,12 +99,29 @@
     path: /etc/ssh/sshd_config
     regexp: "{{ item.key }}"
     line: "{{ item.value }}"
+    backrefs: no
+    insertbefore: "^Match|^Subsystem|^# *BEGIN"
+    firstmatch: yes
+  with_dict:
+    '^#*\s*(Pub[Kk]eyAuthentication)\b': 'PubkeyAuthentication yes'
+    '^#*\s*(PermitEmptyPasswords)\b': 'PermitEmptyPasswords no'
+    '^#*\s*(UseDNS)\b': 'UseDNS no'
+    # see: https://www.linuxquestions.org/questions/linux-security-4/how-to-disable-ssh-version-banner-909540
+    '^#*\s*(DebianBanner)\b': 'DebianBanner no'
+  loop_control:
+    label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
+  when: linbase_secure | bool == true
+  notify: lin_basics restart ssh
+  tags: linbase_ssh
+
+- name: modify some common ssh settings
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: "{{ item.key }}"
+    line: "{{ item.value }}"
     backrefs: yes
   with_dict:
-    #'^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
-    '^#*\s*(Pub[Kk]eyAuthentication)\b': '\1 yes'
-    '^#*\s*(PermitEmptyPasswords)\b': '\1 no'
-    '^#*\s*(UseDNS)\b': '\1 no'
+    'DISABLED ^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
   loop_control:
     label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
   when: linbase_secure | bool == true
