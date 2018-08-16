@@ -1,4 +1,4 @@
-# ivansible.lin-refresh
+# ivansible.lin_refresh
 
 Instantly updates time, packages and kernel on a linux machine.
 
@@ -46,7 +46,7 @@ None
     - hosts: vagrant-boxes
       strategy: free
       roles:
-         - role: ivansible.lin-refresh
+         - role: ivansible.lin_refresh
            become: yes
            linref_apt_sources: false
 
