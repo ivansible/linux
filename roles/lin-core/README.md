@@ -1,4 +1,4 @@
-# ivansible.lin-basics
+# ivansible.lin_basics
 
 Perform basic configuration of a linux box:
  - switch to fast apt mirrors;
@@ -59,7 +59,7 @@ Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-basics.conf`
 
 ## Dependencies
 
-None
+- `ivansible.lin_base` -- for `ssh` restart handler
 
 
 ## Example Playbook
@@ -67,7 +67,7 @@ None
     - hosts: vagrant-boxes
       strategy: free
       roles:
-         - role: ivansible.lin-basics
+         - role: ivansible.lin_basics
            linbase_apt_fast_mirrors: true
            linbase_secure: false
 

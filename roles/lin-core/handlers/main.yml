@@ -1,10 +1,2 @@
 ---
-# handlers file for ivansible.lin-basics
-
-- name: lin_basics restart ssh
-  systemd:
-    name: ssh
-    state: restarted
-  become: yes
-
-...
+# handlers file for ivansible.lin_basics

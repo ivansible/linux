@@ -1,5 +1,5 @@
 ---
-# defaults file for ivansible.lin-basics
+# defaults file for ivansible.lin_basics
 
 ngrok_zip_url: latest
 

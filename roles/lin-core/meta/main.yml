@@ -1,8 +1,9 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base
 
 galaxy_info:
-
+  role_name: lin_basics
   author: "Ivan Andreev"
   description: "Perform basic configuration of a linux box"
   company: "IvanSible"

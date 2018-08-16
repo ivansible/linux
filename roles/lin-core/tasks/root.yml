@@ -111,7 +111,7 @@
   loop_control:
     label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
   when: linbase_secure | bool == true
-  notify: lin_basics restart ssh
+  notify: restart ssh service
   tags: linbase_ssh
 
 - name: modify some common ssh settings
@@ -125,7 +125,7 @@
   loop_control:
     label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
   when: linbase_secure | bool == true
-  notify: lin_basics restart ssh
+  notify: restart ssh service
   tags: linbase_ssh
 
 - name: harden permissions on ssh_known_hosts
