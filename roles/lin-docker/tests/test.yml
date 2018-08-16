@@ -1,5 +1,6 @@
 ---
 - hosts: localhost
-  remote_user: root
+  remote_user: username
   roles:
-    - ivansible.lin-docker
+    - ivansible.lin_docker
+...

@@ -1,5 +1,5 @@
 ---
-# defaults file for ivansible.lin-docker
+# defaults file for ivansible.lin_docker
 
 docker_machine_release: latest
 docker_compose_release: latest

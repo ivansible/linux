@@ -1,4 +1,4 @@
-# Role ivansible.lin-docker
+# ivansible.lin_docker
 
 Install
 [docker-ce](https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-using-the-repository),
@@ -50,7 +50,7 @@ None
 
     - hosts: vag2
       roles:
-        - role: ivansible.lin-docker
+        - role: ivansible.lin_docker
 
 
 ## License

@@ -1,5 +1,5 @@
 ---
-# tasks file for ivansible.lin-docker
+# tasks file for ivansible.lin_docker
 
 - setup:
 

@@ -2,7 +2,7 @@
 dependencies: []
 
 galaxy_info:
-
+  role_name: lin_docker
   author: "Ivan Andreev"
   description: "Install docker, docker-compose, docker-machine"
   company: "IvanSible"
