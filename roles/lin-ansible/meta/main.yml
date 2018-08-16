@@ -2,7 +2,7 @@
 dependencies: []
 
 galaxy_info:
-
+  role_name: lin_ansible
   author: "Ivan Andreev"
   description: "install OS-wide ansible from PPA"
   company: "IvanSible"

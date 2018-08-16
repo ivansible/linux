@@ -1,4 +1,4 @@
-# Role ivansible.lin-ansible
+# ivansible.lin_ansible
 
 Install OS-wide ansible from PPA as described in the
 [installation guide](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#latest-releases-via-apt-ubuntu).
@@ -28,7 +28,7 @@ None
 
     - hosts: vagrant
       roles:
-        - role: ivansible.lin-ansible
+        - role: ivansible.lin_ansible
 
 
 ## License
