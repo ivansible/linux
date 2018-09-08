@@ -6,18 +6,49 @@
     append: yes
   become: yes
 
-- name: authenticate target user with docker hub (optional)
-  command:
-    argv:
-      - docker
-      - login
-      - --username={{ docker_hub_username }}
-      - --password-stdin
-    stdin: "{{ docker_hub_password }}"
-    creates: ~/.docker/config.json
+
+- name: login target user into docker hub
   when: docker_hub_username != '' and docker_hub_password != ''
-  register: login_result
-  # maybe user is not actually in the docker group yet, wait a little
-  until: "(login_result.stderr | default('')).find('docker.sock: connect: permission denied') < 0"
-  ignore_errors: yes  # sometimes this continues forever. life is pain.
+  block:
+    - name: attempt to login into docker hub as user
+      command:
+        argv:
+          - docker
+          - login
+          - --username={{ docker_hub_username }}
+          - --password-stdin
+        stdin: "{{ docker_hub_password }}"
+        creates: ~/.docker/config.json
+
+  rescue:
+    # workaround for permission denied accessing docker socket
+
+    - name: restart docker daemon to fix docker socket permission denied
+      systemd:
+        name: docker
+        state: restarted
+      become: yes
+
+    - name: remove old docker hub token from root
+      file:
+        path: ~/.docker
+        state: absent
+      become: yes
+
+    - name: attempt to login into docker hub as root
+      command:
+        argv:
+          - docker
+          - login
+          - --username={{ docker_hub_username }}
+          - --password-stdin
+        stdin: "{{ docker_hub_password }}"
+      become: yes
+
+    - name: move docker hub token from root to login user
+      shell: >
+        chown -R {{ ansible_user_uid }}:{{ ansible_user_gid }} ~/.docker &&
+        rm -rf "{{ ansible_user_dir }}/.docker" &&
+        mv ~/.docker "{{ ansible_user_dir }}/"
+      become: yes
 ...
