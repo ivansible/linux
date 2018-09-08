@@ -4,27 +4,32 @@
 - block:
     - name: install time packages
       apt:
-        name: [ ntp, ntpdate ]
+        name:
+          - ntp
+          - ntpdate
   rescue:
     - name: install time packages and update apt
       apt:
-        name: [ ntp, ntpdate ]
+        name:
+          - ntp
+          - ntpdate
         update-cache: yes
 
-- name: pause ntp daemon
-  systemd:
-    name: ntp
-    state: stopped
-  changed_when: "linref_time_hide_changes | bool == false"
+- name: enable ntp sync
+  command: timedatectl set-ntp true
+  changed_when: linref_time_hide_changes | bool == false
 
-- name: step-sync local time
-  command: ntpdate "{{ linref_time_server }}"
-  changed_when: "linref_time_hide_changes | bool == false"
-
-- name: resume ntp daemon
+- name: activate ntp daemon
   systemd:
     name: ntp
     state: started
     enabled: yes
-  changed_when: "linref_time_hide_changes | bool == false"
+  changed_when: linref_time_hide_changes | bool == false
+
+- name: step-sync local time
+  # "-u" = use unprivileged port for outgoing packets,
+  # helps when ntp service is running (or against firewalls),
+  # so we don't have to stop/start ntp service
+  command: ntpdate -u "{{ linbase_time_server }}"
+  changed_when: linref_time_hide_changes | bool == false
 ...
