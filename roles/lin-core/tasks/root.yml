@@ -60,6 +60,14 @@
         update_cache: yes
   tags: linbase_packages
 
+
+- name: synchronize system time
+  # this task requires time packages, which are installed above
+  import_tasks: timesync.yml
+  when: linbase_time_sync | bool == true
+  tags: linbase_timesync
+
+
 - import_tasks: telemetry.yml
   when: "ansible_distribution_release == 'bionic'"
   tags: linbase_telemetry
@@ -68,12 +76,6 @@
   tags:
     - linbase_packages
     - linbase_ngrok
-
-
-- name: synchronize system time
-  import_tasks: timesync.yml
-  when: linbase_time_sync | bool == true
-  tags: linbase_timesync
 
 
 - name: tune kernel parameters
