@@ -31,6 +31,16 @@ https://github.com/docker/compose/releases
 
 Allows to refresh already downloaded docker redistributables.
 
+    docker_permit_user: no
+
+True allows to add target user in the docker group.
+
+    docker_hub_username: ''
+    docker_hub_password: ''
+
+Use non-empty values to login target user into docker hub. Only user
+in the docker group (`docker_permit_user` is true) will be authenticated.
+
 
 ## Tags
 
@@ -38,7 +48,8 @@ Allows to refresh already downloaded docker redistributables.
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine
-- `lin_docker_user` -- give target user permissions for docker
+- `lin_docker_user` -- give target user permissions for docker daemon
+                       and login into docker hub
 
 
 ## Dependencies

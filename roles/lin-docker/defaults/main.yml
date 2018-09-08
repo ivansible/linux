@@ -9,6 +9,8 @@ docker_allow_reinstall: no
 docker_machine_binary_file: /usr/local/bin/docker-machine
 docker_compose_binary_file: /usr/local/bin/docker-compose
 
+docker_permit_user: no
+
 docker_hub_username: ''
 docker_hub_password: ''
 ...

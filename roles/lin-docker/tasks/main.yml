@@ -32,6 +32,6 @@
 
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
-  when: "'workspace' in group_names"
+  when: docker_permit_user | bool == true
   tags: lin_docker_user
 ...
