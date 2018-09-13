@@ -130,6 +130,14 @@
   notify: restart ssh service
   tags: linbase_ssh
 
+- name: ensure ssh_known_hosts exists
+  copy:
+    dest: /etc/ssh/ssh_known_hosts
+    content: ""
+    force: no
+  when: linbase_secure | bool == true
+  tags: linbase_ssh
+
 - name: harden permissions on ssh_known_hosts
   file:
     path: /etc/ssh/ssh_known_hosts
