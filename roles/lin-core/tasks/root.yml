@@ -23,6 +23,7 @@
   when: apt_switch_mirrors is changed
   tags: linbase_mirrors
 
+
 - name: set system locale
   command: >
     localectl set-locale
@@ -32,18 +33,10 @@
   when: linbase_system_locale != ''
   tags: linbase_settings
 
-
-- name: check timezone
-  command: timedatectl
-  register: tz_check
-  changed_when:
-    tz_check.stdout.find('Time zone:' + ' ' + linbase_timezone) == -1
-  when: linbase_timezone != ''
-  tags: linbase_settings
-
 - name: set timezone
-  command: timedatectl set-timezone {{ linbase_timezone }}
-  when: tz_check is changed
+  timezone:
+    name: "{{ linbase_timezone }}"
+  when: linbase_timezone != ''
   tags: linbase_settings
 
 
