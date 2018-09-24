@@ -6,6 +6,22 @@
     append: yes
   become: yes
 
+- name: install extra docker login dependencies on bionic
+  # Docker login on Bionic defaults to use the secretservice executable
+  # which seems to have some sort of X11 dependency for some reason.
+  # This results in error "Cannot autolaunch D-Bus without X11 $DISPLAY"
+  # If you install and configure `pass`, docker will use that instead,
+  # which seems to solve the problem.
+  # Note: there is no need to configure `gpg2` and `pass`, just install it.
+  # See: https://stackoverflow.com/a/52251706
+  apt:
+    name:
+      - gnupg2
+      - pass
+      #- dbus-x11
+    state: present
+  become: yes
+  when: ansible_distribution_release == 'bionic'
 
 - name: login target user into docker hub
   when: docker_hub_username != '' and docker_hub_password != ''
