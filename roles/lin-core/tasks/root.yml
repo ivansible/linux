@@ -67,8 +67,9 @@
 
 - import_tasks: ngrok.yml
   tags:
-    - linbase_packages
-    - linbase_ngrok
+  - linbase_packages
+  - linbase_ngrok
+  - ip4only
 
 
 - name: tune kernel parameters

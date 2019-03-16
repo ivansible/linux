@@ -12,7 +12,7 @@ linbase_timezone: ''
 linbase_sysctl: {}
 
 linbase_time_sync: true
-linbase_time_server: pool.ntp.org
+linbase_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 
 
 linbase_apt_fast_mirrors: false
