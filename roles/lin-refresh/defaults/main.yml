@@ -1,6 +1,6 @@
 ---
 linref_time_sync: true
-linref_time_server: pool.ntp.org
+linref_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 linref_time_hide_changes: true
 
 linref_reboot_marker: /var/run/reboot-required
