@@ -17,12 +17,16 @@
 - name: install docker-compose
   import_tasks: docker-compose.yml
   become: yes
-  tags: lin_docker_compose
+  tags:
+  - lin_docker_compose
+  - ip4only
 
 - name: install docker machine
   import_tasks: docker-machine.yml
   become: yes
-  tags: lin_docker_machine
+  tags:
+  - lin_docker_machine
+  - ip4only
 
 - name: create docker-enabled group
   group:

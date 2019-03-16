@@ -67,4 +67,6 @@
         rm -rf "{{ ansible_user_dir }}/.docker" &&
         mv ~/.docker "{{ ansible_user_dir }}/"
       become: yes
+  tags:
+  - ip4only
 ...
