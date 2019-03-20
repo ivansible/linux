@@ -13,4 +13,6 @@ docker_permit_user: no
 
 docker_hub_username: ''
 docker_hub_password: ''
+
+docker_bash_completion_extras: no  # bash completion scripts for docker-compose and docker-machine
 ...

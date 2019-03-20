@@ -6,19 +6,24 @@
 - name: install docker core
   import_tasks: docker-core.yml
   become: yes
-  tags: lin_docker_core
+  tags:
+  - lin_docker_core
+  - lin_docker
 
 - name: install ansible docker bindings
   apt:
     name: "{{ ansible_python_version.startswith('3') | ternary('python3','python') }}-docker"
   become: yes
-  tags: lin_docker_ansible
+  tags:
+  - lin_docker_ansible
+  - lin_docker
 
 - name: install docker-compose
   import_tasks: docker-compose.yml
   become: yes
   tags:
   - lin_docker_compose
+  - lin_docker
   - ip4only
 
 - name: install docker machine
@@ -26,6 +31,7 @@
   become: yes
   tags:
   - lin_docker_machine
+  - lin_docker
   - ip4only
 
 - name: create docker-enabled group
@@ -33,9 +39,13 @@
     name: docker
     state: present
   become: yes
+  tags:
+  - lin_docker
 
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
   when: docker_permit_user | bool == true
-  tags: lin_docker_user
+  tags:
+  - lin_docker_user
+  - lin_docker
 ...

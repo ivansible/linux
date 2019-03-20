@@ -35,10 +35,21 @@
     mode: 0755
     force: "{{ docker_allow_reinstall | bool }}"
 
-- name: bash completion script for docker-compose
-  get_url:
-    url: https://raw.githubusercontent.com/docker/compose/{{ docker_compose_release }}/contrib/completion/bash/docker-compose
-    dest: /etc/bash_completion.d/docker-compose
-    mode: 0644
-    force: "{{ docker_allow_reinstall | bool }}"
+- name: bash completion script for docker-compose (optional)
+  block:
+    - name: bash completion script for docker-compose (attempt to get release)
+      get_url:
+        url: https://raw.githubusercontent.com/docker/compose/{{ docker_compose_release }}/contrib/completion/bash/docker-compose
+        dest: /etc/bash_completion.d/docker-compose
+        mode: 0644
+        force: "{{ docker_allow_reinstall | bool }}"
+  rescue:
+    - name: bash completion script for docker-compose (workaround, get master)
+      get_url:
+        url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
+        dest: /etc/bash_completion.d/docker-compose
+        mode: 0644
+        force: "{{ docker_allow_reinstall | bool }}"
+  when: docker_bash_completion_extras | bool == true
+  # end of block
 ...

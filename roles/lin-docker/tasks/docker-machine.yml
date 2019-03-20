@@ -27,7 +27,7 @@
     mode: 0755
     force: "{{ docker_allow_reinstall | bool }}"
 
-- name: bash completion scripts for docker-machine
+- name: bash completion scripts for docker-machine (optional)
   get_url:
     url: https://raw.githubusercontent.com/docker/machine/{{ docker_machine_release }}/contrib/completion/bash/{{ item }}.bash
     dest: /etc/bash_completion.d/{{ item }}
@@ -38,4 +38,5 @@
     - docker-machine-wrapper
     - docker-machine
   ignore_errors: yes  # stuff of low importance
+  when: docker_bash_completion_extras | bool == true
 ...
