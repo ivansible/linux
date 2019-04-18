@@ -28,6 +28,7 @@
 
 - name: install docker machine
   import_tasks: docker-machine.yml
+  when: docker_extras | bool == true
   become: yes
   tags:
   - lin_docker_machine
