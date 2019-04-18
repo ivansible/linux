@@ -65,12 +65,6 @@
   when: "ansible_distribution_release == 'bionic'"
   tags: linbase_telemetry
 
-- import_tasks: ngrok.yml
-  tags:
-  - linbase_packages
-  - linbase_ngrok
-  - ip4only
-
 
 - name: tune kernel parameters
   sysctl:

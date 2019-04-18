@@ -1,8 +1,6 @@
 ---
 # defaults file for ivansible.lin_basics
 
-ngrok_zip_url: latest
-
 linbase_secure: true
 
 linbase_system_locale: ''
