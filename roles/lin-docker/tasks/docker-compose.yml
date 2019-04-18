@@ -39,7 +39,7 @@
   block:
     - name: bash completion script for docker-compose (attempt to get release)
       get_url:
-        url: https://raw.githubusercontent.com/docker/compose/{{ docker_compose_release }}/contrib/completion/bash/docker-compose
+        url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644
         force: "{{ docker_allow_reinstall | bool }}"
