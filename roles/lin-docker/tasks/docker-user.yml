@@ -6,6 +6,9 @@
     append: yes
   become: yes
 
+- name: reset ssh connection to apply new group to the login session
+  meta: reset_connection
+
 - name: install extra docker login dependencies on bionic
   # Docker login on Bionic defaults to use the secretservice executable
   # which seems to have some sort of X11 dependency for some reason.
