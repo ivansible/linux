@@ -25,6 +25,7 @@ linbase_packages:
   - ntpdate
   - git
   - jq
+  - traceroute
   - curl
   - wget
   - netcat
@@ -40,6 +41,8 @@ linbase_packages:
   - apt-file
   - python
   - python3
+  - python-pip
+  - python3-pip
   - virtualenv
   - build-essential
   - bash-completion
