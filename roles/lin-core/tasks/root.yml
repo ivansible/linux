@@ -41,12 +41,12 @@
 
 
 - block:
-    - name: install basic packages
+    - name: install basic packages (may fail once)
       apt:
         name: "{{ linbase_packages }}"
         state: present
   rescue:
-    - name: install basic packages, update apt cache
+    - name: update apt cache and install basic packages
       apt:
         name: "{{ linbase_packages }}"
         state: present
