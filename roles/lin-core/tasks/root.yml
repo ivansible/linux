@@ -71,7 +71,7 @@
     name: "{{ item.key }}"
     value: "{{ item.value }}"
     state: present
-    sysctl_file: /etc/sysctl.d/77-basics.conf
+    sysctl_file: /etc/sysctl.d/77-system.conf
   with_dict: "{{ linbase_sysctl }}"
   loop_control:
     label: "{{ item.key | regex_replace('^net\\.') }}"

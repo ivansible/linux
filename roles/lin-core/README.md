@@ -1,4 +1,4 @@
-# ivansible.lin_basics
+# ivansible.lin_system
 
 Perform basic configuration of a linux box:
  - switch to fast apt mirrors;
@@ -42,7 +42,7 @@ Preferred time zone, e.g. `Europe/Moscow`.
       name: value
       ...
 
-Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-basics.conf`
+Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 
 
 ## Tags
@@ -67,7 +67,7 @@ Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-basics.conf`
     - hosts: vagrant-boxes
       strategy: free
       roles:
-         - role: ivansible.lin_basics
+         - role: ivansible.lin_system
            linbase_apt_fast_mirrors: true
            linbase_secure: false
 

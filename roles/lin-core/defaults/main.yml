@@ -1,5 +1,5 @@
 ---
-# defaults file for ivansible.lin_basics
+# defaults file for ivansible.lin_system
 
 linbase_secure: true
 
