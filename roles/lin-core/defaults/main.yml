@@ -21,8 +21,14 @@ linbase_apt_allow_backports: true
 
 
 linbase_packages:
+  # timedatectl requires dbus, see https://askubuntu.com/a/1015391
+  - dbus
   - ntp
   - ntpdate
+  # detect virtualization type
+  - virt-what
+  # support for en_US.UTF-8
+  - locales
   - git
   - jq
   - traceroute
@@ -39,6 +45,7 @@ linbase_packages:
   - iotop
   - aptitude
   - apt-file
+  - apt-transport-https
   - python
   - python3
   - python-pip
