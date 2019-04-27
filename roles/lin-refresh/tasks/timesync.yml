@@ -7,12 +7,15 @@
         name:
           - ntp
           - ntpdate
+          # timedatectl requires dbus, see https://askubuntu.com/a/1015391
+          - dbus
   rescue:
     - name: install time packages and update apt
       apt:
         name:
           - ntp
           - ntpdate
+          - dbus
         update-cache: yes
 
 - name: enable ntp sync
