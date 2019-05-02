@@ -45,6 +45,8 @@
       apt:
         name: "{{ linbase_packages }}"
         state: present
+      # failure message is too verbose..
+      no_log: true
   rescue:
     - name: update apt cache and install basic packages
       apt:
