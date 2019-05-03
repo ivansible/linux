@@ -1,7 +1,7 @@
 ---
 - name: synchronize system time
   import_tasks: timesync.yml
-  when: linref_time_sync | bool == true
+  when: linref_time_sync |bool
   tags: linref_timesync
 
 - name: perform upgrade
@@ -18,15 +18,15 @@
 
 - name: reboot and wait to come back
   import_tasks: reboot.yml
-  when: "reboot_marker.stat.exists == true
-         and linref_reboot_allow | bool == true
-         or linref_reboot_always | bool == true"
+  when: "reboot_marker.stat.exists
+         and linref_reboot_allow |bool
+         or linref_reboot_always |bool"
   tags: linref_reboot
 
 - debug:
     msg: "please reboot {{ inventory_hostname }} manually"
-  when: "reboot_marker.stat.exists == true
-         and linref_reboot_allow | bool == false"
+  when: "reboot_marker.stat.exists
+         and not linref_reboot_allow |bool"
   tags:
     - linref_upgrade
     - linref_reboot

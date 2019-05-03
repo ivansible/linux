@@ -12,7 +12,8 @@
             else 'in %s seconds' % linref_reboot_pause }}"
       - "press 'Ctrl-C A' to abort"
 
-- pause:
+- name: pause before reboot, waiting for confirmation
+  pause:
     seconds: "{{ (linref_reboot_pause == 'pause')
                 | ternary(omit, linref_reboot_pause) }}"
 ...

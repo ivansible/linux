@@ -17,7 +17,8 @@
 - debug:
     msg: "{{ inventory_hostname }} is rebooting.."
 
-- wait_for_connection:
+- name: wait for host to return
+  wait_for_connection:
     delay: "{{ linref_reboot_probe_delay }}"
     timeout: "{{ linref_reboot_probe_timeout }}"
   register: wait_result

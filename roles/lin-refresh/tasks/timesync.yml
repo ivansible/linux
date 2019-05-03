@@ -20,19 +20,19 @@
 
 - name: enable ntp sync
   command: timedatectl set-ntp true
-  changed_when: linref_time_hide_changes | bool == false
+  changed_when: not linref_time_hide_changes |bool
 
 - name: activate ntp daemon
   systemd:
     name: ntp
     state: started
     enabled: yes
-  changed_when: linref_time_hide_changes | bool == false
+  changed_when: not linref_time_hide_changes |bool
 
 - name: step-sync local time
   # "-u" = use unprivileged port for outgoing packets,
   # helps when ntp service is running (or against firewalls),
   # so we don't have to stop/start ntp service
   command: ntpdate -u "{{ linref_time_server }}"
-  changed_when: linref_time_hide_changes | bool == false
+  changed_when: not linref_time_hide_changes |bool
 ...
