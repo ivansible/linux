@@ -45,6 +45,20 @@
   tags:
   - lin_docker
 
+- name: checkout docker files, if permitted
+  git:
+    dest: "{{ docker_files_dir }}"
+    repo: "{{ docker_files_repo }}"
+    version: "{{ docker_files_branch }}"
+    # only clone, don't choke on pending modifications
+    update: no
+    accept_hostkey: yes
+  when: "docker_files_repo != ''
+         and 'permitted' in group_names"
+  tags:
+  - lin_docker_files
+  - lin_docker
+
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
   when: docker_permit_user |bool

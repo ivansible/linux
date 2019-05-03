@@ -16,5 +16,9 @@ docker_permit_user: no
 docker_hub_username: ''
 docker_hub_password: ''
 
+docker_files_repo: ""
+docker_files_branch: master
+docker_files_dir: ~/devel/docker
+
 docker_bash_completion_extras: no  # bash completion scripts for docker-compose and docker-machine
 ...
