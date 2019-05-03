@@ -1,7 +1,9 @@
 ---
 # tasks file for ivansible.lin_docker
 
-- setup:
+- name: refresh host facts as non root
+  setup:
+  become: no
 
 - name: install docker core
   import_tasks: docker-core.yml
@@ -28,7 +30,7 @@
 
 - name: install docker machine
   import_tasks: docker-machine.yml
-  when: docker_extras | bool == true
+  when: docker_extras |bool
   become: yes
   tags:
   - lin_docker_machine
@@ -45,7 +47,7 @@
 
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
-  when: docker_permit_user | bool == true
+  when: docker_permit_user |bool
   tags:
   - lin_docker_user
   - lin_docker

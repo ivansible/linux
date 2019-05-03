@@ -17,7 +17,8 @@
   register: latest_dcomp_release
   when: docker_compose_release == 'latest'
 
-- set_fact:
+- name: extract docker-compose release from github page
+  set_fact:
     docker_compose_release: "{{ latest_dcomp_release.url | basename }}"
   when: latest_dcomp_release is not skipped
         and latest_dcomp_release.url is defined
@@ -33,7 +34,7 @@
     url: https://github.com/docker/compose/releases/download/{{ docker_compose_release }}/docker-compose-Linux-x86_64
     dest: "{{ docker_compose_binary_file }}"
     mode: 0755
-    force: "{{ docker_allow_reinstall | bool }}"
+    force: "{{ docker_allow_reinstall |bool }}"
 
 - name: bash completion script for docker-compose (optional)
   block:
@@ -42,14 +43,14 @@
         url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644
-        force: "{{ docker_allow_reinstall | bool }}"
+        force: "{{ docker_allow_reinstall |bool }}"
   rescue:
     - name: bash completion script for docker-compose (workaround, get master)
       get_url:
         url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644
-        force: "{{ docker_allow_reinstall | bool }}"
-  when: docker_bash_completion_extras | bool == true
+        force: "{{ docker_allow_reinstall |bool }}"
+  when: docker_bash_completion_extras |bool
   # end of block
 ...

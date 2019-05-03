@@ -9,7 +9,8 @@
   register: latest_dman_release
   when: docker_machine_release == 'latest'
 
-- set_fact:
+- name: extract docker-machine release from github page
+  set_fact:
     docker_machine_release: "{{ latest_dman_release.url | basename }}"
   when: latest_dman_release is not skipped
         and latest_dman_release.url is defined
@@ -38,5 +39,5 @@
     - docker-machine-prompt
     - docker-machine-wrapper
   ignore_errors: yes  # stuff of low importance
-  when: docker_bash_completion_extras | bool == true
+  when: docker_bash_completion_extras |bool
 ...
