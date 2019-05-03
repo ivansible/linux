@@ -1,6 +1,6 @@
 ---
-# perform setup as a non-root user
-- setup:
+- name: refresh facts as non root
+  setup:
   become: no
 
 # use import to become root globally

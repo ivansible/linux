@@ -14,7 +14,7 @@
     dest: /etc/apt/sources.list
     backup: yes
   register: apt_switch_mirrors
-  when: linbase_apt_fast_mirrors | bool == true
+  when: linbase_apt_fast_mirrors |bool
   tags: linbase_mirrors
 
 - name: update apt caches
@@ -29,7 +29,7 @@
     localectl set-locale
       LANG={{ linbase_system_locale }}
       LANGUAGE={{ linbase_system_locale }}
-  changed_when: linbase_hide_changes | bool == false
+  changed_when: not linbase_hide_changes |bool
   when: linbase_system_locale != ''
   tags: linbase_settings
 
@@ -59,7 +59,7 @@
 - name: synchronize system time
   # this task requires time packages, which are installed above
   import_tasks: timesync.yml
-  when: linbase_time_sync | bool == true
+  when: linbase_time_sync |bool
   tags: linbase_timesync
 
 
@@ -82,7 +82,7 @@
 
 - name: configure firewall
   import_tasks: firewall.yml
-  when: linbase_secure | bool == true
+  when: linbase_secure |bool
   tags: linbase_firewall
 
 
@@ -102,7 +102,7 @@
     '^#*\s*(DebianBanner)\b': 'DebianBanner no'
   loop_control:
     label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
-  when: linbase_secure | bool == true
+  when: linbase_secure |bool
   notify: restart ssh service
   tags: linbase_ssh
 
@@ -116,7 +116,7 @@
     'DISABLED ^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
   loop_control:
     label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
-  when: linbase_secure | bool == true
+  when: linbase_secure |bool
   notify: restart ssh service
   tags: linbase_ssh
 
@@ -125,7 +125,7 @@
     dest: /etc/ssh/ssh_known_hosts
     content: ""
     force: no
-  when: linbase_secure | bool == true
+  when: linbase_secure |bool
   tags: linbase_ssh
 
 - name: harden permissions on ssh_known_hosts
@@ -134,7 +134,7 @@
     owner: root
     group: root
     mode: 0644
-  when: linbase_secure | bool == true
+  when: linbase_secure |bool
   tags: linbase_ssh
 
 
