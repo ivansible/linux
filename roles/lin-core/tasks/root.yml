@@ -41,7 +41,7 @@
 
 
 - block:
-    - name: install basic packages (may fail once)
+    - name: install basic packages (ok to fail once)
       apt:
         name: "{{ linbase_packages }}"
         state: present
