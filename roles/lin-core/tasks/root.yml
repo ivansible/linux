@@ -138,7 +138,7 @@
   tags: linbase_ssh
 
 
-- name: disable help motd banner
+- name: disable help motd banner (ok to fail)
   file:
     path: /etc/update-motd.d/10-help-text
     mode: 0644
