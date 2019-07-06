@@ -1,6 +1,6 @@
 ---
 # defaults file for ivansible.lin_docker
-
+is_permitted: no
 docker_extras: no
 
 docker_machine_release: latest

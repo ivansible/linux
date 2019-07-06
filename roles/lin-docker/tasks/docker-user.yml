@@ -29,7 +29,7 @@
 - name: login target user into docker hub
   when: docker_hub_username != '' and docker_hub_password != ''
   block:
-    - name: attempt to login into docker hub as user
+    - name: attempt to login into docker hub as user (will rescue if it fails)
       command:
         argv:
           - docker
