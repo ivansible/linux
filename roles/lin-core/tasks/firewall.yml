@@ -1,7 +1,8 @@
 ---
 - name: detect ssh port
   set_fact:
-    real_ssh_port: "{{ ansible_port
+    real_ssh_port: "{{ real_ssh_port
+                     | default(ansible_port)
                      | default(ansible_ssh_port)
                      | default(22) }}"
 

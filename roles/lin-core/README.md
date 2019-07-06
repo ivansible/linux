@@ -20,6 +20,12 @@ None
 
 Available variables are listed below, along with default values.
 
+    real_ssh_port: <optional>
+This optional setting lets the user override an auto-detected ssh port value,
+which may be incorrect if ansible is run by the hashicorop packer or through
+a reverse ssh or port forwarder. An incorrect value would result in the real
+ssh port being firewalled by the role.
+
     linbase_secure: true
 
 Enable firewall and disable empty ssh passwords.
