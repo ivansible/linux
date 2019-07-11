@@ -18,15 +18,15 @@
 
 - name: reboot and wait to come back
   import_tasks: reboot.yml
-  when: "reboot_marker.stat.exists
-         and linref_reboot_allow |bool
-         or linref_reboot_always |bool"
+  when: reboot_marker.stat.exists
+        and allow_reboot |bool
+        or linref_reboot_always |bool
   tags: linref_reboot
 
 - debug:
     msg: "please reboot {{ inventory_hostname }} manually"
-  when: "reboot_marker.stat.exists
-         and not linref_reboot_allow |bool"
+  when: reboot_marker.stat.exists
+        and not allow_reboot |bool
   tags:
     - linref_upgrade
     - linref_reboot

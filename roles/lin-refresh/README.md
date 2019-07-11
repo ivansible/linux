@@ -12,9 +12,9 @@ None
 
 Available variables are listed below, along with default values.
 
-    linref_reboot_allow: true
+    allow_reboot: true
 
-If `true`, the script will reboot target host after critical updagrade.
+If `true`, the script will reboot target host after critical upgrade.
 Otherwise, the script will print a warning message and skip rebooting.
 
     linref_reboot_pause: nowait
