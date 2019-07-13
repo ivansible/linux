@@ -7,6 +7,8 @@
                | ternary(omit, docker_machine_binary_file) }}"
   #connection: local  # never use this with "creates"
   register: latest_dman_release
+  # fix intermittent network errors on .ru boxes
+  until: latest_dman_release is successful
   when: docker_machine_release == 'latest'
 
 - name: extract docker-machine release from github page
