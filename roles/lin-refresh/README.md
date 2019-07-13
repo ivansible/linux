@@ -17,17 +17,6 @@ Available variables are listed below, along with default values.
 If `true`, the script will reboot target host after critical upgrade.
 Otherwise, the script will print a warning message and skip rebooting.
 
-    linref_reboot_pause: nowait
-
-Time to wait for user keypress before reboot if this reboot is required
-due to critical upgrades.
-- `'nowait'` - do not wait
-- `'pause'` - wait forever until user hits `Enter` or cancels with `Ctrl-C`
-- `1`..`1000` - integer number of seconds to wait
-
-The default value of `nowait` is compatible with the `free` play strategy
-and allows to upgrade many targets in parallel.
-
 
 ## Tags
 

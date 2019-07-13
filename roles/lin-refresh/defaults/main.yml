@@ -6,14 +6,4 @@ linref_reboot_marker: /var/run/reboot-required
 linref_time_sync: true
 linref_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 linref_time_hide_changes: true
-
-# time to wait for user keypress before reboot
-# can be: 'nowait', 'pause' (until keypress) or integer (number of seconds)
-linref_reboot_pause: nowait
-
-# let 10 seconds to commence reboot
-linref_reboot_probe_delay: 10
-
-# 5 minute timeout
-linref_reboot_probe_timeout: 300
 ...

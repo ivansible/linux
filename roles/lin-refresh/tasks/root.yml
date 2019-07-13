@@ -16,18 +16,18 @@
   register: reboot_marker
   tags: linref_reboot
 
-- name: reboot and wait to come back
-  import_tasks: reboot.yml
+- name: reboot after kernel upgrade
+  reboot:
+    pre_reboot_delay: 20
   when: reboot_marker.stat.exists
         and allow_reboot |bool
         or linref_reboot_always |bool
   tags: linref_reboot
 
-- debug:
+- name: ask user to reboot
+  debug:
     msg: "please reboot {{ inventory_hostname }} manually"
   when: reboot_marker.stat.exists
         and not allow_reboot |bool
-  tags:
-    - linref_upgrade
-    - linref_reboot
+  tags: linref_reboot
 ...
