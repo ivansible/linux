@@ -86,56 +86,11 @@
   tags: linbase_firewall
 
 
-- name: set some common ssh settings
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "{{ item.key }}"
-    line: "{{ item.value }}"
-    backrefs: no
-    insertbefore: "^Match|^Subsystem|^# *BEGIN"
-    firstmatch: yes
-  with_dict:
-    '^#*\s*(Pub[Kk]eyAuthentication)\b': 'PubkeyAuthentication yes'
-    '^#*\s*(PermitEmptyPasswords)\b': 'PermitEmptyPasswords no'
-    '^#*\s*(UseDNS)\b': 'UseDNS no'
-    # see: https://www.linuxquestions.org/questions/linux-security-4/how-to-disable-ssh-version-banner-909540
-    '^#*\s*(DebianBanner)\b': 'DebianBanner no'
-  loop_control:
-    label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
-  when: linbase_secure |bool
-  notify: restart ssh service
-  tags: linbase_ssh
-
-- name: modify some common ssh settings
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "{{ item.key }}"
-    line: "{{ item.value }}"
-    backrefs: yes
-  with_dict:
-    'DISABLED ^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
-  loop_control:
-    label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
-  when: linbase_secure |bool
-  notify: restart ssh service
-  tags: linbase_ssh
-
-- name: ensure ssh_known_hosts exists
-  copy:
-    dest: /etc/ssh/ssh_known_hosts
-    content: ""
-    force: no
+- name: adjust global ssh settings
+  import_tasks: ssh.yml
   when: linbase_secure |bool
   tags: linbase_ssh
 
-- name: harden permissions on ssh_known_hosts
-  file:
-    path: /etc/ssh/ssh_known_hosts
-    owner: root
-    group: root
-    mode: 0644
-  when: linbase_secure |bool
-  tags: linbase_ssh
 
 - name: disable some motd banners
   import_tasks: motd.yml
