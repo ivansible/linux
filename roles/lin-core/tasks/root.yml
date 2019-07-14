@@ -64,7 +64,7 @@
 
 
 - import_tasks: telemetry.yml
-  when: "ansible_distribution_release == 'bionic'"
+  when: ansible_distribution_release == 'bionic'
   tags: linbase_telemetry
 
 
@@ -137,11 +137,7 @@
   when: linbase_secure |bool
   tags: linbase_ssh
 
-
-- name: disable help motd banner (ok to fail)
-  file:
-    path: /etc/update-motd.d/10-help-text
-    mode: 0644
-  ignore_errors: yes
-  tags: linbase_settings
+- name: disable some motd banners
+  import_tasks: motd.yml
+  tags: linbase_motd
 ...

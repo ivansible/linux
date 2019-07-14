@@ -57,10 +57,11 @@ Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 - `linbase_packages` -- install common software
 - `linbase_telemetry` -- disable telemetry on bionic
 - `linbase_timesync` -- synchronize system time
-- `linbase_sysctl` -- kernel parameter adjustments
-- `linbase_ssh` -- ssh adjustments
-- `linbase_firewall` -- firewall adjustments
-- `linbase_settings` -- system settings adjustments
+- `linbase_sysctl` -- adjust kernel parameters
+- `linbase_ssh` -- adjust global ssh settings
+- `linbase_firewall` -- adjust ubuntu firewall
+- `linbase_settings` -- adjust system settings
+- `linbase_motd` -- disable some motd banners
 
 
 ## Dependencies
