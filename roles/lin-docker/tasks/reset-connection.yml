@@ -1,0 +1,4 @@
+# reset_connection is wrapped in an included task to avoid ansible warning
+# "reset_connection task does not support when conditional"
+- name: reset ssh connection to apply new group to the login session
+  meta: reset_connection
