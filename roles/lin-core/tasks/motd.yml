@@ -15,6 +15,7 @@
   when: ansible_distribution_release == 'xenial'
   # ignore missing banners and supress error messages
   ignore_errors: true
+  no_log: true
 
 - name: disable bionic motd banners by disabling execution (ok to fail)
   file:
@@ -33,6 +34,7 @@
     label: "{{ item }}"
   when: ansible_distribution_release == 'bionic'
   ignore_errors: true
+  no_log: true
 
 - name: disable bionic motd banners by renaming (ok to fail)
   command: mv /etc/update-motd.d/{{ item }} /etc/update-motd.d/{{ item }}.off
@@ -44,4 +46,5 @@
     label: "{{ item }}"
   when: ansible_distribution_release == 'bionic'
   ignore_errors: true
+  no_log: true
 ...
