@@ -39,7 +39,7 @@
 - name: disable bionic motd banners by renaming (ok to fail)
   command: mv /etc/update-motd.d/{{ item }} /etc/update-motd.d/{{ item }}.off
   args:
-    creates: /etc/update-motd.d/{{ item }}.off
+    removes: /etc/update-motd.d/{{ item }}
   loop:
     - 50-landscape-sysinfo
   loop_control:
