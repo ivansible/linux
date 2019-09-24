@@ -1,0 +1,6 @@
+---
+- name: use import to become root globally
+  import_tasks: root.yml
+  become: true
+  tags: lin_restic_all
+...
