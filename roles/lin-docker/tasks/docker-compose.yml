@@ -37,6 +37,7 @@
     dest: "{{ docker_compose_binary_file }}"
     mode: 0755
     force: "{{ docker_allow_reinstall |bool }}"
+  when: docker_compose_release != 'latest'
 
 - name: bash completion script for docker-compose (optional)
   block:
