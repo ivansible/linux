@@ -9,33 +9,33 @@
   import_tasks: docker-core.yml
   become: yes
   tags:
-  - lin_docker_core
-  - lin_docker
+    - lin_docker_core
+    - lin_docker
 
 - name: install ansible docker bindings
   apt:
     name: "{{ ansible_python_version.startswith('3') | ternary('python3','python') }}-docker"
   become: yes
   tags:
-  - lin_docker_ansible
-  - lin_docker
+    - lin_docker_ansible
+    - lin_docker
 
 - name: install docker-compose
   import_tasks: docker-compose.yml
   become: yes
   tags:
-  - lin_docker_compose
-  - lin_docker
-  - ip4only
+    - lin_docker_compose
+    - lin_docker
+    - ip4only
 
 - name: install docker machine
   import_tasks: docker-machine.yml
   when: docker_extras |bool
   become: yes
   tags:
-  - lin_docker_machine
-  - lin_docker
-  - ip4only
+    - lin_docker_machine
+    - lin_docker
+    - ip4only
 
 - name: create docker-enabled group
   group:
@@ -43,7 +43,7 @@
     state: present
   become: yes
   tags:
-  - lin_docker
+    - lin_docker
 
 - name: checkout docker files, if permitted
   git:
@@ -53,15 +53,15 @@
     # only clone, don't choke on pending modifications
     update: no
     accept_hostkey: yes
-  when: docker_files_repo != '' and is_permitted |bool
+  when: is_permitted |bool and docker_files_repo != '' # noqa 602
   tags:
-  - lin_docker_files
-  - lin_docker
+    - lin_docker_files
+    - lin_docker
 
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
   when: docker_permit_user |bool and is_permitted |bool
   tags:
-  - lin_docker_user
-  - lin_docker
+    - lin_docker_user
+    - lin_docker
 ...

@@ -24,10 +24,10 @@
       #- dbus-x11
     state: present
   become: yes
-  when: ansible_distribution_release == 'bionic'
+  when: ansible_lsb.codename == 'bionic'
 
 - name: login target user into docker hub
-  when: docker_hub_username != '' and docker_hub_password != ''
+  when: docker_hub_username != '' and docker_hub_password != '' # noqa 602
   block:
     - name: attempt to login into docker hub as user (will rescue if it fails)
       command:
@@ -40,36 +40,38 @@
         creates: ~/.docker/config.json
 
   rescue:
-    # workaround for permission denied accessing docker socket
+    - name: workaround for permission denied accessing docker socket
+      block:
+        - name: restart docker daemon to fix docker socket permission denied
+          systemd:
+            name: docker
+            state: restarted
 
-    - name: restart docker daemon to fix docker socket permission denied
-      systemd:
-        name: docker
-        state: restarted
+        - name: remove old docker hub token from root
+          file:
+            path: ~/.docker
+            state: absent
+
+        - name: attempt to login into docker hub as root
+          command:
+            argv:
+              - docker
+              - login
+              - --username={{ docker_hub_username }}
+              - --password-stdin
+            stdin: "{{ docker_hub_password }}"
+
+        - name: move docker hub token from root to login user
+          # using recursive chown because file module can't recurse
+          # noqa 302
+          shell: >
+            chown -R {{ ansible_user_uid }}:{{ ansible_user_gid }} ~/.docker &&
+            rm -rf "{{ ansible_user_dir }}/.docker" &&
+            mv ~/.docker "{{ ansible_user_dir }}/"
+      # end of rescue block
       become: yes
 
-    - name: remove old docker hub token from root
-      file:
-        path: ~/.docker
-        state: absent
-      become: yes
-
-    - name: attempt to login into docker hub as root
-      command:
-        argv:
-          - docker
-          - login
-          - --username={{ docker_hub_username }}
-          - --password-stdin
-        stdin: "{{ docker_hub_password }}"
-      become: yes
-
-    - name: move docker hub token from root to login user
-      shell: >
-        chown -R {{ ansible_user_uid }}:{{ ansible_user_gid }} ~/.docker &&
-        rm -rf "{{ ansible_user_dir }}/.docker" &&
-        mv ~/.docker "{{ ansible_user_dir }}/"
-      become: yes
+  # end of login block
   tags:
-  - ip4only
+    - ip4only
 ...
