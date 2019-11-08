@@ -1,0 +1,84 @@
+---
+# -*- compile-command: "yamllint -f parsable build.yml" -*-
+name: Molecule test
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+
+env:
+  ROLE_NAME: ivansible.lin_system
+  ANSIBLE_FORCE_COLOR: true
+
+jobs:
+  localhost_test:
+    name: test on host
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-16.04
+          - ubuntu-18.04
+        include:
+          - os: ubuntu-16.04
+            ssh_port: 0       # ssh on github/xenial fails (missing privilege separation directory: /var/run/sshd)
+          - os: ubuntu-18.04
+            ssh_port: 22      # ssh on github/bionic is ok
+    env:
+      SCENARIO: localhost
+      IVATEST_FIREWALL: true
+      IVATEST_SSH_PORT: ${{ matrix.ssh_port }}  # port 0 disables ssh server
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          path: ivansible/${{ env.ROLE_NAME }}
+
+      - name: Install requisites
+        shell: bash
+        run: |
+          # stock and pypy flavors of PyYAML are incompatible:
+          sudo apt-get remove -q -y python3-yaml
+          sudo -H pip3 install -U pip setuptools wheel
+          # molecule pulls: ansible-lint yamllint flake8 pytest testinfra
+          sudo -H pip3 install molecule docker
+
+      - name: Run test
+        shell: bash
+        run: |
+          molecule test -s $SCENARIO
+
+  docker_test:
+    name: tests in docker
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+    env:
+      SCENARIO: default
+      IVATEST_FIREWALL: false
+
+    steps:  # copy-pasting above steps since anchors are unsupported
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          path: ivansible/${{ env.ROLE_NAME }}
+
+      - name: Install requisites
+        shell: bash
+        run: |
+          # stock and pypy flavors of PyYAML are incompatible:
+          sudo apt-get remove -q -y python3-yaml
+          sudo -H pip3 install -U pip setuptools wheel
+          # molecule pulls: ansible-lint yamllint flake8 pytest testinfra
+          sudo -H pip3 install molecule docker
+
+      - name: Run test
+        shell: bash
+        run: |
+          molecule test -s $SCENARIO
+...

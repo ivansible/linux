@@ -1,5 +1,9 @@
 # ivansible.lin_system
 
+[![Github Test Status](https://github.com/ivansible/lin-system/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-system/actions)
+[![Travis Test Status](https://travis-ci.org/ivansible/lin-system.svg?branch=master)](https://travis-ci.org/ivansible/lin-system)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__system-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_system/)
+
 Perform basic configuration of a linux box:
  - switch to fast apt mirrors;
  - enable ntp and step-sync system time;
