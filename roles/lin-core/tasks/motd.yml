@@ -13,7 +13,7 @@
     - 99-esm
   loop_control:
     label: "{{ item }}"
-  when: ansible_distribution_release == 'xenial'
+  when: ansible_lsb.codename == 'xenial'
   # ignore missing banners and supress error messages
   ignore_errors: true
   no_log: true
@@ -33,7 +33,7 @@
     - 95-hwe-eol
   loop_control:
     label: "{{ item }}"
-  when: ansible_distribution_release == 'bionic'
+  when: ansible_lsb.codename == 'bionic'
   ignore_errors: true
   no_log: true
 
@@ -45,7 +45,7 @@
     - 50-landscape-sysinfo
   loop_control:
     label: "{{ item }}"
-  when: ansible_distribution_release == 'bionic'
+  when: ansible_lsb.codename == 'bionic'
   ignore_errors: true
   no_log: true
 ...

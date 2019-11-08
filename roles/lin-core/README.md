@@ -26,10 +26,6 @@ which may be incorrect if ansible is run by the hashicorop packer or through
 a reverse ssh or port forwarder. An incorrect value would result in the real
 ssh port being firewalled by the role.
 
-    linbase_secure: true
-
-Enable firewall and disable empty ssh passwords.
-
     linbase_apt_fast_mirrors: false
 
 If this setting is `true` (usually in the `vagrant` host group),
@@ -50,6 +46,14 @@ Preferred time zone, e.g. `Europe/Moscow`.
 
 Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 
+### Imported Variables (ivansible.lin_base)
+
+    lin_use_firewall: true
+    lin_use_ssh: true
+
+Improve security -- enable uncomplicated firewall, disable empty ssh passwords etc.
+Note: firewall can fail in docker containers, ssh can fail on github runners.
+
 
 ## Tags
 
@@ -60,7 +64,7 @@ Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 - `linbase_sysctl` -- adjust kernel parameters
 - `linbase_ssh` -- adjust global ssh settings
 - `linbase_firewall` -- adjust ubuntu firewall
-- `linbase_settings` -- adjust system settings
+- `linbase_settings` -- adjust system settings - locale, timezone etc
 - `linbase_motd` -- disable some motd banners
 
 
@@ -71,12 +75,12 @@ Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 
 ## Example Playbook
 
-    - hosts: vagrant-boxes
+    - hosts: docker-box
       strategy: free
       roles:
          - role: ivansible.lin_system
            linbase_apt_fast_mirrors: true
-           linbase_secure: false
+           lin_use_firewall: false # firewall fails in docker
 
 
 ## License

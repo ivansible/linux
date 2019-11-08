@@ -24,19 +24,29 @@
   tags: linbase_mirrors
 
 
+- name: fix localectl problem in minimal xenial docker
+  # systemd-localed service cannot start without /etc/default/keyboard on xenial
+  # see: https://github.com/systemd/systemd/issues/911
+  copy:
+    dest: /etc/default/keyboard
+    content: ""
+    force: no
+  when: ansible_lsb.codename == 'xenial'
+  tags: linbase_settings
+
 - name: set system locale
   command: >
     localectl set-locale
       LANG={{ linbase_system_locale }}
       LANGUAGE={{ linbase_system_locale }}
   changed_when: not linbase_hide_changes |bool
-  when: linbase_system_locale != ''
+  when: linbase_system_locale != '' # noqa 602
   tags: linbase_settings
 
 - name: set timezone
   timezone:
     name: "{{ linbase_timezone }}"
-  when: linbase_timezone != ''
+  when: linbase_timezone != '' # noqa 602
   tags: linbase_settings
 
 
@@ -64,7 +74,7 @@
 
 
 - import_tasks: telemetry.yml
-  when: ansible_distribution_release == 'bionic'
+  when: ansible_lsb.codename == 'bionic'
   tags: linbase_telemetry
 
 
@@ -82,13 +92,13 @@
 
 - name: configure firewall
   import_tasks: firewall.yml
-  when: linbase_secure |bool
+  when: lin_use_firewall |bool
   tags: linbase_firewall
 
 
 - name: adjust global ssh settings
   import_tasks: ssh.yml
-  when: linbase_secure |bool
+  when: lin_use_ssh |bool
   tags: linbase_ssh
 
 

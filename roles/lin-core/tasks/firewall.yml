@@ -20,7 +20,7 @@
     proto: tcp
     delete: yes
   no_log: true
-  when: real_ssh_port|int != 22
+  when: real_ssh_port |int != 22
 
 - name: close port 22 (tcp or udp), if not used
   ufw:
@@ -28,7 +28,7 @@
     port: "22"
     delete: yes
   no_log: true
-  when: real_ssh_port|int != 22
+  when: real_ssh_port |int != 22
 
 - name: open ntp port
   ufw:

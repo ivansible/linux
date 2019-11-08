@@ -1,6 +1,12 @@
 ---
 # adjust global ssh settings
 
+- name: enable sshd
+  systemd:
+    name: ssh
+    state: started
+    enabled: yes
+
 - name: set some common ssh settings
   lineinfile:
     path: /etc/ssh/sshd_config

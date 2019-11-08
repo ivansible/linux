@@ -1,6 +1,12 @@
 ---
 # synchronize system time
 
+- name: timedatectl requires dbus
+  systemd:
+    name: dbus
+    state: started
+    enabled: yes
+
 - name: enable ntp sync
   command: timedatectl set-ntp true
   changed_when: not linbase_hide_changes |bool

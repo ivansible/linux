@@ -6,6 +6,10 @@
   lineinfile:
     path: /etc/hosts
     line: "127.0.0.1\tmetrics.ubuntu.compopcon.ubuntu.com"
+    # docker does not allow atomic updates of /etc/hosts
+    # see https://github.com/ansible/ansible/issues/13981
+    # see https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
+    unsafe_writes: "{{ ansible_virtualization_type == 'docker' }}"
 
 - name: remove telemetry packages
   apt:

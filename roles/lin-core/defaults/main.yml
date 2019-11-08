@@ -1,8 +1,6 @@
 ---
 # defaults file for ivansible.lin_system
 
-linbase_secure: true
-
 linbase_system_locale: ''
 
 linbase_timezone: ''
@@ -24,19 +22,33 @@ linbase_apt_allow_backports: true
 linbase_packages:
   # timedatectl requires dbus, see https://askubuntu.com/a/1015391
   - dbus
+  - systemd
+  - systemd-cron
   - ntp
   - ntpdate
-  # detect virtualization type
-  - virt-what
+  # system core
+  - openssh-server
+  - openssh-client
+  - rsyslog
   # support for en_US.UTF-8
   - locales
-  - git
-  - jq
+  # network
+  - iproute2
+  - iputils-ping
   - traceroute
+  - dnsutils
   - curl
   - wget
   - netcat
   - ufw
+  # packaging
+  - aptitude
+  - apt-file
+  - apt-transport-https
+  - software-properties-common
+  # utilities
+  - git
+  - jq
   - vim
   - nano
   - unzip
@@ -44,9 +56,10 @@ linbase_packages:
   - tmux
   - htop             # similar to top, but allows to scroll
   - iotop
-  - aptitude
-  - apt-file
-  - apt-transport-https
+  - strace
+  # detect virtualization
+  - virt-what
+  # development
   - python
   - python3
   - python-pip
@@ -54,6 +67,7 @@ linbase_packages:
   - virtualenv
   - build-essential
   - bash-completion
+  # obsolete
   #- python-apt
   #- python-passlib   # for ansible htpasswd module
   #- python-virtualenv

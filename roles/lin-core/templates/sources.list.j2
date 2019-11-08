@@ -1,5 +1,5 @@
 {% set mirror = "http://mirror.yandex.ru/ubuntu/" %}
-{% set release = ansible_distribution_release %}
+{% set codename = ansible_lsb.codename %}
 {% set src_ok = linbase_apt_allow_src | bool %}
 {% if linbase_apt_allow_universe | bool %}
 {% set channels = "main restricted universe multiverse" %}
@@ -9,15 +9,15 @@
 # created by ansible
 
 {% for branch in ['', '-updates', '-security'] %}
-deb {{mirror}} {{release}}{{branch}} {{channels}}
+deb {{mirror}} {{codename}}{{branch}} {{channels}}
 {% if src_ok %}
-deb-src {{mirror}} {{release}}{{branch}} {{channels}}
+deb-src {{mirror}} {{codename}}{{branch}} {{channels}}
 {% endif %}
 
 {% endfor %}
 {% if linbase_apt_allow_backports | bool %}
-deb {{mirror}} {{release}}-backports {{channels}}
+deb {{mirror}} {{codename}}-backports {{channels}}
 {% if src_ok %}
-deb-src {{mirror}} {{release}}-backports {{channels}}
+deb-src {{mirror}} {{codename}}-backports {{channels}}
 {% endif %}
 {% endif %}
