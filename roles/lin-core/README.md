@@ -70,6 +70,7 @@ Note: firewall can fail in docker containers, ssh can fail on github runners.
 - `linbase_firewall` -- adjust ubuntu firewall
 - `linbase_settings` -- adjust system settings - locale, timezone etc
 - `linbase_motd` -- disable some motd banners
+- `linbase_all` -- all of above
 
 
 ## Dependencies

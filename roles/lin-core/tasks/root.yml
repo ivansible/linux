@@ -51,19 +51,29 @@
 
 
 - block:
-    - name: install basic packages (ok to fail once)
+    - name: install core packages (ok to fail once, output hidden)
       apt:
-        name: "{{ linbase_packages }}"
+        name: "{{ linbase_packages_core }}"
         state: present
-      # failure message is too verbose..
-      no_log: true
+      # failure message is too verbose, silence by default
+      no_log: "{{ hide_secrets |bool }}"
   rescue:
-    - name: update apt cache and install basic packages
+    - name: update apt cache and install core packages
       apt:
-        name: "{{ linbase_packages }}"
+        name: "{{ linbase_packages_core }}"
         state: present
         update_cache: yes
   tags: linbase_packages
+
+- name: install development packages
+  apt:
+    name: "{{ linbase_packages_devel }}"
+    state: present
+  tags: linbase_packages
+
+# it may be a good idea to restart mitogen runner
+# after installing python apt bindings
+#- meta: reset_connection
 
 
 - name: synchronize system time

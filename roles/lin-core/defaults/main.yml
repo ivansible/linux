@@ -19,7 +19,7 @@ linbase_apt_allow_src: true
 linbase_apt_allow_backports: true
 
 
-linbase_packages:
+linbase_packages_core:
   # timedatectl requires dbus, see https://askubuntu.com/a/1015391
   - dbus
   - systemd
@@ -41,11 +41,6 @@ linbase_packages:
   - wget
   - netcat
   - ufw
-  # packaging
-  - aptitude
-  - apt-file
-  - apt-transport-https
-  - software-properties-common
   # utilities
   - git
   - jq
@@ -56,7 +51,17 @@ linbase_packages:
   - tmux
   - htop             # similar to top, but allows to scroll
   - iotop
+  - acl              # getfacl, setfacl
   - strace
+
+linbase_packages_devel:
+  # packaging
+  - aptitude
+  - apt-file
+  - apt-transport-https
+  - software-properties-common
+  - python-apt
+  - python3-apt
   # detect virtualization
   - virt-what
   # development
