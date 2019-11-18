@@ -29,7 +29,11 @@
     dest: "{{ docker_machine_binary_file }}"
     mode: 0755
     force: "{{ docker_allow_reinstall | bool }}"
+  register: download_result
+  # fix intermittent network failures
+  until: "'timed out' not in download_result.msg |default('')"
   when: docker_machine_release != 'latest'
+
 
 - name: bash completion scripts for docker-machine (optional, so ok to fail)
   get_url:
