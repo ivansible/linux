@@ -1,10 +1,5 @@
 ---
-- name: refresh facts as non root
-  setup:
-  become: no
-
-# use import to become root globally
-- name: become root
+- name: use import to become root globally
   import_tasks: root.yml
-  become: yes
+  become: true
 ...
