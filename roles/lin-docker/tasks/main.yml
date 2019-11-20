@@ -1,9 +1,5 @@
 ---
-# tasks file for ivansible.lin_docker
-
-- name: refresh host facts as non root
-  setup:
-  become: no
+# tasks for ivansible.lin_docker
 
 - name: install docker core
   import_tasks: docker-core.yml
