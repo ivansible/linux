@@ -1,7 +1,4 @@
 ---
-- name: refresh host facts as non-root
-  setup:
-
 - name: add ansible ppa
   apt_repository:
     repo: ppa:ansible/ansible
