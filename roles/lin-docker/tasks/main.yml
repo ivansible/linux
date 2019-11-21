@@ -10,7 +10,9 @@
 
 - name: install ansible docker bindings
   apt:
-    name: "{{ ansible_python_version.startswith('3') | ternary('python3','python') }}-docker"
+    name:
+      - python-docker
+      - python3-docker
   become: yes
   tags:
     - lin_docker_ansible
