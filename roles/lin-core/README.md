@@ -50,6 +50,10 @@ Preferred time zone, e.g. `Europe/Moscow`.
 
 Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 
+    linbase_golang_version: 1.13
+
+Golang toolchain version to install (skip install if empty).
+
 ### Imported Variables (ivansible.lin_base)
 
     lin_use_firewall: true
@@ -64,6 +68,7 @@ Note: firewall can fail in docker containers, ssh can fail on github runners.
 - `linbase_mirrors` -- switch to fast apt mirrors
 - `linbase_packages` -- install common software
 - `linbase_telemetry` -- disable telemetry on bionic
+- `linbase_goloang` -- install golang toolchain
 - `linbase_timesync` -- synchronize system time
 - `linbase_sysctl` -- adjust kernel parameters
 - `linbase_ssh` -- adjust global ssh settings

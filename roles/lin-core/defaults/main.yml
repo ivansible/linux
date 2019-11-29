@@ -18,6 +18,9 @@ linbase_apt_allow_universe: true
 linbase_apt_allow_src: true
 linbase_apt_allow_backports: true
 
+linbase_hide_changes: true
+
+linbase_golang_version: 1.13
 
 linbase_packages_core:
   # timedatectl requires dbus, see https://askubuntu.com/a/1015391
@@ -79,7 +82,4 @@ linbase_packages_devel:
   #- python-psycopg2
   #- python-pymongo
   #- python-keyczar   # for ansible accelerated mode (??)
-
-
-linbase_hide_changes: true
 ...

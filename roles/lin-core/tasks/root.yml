@@ -83,9 +83,17 @@
   tags: linbase_timesync
 
 
-- import_tasks: telemetry.yml
+- name: disable telemetric on bionic
+  import_tasks: telemetry.yml
   when: ansible_lsb.codename == 'bionic'
   tags: linbase_telemetry
+
+
+- name: install golang
+  import_tasks: golang.yml
+  when: linbase_golang_version != '' # noqa 602
+  become: yes
+  tags: linbase_golang
 
 
 - name: tune kernel parameters
