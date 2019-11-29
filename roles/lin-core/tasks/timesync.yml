@@ -22,6 +22,7 @@
   # "-u" = use unprivileged port for outgoing packets,
   # helps when ntp service is running (or against firewalls),
   # so we don't have to stop/start ntp service
-  command: ntpdate -u "{{ linbase_time_server }}"
+  command: ntpdate -t 10 -u "{{ linbase_time_server }}"
   changed_when: not linbase_hide_changes |bool
+  ignore_errors: true
 ...
