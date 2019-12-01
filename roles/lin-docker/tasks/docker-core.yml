@@ -24,7 +24,7 @@
           - jq  # jq makes parsing docker output convenient
           - bash-completion
         state: present
-        update_cache: yes
+        update_cache: true
 
 - name: bash completion script for docker
   file:
@@ -32,9 +32,30 @@
     dest: /etc/bash_completion.d/docker
     state: link
 
+- name: create new docker daemon settings
+  copy:
+    content: "{}"
+    dest: /etc/docker/daemon.json
+    force: false
+    owner: root
+    mode: 0644
+  when: docker_daemon_settings |default({}) |length
+  notify: restart docker daemon
+
+- name: set custom docker daemon settings
+  json_patch:
+    src: /etc/docker/daemon.json
+    operations:
+      - op: add
+        path: "{{ item.0 }}"
+        value: "{{ item.1 }}"
+    pretty: true
+  loop: "{{ docker_daemon_settings |default({}) |dictsort }}"
+  notify: restart docker daemon
+
 - name: enable docker service
   systemd:
     name: docker
     state: started
-    enabled: yes
+    enabled: true
 ...
