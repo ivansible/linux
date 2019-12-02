@@ -47,6 +47,7 @@ linbase_packages_core:
   # utilities
   - git
   - jq
+  - rsync
   - vim
   - nano
   - unzip
