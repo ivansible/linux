@@ -5,6 +5,7 @@
     filename: golang
   register: add_golang_ppa_result
   until: add_golang_ppa_result is successful
+  retries: 8
 
 - name: install golang from ppa
   apt:
