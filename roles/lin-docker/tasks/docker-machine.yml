@@ -1,39 +1,23 @@
 ---
 - name: detect latest docker-machine release
-  uri:
-    url: https://github.com/docker/machine/releases/latest
-    method: HEAD
-    creates: "{{ docker_allow_reinstall | bool
-               | ternary(omit, docker_machine_binary_file) }}"
-  #connection: local  # never use this with "creates"
+  github_release:
+    repository: docker/machine
+    release: "{{ docker_machine_release }}"
+    template: "{download_url}/docker-machine-Linux-x86_64"
+    creates: "{{ docker_machine_binary_file }}"
+    reinstall: "{{ docker_allow_reinstall |bool }}"
   register: latest_dman_release
-  # fix intermittent network errors on .ru boxes
-  until: latest_dman_release is successful
-  when: docker_machine_release == 'latest'
-
-- name: extract docker-machine release from github page
-  set_fact:
-    docker_machine_release: "{{ latest_dman_release.url | basename }}"
-  when: latest_dman_release is not skipped
-        and latest_dman_release.url is defined
-
-- debug:
-    msg: "latest docker-machine release: {{ docker_machine_release }}"
-  run_once: true
-  when: latest_dman_release is not skipped
-        and latest_dman_release.url is defined
 
 - name: download docker-machine
   get_url:
-    url: https://github.com/docker/machine/releases/download/{{ docker_machine_release }}/docker-machine-Linux-x86_64
+    url: "{{ latest_dman_release.url }}"
     dest: "{{ docker_machine_binary_file }}"
     mode: 0755
-    force: "{{ docker_allow_reinstall | bool }}"
-  register: download_result
+    force: "{{ docker_allow_reinstall |bool }}"
+  when: latest_dman_release is changed
   # fix intermittent network failures
+  register: download_result
   until: "'timed out' not in download_result.msg |default('')"
-  when: docker_machine_release != 'latest'
-
 
 - name: bash completion scripts for docker-machine (optional, so ok to fail)
   get_url:
