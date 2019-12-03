@@ -7,6 +7,8 @@
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
     filename: docker-ce
+  register: add_docker_repo_result
+  until: add_docker_repo_result is successful
 
 - block:
     - name: install docker and friends
