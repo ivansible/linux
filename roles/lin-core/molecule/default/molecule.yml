@@ -4,7 +4,7 @@ dependency:
 driver:
   name: docker
 platforms:
-  - name: molecule1604
+  - name: xenial
     image: ivandeex/molecule:16.04
     command: ""
     volumes:
@@ -13,7 +13,7 @@ platforms:
     pre_build_image: true
     groups:
       - molecule
-  - name: molecule1804
+  - name: bionic
     image: ivandeex/molecule:18.04
     command: ""
     volumes:
@@ -29,6 +29,7 @@ provisioner:
       molecule:
         ansible_user: ansible
         linbase_system_locale: en_US.UTF-8
+        allow_sysctl: false
         # these will fail on docker:
         linbase_time_sync: false
         lin_use_firewall: ${IVATEST_FIREWALL:-true}

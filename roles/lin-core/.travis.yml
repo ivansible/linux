@@ -41,6 +41,7 @@ matrix:
       env:
         - IVATEST_FIREWALL=false
       script:
+        # run step by step to work around no-output delay with idempotence
         - molecule lint
         - molecule destroy
         - molecule dependency

@@ -105,6 +105,7 @@
   with_dict: "{{ linbase_sysctl }}"
   loop_control:
     label: "{{ item.key | regex_replace('^net\\.') }}"
+  when: allow_sysctl |bool
   tags: linbase_sysctl
 
 
