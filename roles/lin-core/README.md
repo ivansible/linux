@@ -50,6 +50,15 @@ Preferred time zone, e.g. `Europe/Moscow`.
 
 Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 
+    linbase_swap_enable: false
+Enables or disables confiration of swap file.
+
+    linbase_swap_mb: 0
+Swap file size in megabytes
+
+    linbase_swap_file: /swap
+Path to the swap file.
+
     linbase_golang_version: 1.13
 
 Golang toolchain version to install (skip install if empty).
@@ -71,6 +80,7 @@ Note: firewall can fail in docker containers, ssh can fail on github runners.
 - `linbase_goloang` -- install golang toolchain
 - `linbase_timesync` -- synchronize system time
 - `linbase_sysctl` -- adjust kernel parameters
+- `linbase_swap` -- setup swap space
 - `linbase_ssh` -- adjust global ssh settings
 - `linbase_firewall` -- adjust ubuntu firewall
 - `linbase_settings` -- adjust system settings - locale, timezone etc
@@ -99,4 +109,4 @@ MIT
 
 ## Author Information
 
-Created in 2018 by [IvanSible](https://github.com/ivansible)
+Created in 2018-2020 by [IvanSible](https://github.com/ivansible)

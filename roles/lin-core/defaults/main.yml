@@ -10,6 +10,10 @@ linbase_sysctl: {}
 linbase_time_sync: true
 linbase_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 
+linbase_swap_enable: false
+linbase_swap_mb: 0
+linbase_swap_file: /swap
+
 linbase_ssh_idle_timeout_min: 10
 
 linbase_apt_fast_mirrors: false

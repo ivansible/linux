@@ -126,6 +126,13 @@
   tags: [linbase_sysctl, linbase_bbr]
 
 
+- name: setup swap space
+  import_tasks: swap.yml
+  when: linbase_swap_enable |bool
+        and linbase_swap_mb |int > 0
+  tags: linbase_swap
+
+
 - name: configure firewall
   import_tasks: firewall.yml
   when: lin_use_firewall |bool
