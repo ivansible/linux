@@ -108,6 +108,23 @@
   when: allow_sysctl |bool
   tags: linbase_sysctl
 
+- name: enable BBR TCP congestion control on modern kernels
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.val }}"
+    state: present
+    sysctl_file: /etc/sysctl.d/77-bbr.conf
+  loop:
+    - key: net.core.default_qdisc
+      val: fq
+    - key: net.ipv4.tcp_congestion_control
+      val: bbr
+  loop_control:
+    label: "{{ item.key | regex_replace('^net\\.') }}"
+  when: ansible_kernel is version('4.9', '>')
+        and allow_sysctl |bool
+  tags: [linbase_sysctl, linbase_bbr]
+
 
 - name: configure firewall
   import_tasks: firewall.yml
