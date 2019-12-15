@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base
+  - ivansible.lin_base  # for common settings
 
 galaxy_info:
   role_name: lin_system
