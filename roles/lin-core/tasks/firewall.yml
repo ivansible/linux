@@ -11,23 +11,23 @@
     rule: allow
     port: "{{ real_ssh_port }}"
     proto: tcp
-  no_log: true
+  no_log: "{{ hide_secrets |bool }}"
 
 - name: close port 22/tcp, if not used
   ufw:
     rule: allow
     port: "22"
     proto: tcp
-    delete: yes
-  no_log: true
+    delete: true
+  no_log: "{{ hide_secrets |bool }}"
   when: real_ssh_port |int != 22
 
 - name: close port 22 (tcp or udp), if not used
   ufw:
     rule: allow
     port: "22"
-    delete: yes
-  no_log: true
+    delete: true
+  no_log: "{{ hide_secrets |bool }}"
   when: real_ssh_port |int != 22
 
 - name: open ntp port
@@ -35,12 +35,12 @@
     rule: allow
     port: "123"
     proto: udp
-  no_log: true
+  no_log: "{{ hide_secrets |bool }}"
 
 - name: enable ubuntu firewall
   ufw:
     state: enabled
-  no_log: true
+  no_log: "{{ hide_secrets |bool }}"
 
 - name: test connection
   ping:

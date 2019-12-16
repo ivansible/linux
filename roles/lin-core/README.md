@@ -59,9 +59,6 @@ Swap file size in megabytes
     linbase_swap_file: /swap
 Path to the swap file.
 
-    linbase_golang_version: 1.13
-
-Golang toolchain version to install (skip install if empty).
 
 ### Imported Variables (ivansible.lin_base)
 
@@ -77,7 +74,6 @@ Note: firewall can fail in docker containers, ssh can fail on github runners.
 - `linbase_mirrors` -- switch to fast apt mirrors
 - `linbase_packages` -- install common software
 - `linbase_telemetry` -- disable telemetry on bionic
-- `linbase_goloang` -- install golang toolchain
 - `linbase_timesync` -- synchronize system time
 - `linbase_sysctl` -- adjust kernel parameters
 - `linbase_swap` -- setup swap space

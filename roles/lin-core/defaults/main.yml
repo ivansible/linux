@@ -24,8 +24,6 @@ linbase_apt_allow_backports: true
 
 linbase_hide_changes: true
 
-linbase_golang_version: 1.13
-
 linbase_packages_core:
   # timedatectl requires dbus, see https://askubuntu.com/a/1015391
   - dbus
@@ -39,6 +37,8 @@ linbase_packages_core:
   - rsyslog
   # support for en_US.UTF-8
   - locales
+  # getfacl, setfacl
+  - acl
   # network
   - iproute2
   - iputils-ping
@@ -48,19 +48,13 @@ linbase_packages_core:
   - wget
   - netcat
   - ufw
+  - rsync
   # utilities
   - git
-  - jq
-  - rsync
   - vim
-  - nano
+  - gzip
   - unzip
-  - unrar
   - tmux
-  - htop             # similar to top, but allows to scroll
-  - iotop
-  - acl              # getfacl, setfacl
-  - strace
 
 linbase_packages_devel:
   # packaging
@@ -70,8 +64,6 @@ linbase_packages_devel:
   - software-properties-common
   - python-apt
   - python3-apt
-  # detect virtualization
-  - virt-what
   # development
   - python
   - python3

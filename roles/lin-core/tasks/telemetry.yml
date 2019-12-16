@@ -19,5 +19,5 @@
       - apport
       - whoopsie
     state: absent
-    purge: yes
+    purge: true
 ...

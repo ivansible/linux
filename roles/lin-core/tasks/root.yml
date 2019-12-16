@@ -4,7 +4,7 @@
     path: /etc/sudoers
     regexp: '^(Defaults\s+requiretty.*)'
     state: absent
-    backup: yes
+    backup: true
   tags: linbase_settings
 
 
@@ -12,14 +12,14 @@
   template:
     src: sources.list.j2
     dest: /etc/apt/sources.list
-    backup: yes
+    backup: true
   register: apt_switch_mirrors
   when: linbase_apt_fast_mirrors |bool
   tags: linbase_mirrors
 
 - name: update apt caches
   apt:
-    update_cache: yes
+    update_cache: true
   when: apt_switch_mirrors is changed
   tags: linbase_mirrors
 
@@ -30,7 +30,7 @@
   copy:
     dest: /etc/default/keyboard
     content: ""
-    force: no
+    force: false
   when: ansible_lsb.codename == 'xenial'
   tags: linbase_settings
 
@@ -62,7 +62,7 @@
       apt:
         name: "{{ linbase_packages_core }}"
         state: present
-        update_cache: yes
+        update_cache: true
   tags: linbase_packages
 
 - name: install development packages
@@ -83,17 +83,10 @@
   tags: linbase_timesync
 
 
-- name: disable telemetric on bionic
+- name: disable telemetry on ubuntu bionic
   import_tasks: telemetry.yml
   when: ansible_lsb.codename == 'bionic'
   tags: linbase_telemetry
-
-
-- name: install golang
-  import_tasks: golang.yml
-  when: linbase_golang_version != '' # noqa 602
-  become: yes
-  tags: linbase_golang
 
 
 - name: tune kernel parameters

@@ -5,7 +5,7 @@
   systemd:
     name: dbus
     state: started
-    enabled: yes
+    enabled: true
 
 - name: enable ntp sync
   command: timedatectl set-ntp true
@@ -15,7 +15,7 @@
   systemd:
     name: ntp
     state: started
-    enabled: yes
+    enabled: true
   changed_when: not linbase_hide_changes |bool
 
 - name: step-sync local time

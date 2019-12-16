@@ -5,16 +5,16 @@
   systemd:
     name: ssh
     state: started
-    enabled: yes
+    enabled: true
 
 - name: set some common ssh settings
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: "{{ item.key }}"
     line: "{{ item.value }}"
-    backrefs: no
+    backrefs: false
     insertbefore: "^Match|^Subsystem|^# *BEGIN"
-    firstmatch: yes
+    firstmatch: true
   with_dict:
     '^#*\s*(Pub[Kk]eyAuthentication)\b': 'PubkeyAuthentication yes'
     '^#*\s*(PermitEmptyPasswords)\b': 'PermitEmptyPasswords no'
@@ -36,7 +36,7 @@
     path: /etc/ssh/sshd_config
     regexp: "{{ item.key }}"
     line: "{{ item.value }}"
-    backrefs: yes
+    backrefs: true
   with_dict:
     'DISABLED ^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
   loop_control:
@@ -47,7 +47,7 @@
   copy:
     dest: /etc/ssh/ssh_known_hosts
     content: ""
-    force: no
+    force: false
 
 - name: harden permissions on ssh_known_hosts
   file:
