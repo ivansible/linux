@@ -26,7 +26,7 @@
     # keepalive every minute
     '^#*\s*(TCPKeepAlive)\b': 'TCPKeepAlive yes'
     '^#*\s*(ClientAliveInterval)\b': 'ClientAliveInterval 60'
-    '^#*\s*(ClientAliveCountMax)\b': 'ClientAliveCountMax {{ linbase_ssh_idle_timeout_min }}'
+    '^#*\s*(ClientAliveCountMax)\b': 'ClientAliveCountMax {{ linsys_ssh_idle_timeout_min }}'
   loop_control:
     label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
   notify: restart ssh service

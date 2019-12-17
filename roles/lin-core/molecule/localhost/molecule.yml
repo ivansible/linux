@@ -18,8 +18,8 @@ provisioner:
   inventory:
     group_vars:
       molecule:
-        linbase_system_locale: en_US.UTF-8
-        linbase_time_sync: true
+        linsys_system_locale: en_US.UTF-8
+        linsys_time_sync: true
         allow_sysctl: false
         lin_use_firewall: ${IVATEST_FIREWALL:-true}
         lin_use_ssh: ${IVATEST_SSH_PORT:-true}      # port 0 casts as false, otherwise true

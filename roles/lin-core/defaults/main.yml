@@ -1,30 +1,30 @@
 ---
 # defaults file for ivansible.lin_system
 
-linbase_system_locale: ''
+linsys_system_locale: ''
 
-linbase_timezone: ''
+linsys_timezone: ''
 
-linbase_sysctl: {}
+linsys_sysctl: {}
 
-linbase_time_sync: true
-linbase_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
+linsys_time_sync: true
+linsys_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 
-linbase_swap_enable: false
-linbase_swap_mb: 0
-linbase_swap_file: /swap
+linsys_swap_enable: false
+linsys_swap_mb: 0
+linsys_swap_file: /swap
 
-linbase_ssh_idle_timeout_min: 10
+linsys_ssh_idle_timeout_min: 10
 
-linbase_apt_fast_mirrors: false
+linsys_apt_fast_mirrors: false
 
-linbase_apt_allow_universe: true
-linbase_apt_allow_src: true
-linbase_apt_allow_backports: true
+linsys_apt_allow_universe: true
+linsys_apt_allow_src: true
+linsys_apt_allow_backports: true
 
-linbase_hide_changes: true
+linsys_hide_changes: true
 
-linbase_packages_core:
+linsys_packages_core:
   # timedatectl requires dbus, see https://askubuntu.com/a/1015391
   - dbus
   - systemd
@@ -56,7 +56,7 @@ linbase_packages_core:
   - unzip
   - tmux
 
-linbase_packages_devel:
+linsys_packages_devel:
   # packaging
   - aptitude
   - apt-file

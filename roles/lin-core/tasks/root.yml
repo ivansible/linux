@@ -5,7 +5,7 @@
     regexp: '^(Defaults\s+requiretty.*)'
     state: absent
     backup: true
-  tags: linbase_settings
+  tags: linsys_settings
 
 
 - name: switch to fast apt mirrors
@@ -14,14 +14,14 @@
     dest: /etc/apt/sources.list
     backup: true
   register: apt_switch_mirrors
-  when: linbase_apt_fast_mirrors |bool
-  tags: linbase_mirrors
+  when: linsys_apt_fast_mirrors |bool
+  tags: linsys_mirrors
 
 - name: update apt caches
   apt:
     update_cache: true
   when: apt_switch_mirrors is changed
-  tags: linbase_mirrors
+  tags: linsys_mirrors
 
 
 - name: fix localectl problem in minimal xenial docker
@@ -32,44 +32,44 @@
     content: ""
     force: false
   when: ansible_lsb.codename == 'xenial'
-  tags: linbase_settings
+  tags: linsys_settings
 
 - name: set system locale
   command: >
     localectl set-locale
-      LANG={{ linbase_system_locale }}
-      LANGUAGE={{ linbase_system_locale }}
-  changed_when: not linbase_hide_changes |bool
-  when: linbase_system_locale != '' # noqa 602
-  tags: linbase_settings
+      LANG={{ linsys_system_locale }}
+      LANGUAGE={{ linsys_system_locale }}
+  changed_when: not linsys_hide_changes |bool
+  when: linsys_system_locale != '' # noqa 602
+  tags: linsys_settings
 
 - name: set timezone
   timezone:
-    name: "{{ linbase_timezone }}"
-  when: linbase_timezone != '' # noqa 602
-  tags: linbase_settings
+    name: "{{ linsys_timezone }}"
+  when: linsys_timezone != '' # noqa 602
+  tags: linsys_settings
 
 
 - block:
     - name: install core packages (ok to fail once, output hidden)
       apt:
-        name: "{{ linbase_packages_core }}"
+        name: "{{ linsys_packages_core }}"
         state: present
       # failure message is too verbose, silence by default
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: update apt cache and install core packages
       apt:
-        name: "{{ linbase_packages_core }}"
+        name: "{{ linsys_packages_core }}"
         state: present
         update_cache: true
-  tags: linbase_packages
+  tags: linsys_packages
 
-- name: install development packages
+- name: install core development packages
   apt:
-    name: "{{ linbase_packages_devel }}"
+    name: "{{ linsys_packages_devel }}"
     state: present
-  tags: linbase_packages
+  tags: linsys_packages
 
 # it may be a good idea to restart mitogen runner
 # after installing python apt bindings
@@ -79,14 +79,14 @@
 - name: synchronize system time
   # this task requires time packages, which are installed above
   import_tasks: timesync.yml
-  when: linbase_time_sync |bool
-  tags: linbase_timesync
+  when: linsys_time_sync |bool
+  tags: linsys_timesync
 
 
 - name: disable telemetry on ubuntu bionic
   import_tasks: telemetry.yml
   when: ansible_lsb.codename == 'bionic'
-  tags: linbase_telemetry
+  tags: linsys_telemetry
 
 
 - name: tune kernel parameters
@@ -95,11 +95,11 @@
     value: "{{ item.value }}"
     state: present
     sysctl_file: /etc/sysctl.d/77-system.conf
-  with_dict: "{{ linbase_sysctl }}"
+  with_dict: "{{ linsys_sysctl }}"
   loop_control:
     label: "{{ item.key | regex_replace('^net\\.') }}"
   when: allow_sysctl |bool
-  tags: linbase_sysctl
+  tags: linsys_sysctl
 
 - name: enable BBR TCP congestion control on modern kernels
   sysctl:
@@ -116,29 +116,29 @@
     label: "{{ item.key | regex_replace('^net\\.') }}"
   when: ansible_kernel is version('4.9', '>')
         and allow_sysctl |bool
-  tags: [linbase_sysctl, linbase_bbr]
+  tags: [linsys_sysctl, linsys_bbr]
 
 
 - name: setup swap space
   import_tasks: swap.yml
-  when: linbase_swap_enable |bool
-        and linbase_swap_mb |int > 0
-  tags: linbase_swap
+  when: linsys_swap_enable |bool
+        and linsys_swap_mb |int > 0
+  tags: linsys_swap
 
 
 - name: configure firewall
   import_tasks: firewall.yml
   when: lin_use_firewall |bool
-  tags: linbase_firewall
+  tags: linsys_firewall
 
 
 - name: adjust global ssh settings
   import_tasks: ssh.yml
   when: lin_use_ssh |bool
-  tags: linbase_ssh
+  tags: linsys_ssh
 
 
 - name: disable some motd banners
   import_tasks: motd.yml
-  tags: linbase_motd
+  tags: linsys_motd
 ...
