@@ -1,58 +1,17 @@
 ---
-# adjust global ssh settings
+- name: configure port for ssh service
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#*\s*Port\b'
+    line: 'Port {{ real_ssh_port }}'
+    backrefs: false
+    insertbefore: "^Match|^Subsystem|^# *BEGIN"
+    firstmatch: true
+  notify: restart ssh service
 
-- name: enable sshd
+- name: enable ssh service
   systemd:
     name: ssh
     state: started
     enabled: true
-
-- name: set some common ssh settings
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "{{ item.key }}"
-    line: "{{ item.value }}"
-    backrefs: false
-    insertbefore: "^Match|^Subsystem|^# *BEGIN"
-    firstmatch: true
-  with_dict:
-    '^#*\s*(Pub[Kk]eyAuthentication)\b': 'PubkeyAuthentication yes'
-    '^#*\s*(PermitEmptyPasswords)\b': 'PermitEmptyPasswords no'
-    '^#*\s*(UseDNS)\b': 'UseDNS no'
-    # see: https://www.linuxquestions.org/questions/linux-security-4/how-to-disable-ssh-version-banner-909540
-    '^#*\s*(DebianBanner)\b': 'DebianBanner no'
-    '^#*\s*(PrintMotd)\b': 'PrintMotd no'
-    '^#*\s*(PrintLastLog)\b': 'PrintLastLog no'
-    # keepalive every minute
-    '^#*\s*(TCPKeepAlive)\b': 'TCPKeepAlive yes'
-    '^#*\s*(ClientAliveInterval)\b': 'ClientAliveInterval 60'
-    '^#*\s*(ClientAliveCountMax)\b': 'ClientAliveCountMax {{ linsys_ssh_idle_timeout_min }}'
-  loop_control:
-    label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
-  notify: restart ssh service
-
-- name: modify some common ssh settings
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: "{{ item.key }}"
-    line: "{{ item.value }}"
-    backrefs: true
-  with_dict:
-    'DISABLED ^#\s*(AuthorizedKeysFile)\s+(.*)': '\1 \2'
-  loop_control:
-    label: "{{ item.key | regex_search('\\([^)]+\\)') }}"
-  notify: restart ssh service
-
-- name: ensure ssh_known_hosts exists
-  copy:
-    dest: /etc/ssh/ssh_known_hosts
-    content: ""
-    force: false
-
-- name: harden permissions on ssh_known_hosts
-  file:
-    path: /etc/ssh/ssh_known_hosts
-    owner: root
-    group: root
-    mode: 0644
 ...

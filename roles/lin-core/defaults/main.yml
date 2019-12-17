@@ -14,8 +14,6 @@ linsys_swap_enable: false
 linsys_swap_mb: 0
 linsys_swap_file: /swap
 
-linsys_ssh_idle_timeout_min: 10
-
 linsys_apt_fast_mirrors: false
 
 linsys_apt_allow_universe: true

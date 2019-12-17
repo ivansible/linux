@@ -10,8 +10,7 @@ Perform basic configuration of a linux box:
  - install common software;
  - adjust system locale and time zone;
  - tune kernel parameters (sysctl);
- - disable empty passwords and harden ssh permissions;
- - enable firewall;
+ - enable firewall, including ssh port fix (if allowed);
  - disable telemetry on bionic (see https://askubuntu.com/a/1030168);
 
 
@@ -23,12 +22,6 @@ None
 ## Variables
 
 Available variables are listed below, along with default values.
-
-    real_ssh_port: <optional>
-This optional setting lets the user override an auto-detected ssh port value,
-which may be incorrect if ansible is run by the hashicorop packer or through
-a reverse ssh or port forwarder. An incorrect value would result in the real
-ssh port being firewalled by the role.
 
     linsys_apt_fast_mirrors: false
 
@@ -60,13 +53,23 @@ Swap file size in megabytes
 Path to the swap file.
 
 
+### Optional Variables
+
+    real_ssh_port: <optional>
+
+This optional setting allows user to override auto-detected ssh port,
+which may be incorrect if ansible is run by the HashiCorp Packer
+or through a reverse ssh tunnel or port forwarder.
+Incorrect value may result in the real ssh port being firewalled by the role.
+
+
 ### Imported Variables (ivansible.lin_base)
 
     lin_use_firewall: true
-    lin_use_ssh: true
+Enables firewall, eg. UFW (firewall can fail in docker containers).
 
-Improve security -- enable uncomplicated firewall, disable empty ssh passwords etc.
-Note: firewall can fail in docker containers, ssh can fail on github runners.
+    lin_use_ssh: true
+Enables SSH daemon (can fail on github runners).
 
 
 ## Tags
@@ -77,7 +80,7 @@ Note: firewall can fail in docker containers, ssh can fail on github runners.
 - `linsys_timesync` -- synchronize system time
 - `linsys_sysctl` -- adjust kernel parameters
 - `linsys_swap` -- setup swap space
-- `linsys_ssh` -- adjust global ssh settings
+- `linsys_ssh` -- configure ssh port
 - `linsys_firewall` -- adjust ubuntu firewall
 - `linsys_settings` -- adjust system settings - locale, timezone etc
 - `linsys_motd` -- disable some motd banners
@@ -86,7 +89,7 @@ Note: firewall can fail in docker containers, ssh can fail on github runners.
 
 ## Dependencies
 
-- `ivansible.lin_base` -- for `ssh` restart handler
+- `ivansible.lin_base` -- for `ssh` restart handler, `lin_use_firewall` etc
 
 
 ## Example Playbook

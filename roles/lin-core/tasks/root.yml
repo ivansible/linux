@@ -116,7 +116,9 @@
     label: "{{ item.key | regex_replace('^net\\.') }}"
   when: ansible_kernel is version('4.9', '>')
         and allow_sysctl |bool
-  tags: [linsys_sysctl, linsys_bbr]
+  tags:
+    - linsys_sysctl
+    - linsys_bbr
 
 
 - name: setup swap space
@@ -126,16 +128,25 @@
   tags: linsys_swap
 
 
-- name: configure firewall
-  import_tasks: firewall.yml
-  when: lin_use_firewall |bool
-  tags: linsys_firewall
+- name: derive ssh port
+  set_fact:
+    real_ssh_port: "{{ real_ssh_port
+                     | default(ansible_port)
+                     | default(ansible_ssh_port)
+                     | default(22) }}"
+  tags:
+    - linsys_ssh
+    - linsys_firewall
 
-
-- name: adjust global ssh settings
+- name: configure port for ssh service
   import_tasks: ssh.yml
   when: lin_use_ssh |bool
   tags: linsys_ssh
+
+- name: activate firewall
+  import_tasks: firewall.yml
+  when: lin_use_firewall |bool
+  tags: linsys_firewall
 
 
 - name: disable some motd banners

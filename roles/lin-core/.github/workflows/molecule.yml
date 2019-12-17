@@ -12,6 +12,9 @@ on:
 env:
   ROLE_NAME: ivansible.lin_system
   ANSIBLE_FORCE_COLOR: true
+  # ssh is installed by later role, skip the test
+  IVATEST_SSH_SERVER: false
+  IVATEST_SSH_PORT: 0
 
 jobs:
   localhost_test:
@@ -23,15 +26,9 @@ jobs:
         os:
           - ubuntu-16.04
           - ubuntu-18.04
-        include:
-          - os: ubuntu-16.04
-            ssh_port: 0       # ssh on github/xenial fails (missing privilege separation directory: /var/run/sshd)
-          - os: ubuntu-18.04
-            ssh_port: 22      # ssh on github/bionic is ok
     env:
       SCENARIO: localhost
       IVATEST_FIREWALL: true
-      IVATEST_SSH_PORT: ${{ matrix.ssh_port }}  # port 0 disables ssh server
 
     steps:
       - name: Checkout

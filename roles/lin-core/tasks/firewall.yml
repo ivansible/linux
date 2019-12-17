@@ -1,43 +1,42 @@
 ---
-- name: detect ssh port
-  set_fact:
-    real_ssh_port: "{{ real_ssh_port
-                     | default(ansible_port)
-                     | default(ansible_ssh_port)
-                     | default(22) }}"
+- name: fix ssh port in firewall
+  block:
+    - name: close port 22/tcp, if not used
+      ufw:
+        rule: allow
+        port: '22'
+        proto: tcp
+        delete: true
+      no_log: "{{ hide_secrets |bool }}"
 
-- name: open ssh port
+    - name: close port 22 (tcp+udp), if not used
+      ufw:
+        rule: allow
+        port: '22'
+        delete: true
+      no_log: "{{ hide_secrets |bool }}"
+  when: lin_use_ssh |bool
+        and real_ssh_port |int != 22
+  tags: linsys_ssh
+
+- name: open actual ssh port
   ufw:
     rule: allow
-    port: "{{ real_ssh_port }}"
+    port: "{{ real_ssh_port |string }}"
     proto: tcp
   no_log: "{{ hide_secrets |bool }}"
+  when: lin_use_ssh |bool
+  tags: linsys_ssh
 
-- name: close port 22/tcp, if not used
-  ufw:
-    rule: allow
-    port: "22"
-    proto: tcp
-    delete: true
-  no_log: "{{ hide_secrets |bool }}"
-  when: real_ssh_port |int != 22
-
-- name: close port 22 (tcp or udp), if not used
-  ufw:
-    rule: allow
-    port: "22"
-    delete: true
-  no_log: "{{ hide_secrets |bool }}"
-  when: real_ssh_port |int != 22
 
 - name: open ntp port
   ufw:
     rule: allow
-    port: "123"
+    port: '123'
     proto: udp
   no_log: "{{ hide_secrets |bool }}"
 
-- name: enable ubuntu firewall
+- name: activate firewall
   ufw:
     state: enabled
   no_log: "{{ hide_secrets |bool }}"
