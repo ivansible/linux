@@ -1,6 +1,11 @@
 ---
-- name: become root and install role
+- name: become root and configure ssh daemon
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: lin_use_ssh |bool
+  tags: lin_ssh_all
+
+- name: apply new ssh settings
+  meta: flush_handlers
+  tags: lin_ssh_all
 ...

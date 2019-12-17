@@ -1,5 +1,89 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: derive ssh port
+  set_fact:
+    real_ssh_port: "{{ real_ssh_port
+                     | default(ansible_port, true)
+                     | default(ansible_ssh_port, true)
+                     | default(22, true) }}"
+
+- name: install openssh packages
+  apt:
+    name:
+      - openssh-server
+      - openssh-client
+    state: present
+  tags: lin_ssh_install
+
+
+- name: enable public key authentication
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    ## this case is separate because key casing is different on some systems
+    regexp: '^#*\s*(Pub[kK]eyAuthentication)\b'
+    line: 'PubkeyAuthentication yes'
+    backrefs: false
+    insertbefore: "^Match|^Subsystem|^# *BEGIN"
+    firstmatch: true
+  notify: restart ssh service
+  tags: lin_ssh_settings
+
+- name: set some common ssh settings
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#*\s*{{ item.0 }}\b'
+    line: '{{ item.0 }} {{ item.1 }}'
+    backrefs: false
+    insertbefore: '^Match|^Subsystem|^# *BEGIN'
+    firstmatch: true
+  loop: "{{ lin_ssh_settings |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+  notify: restart ssh service
+  tags: lin_ssh_settings
+
+
+- name: ensure ssh_known_hosts exists
+  copy:
+    dest: /etc/ssh/ssh_known_hosts
+    content: ""
+    force: false
+  tags: lin_ssh_known_hosts
+
+- name: harden permissions on ssh_known_hosts
+  file:
+    path: /etc/ssh/ssh_known_hosts
+    owner: root
+    group: root
+    mode: 0644
+  tags: lin_ssh_known_hosts
+
+
+- name: enable public keys of known hosts
+  known_hosts:
+    path: "{{ key_file }}"
+    name: "{{ key_name }}"
+    ## fall back to locally cached host keys if ssh keyscan fails
+    key: "{{ lookup('pipe', keyscan_cmd) or lookup('pipe', fallback_cmd) }}"
+  vars:
+    key_file: /etc/ssh/ssh_known_hosts
+    key_type: rsa
+    keyscan_cmd: "ssh-keyscan -t {{ key_type }} -p {{ ssh_port }} {{ hostname }} 2>/dev/null"
+    fallback_cmd: "grep -F '{{ key_name }}' '{{ key_file }}' ||true |grep ssh-{{ key_type }} |head -1"
+    hostname: "{{ item |regex_replace(':.*') }}"
+    ssh_port: "{{ (item |regex_search(':[0-9]+'))[1:] if ':' in item else '22' }}"
+    ## key_name: host -> host, host:port -> [host]:port
+    key_name: "{{ hostname if ssh_port == '22' else '[%s]:%s' % (hostname, ssh_port) }}"
+  ## retry sporadic ssh-keyscan failures on vagrant
+  register: ssh_keyscan_result
+  until: ssh_keyscan_result is successful
+  loop: "{{ lin_ssh_known_hosts }}"
+  tags: lin_ssh_known_hosts
+
+
+- name: enable ssh service
+  systemd:
+    name: ssh
+    state: started
+    enabled: true
+  tags: lin_ssh_install
 ...

@@ -4,9 +4,10 @@
 [![Travis Test Status](https://travis-ci.org/ivansible/lin-ssh.svg?branch=master)](https://travis-ci.org/ivansible/lin-ssh)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__ssh-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_ssh/)
 
-This role will:
- - action1;
- - action2;
+This role will perform additional ssh configuration: harden permissions,
+disable interactive ssh passwords etc.
+Please note that since SSH port should be enabled in firewall *early*,
+that task has been performed by the `lin-system` role rather than here.
 
 
 ## Requirements
@@ -18,19 +19,42 @@ None
 
 Available variables are listed below, along with default values.
 
-    variable1: 1
-    variable2: 2
+    lin_ssh_known_hosts: [github.com, ...]
+
+If this list is not empty, add its items to the global list of known hosts
+(normally `/etc/ssh/ssh_known_hosts`). Items are FQDN host names if standard SSH
+port 22 is used, otherwise the item should be formatted as `host:port`.
+
+    lin_ssh_settings: {...}
+A dictionary with SSH daemon settings.
+
+
+### Optional Variables
+
+    real_ssh_port: <optional>
+
+This optional setting allows user to override auto-detected ssh port value,
+which may be incorrect if ansible is run by the HashiCorp Packer or through
+a reverse ssh tunnel or port forwarder.
+
+
+### Imported Variables (ivansible.lin_base)
+
+    lin_use_ssh: true
+Unlocks this role (please lock if SSH can fail, eg. on github runners).
 
 
 ## Tags
 
-- `role1_tag1` -- action1
-- `role1_tag2` -- action2
+- `lin_ssh_install` -- install openssh and activate ssh service
+- `lin_ssh_settings` -- customize ssh settings (eg. harden the security)
+- `lin_ssh_known_hosts` -- update global list of known hosts
+- `lin_ssh_all` -- all actions
 
 
 ## Dependencies
 
-None
+- `ivansible.lin_base` -- for `ssh` restart handler and ssh enabling flag.
 
 
 ## Example Playbook
@@ -47,4 +71,4 @@ MIT
 
 ## Author Information
 
-Created in 2019 by [IvanSible](https://github.com/ivansible)
+Created in 2019-2020 by [IvanSible](https://github.com/ivansible)

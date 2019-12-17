@@ -1,5 +1,6 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base  # for ssh restart handler and ssh enabling flag
 
 galaxy_info:
   role_name: lin_ssh
@@ -17,7 +18,7 @@ galaxy_info:
 
   galaxy_tags:
     - linux
-    - ansible
+    - ssh
 
   github_branch: master
 ...

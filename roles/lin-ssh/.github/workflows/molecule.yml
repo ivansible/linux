@@ -25,7 +25,9 @@ jobs:
     env:
       SCENARIO: localhost
       IVATEST_FIREWALL: true
+      # disable ssh server on github runners
       IVATEST_SSH_SERVER: false
+      IVATEST_SSH_PORT: 0
 
     steps:
       - name: Checkout
@@ -44,8 +46,7 @@ jobs:
 
       - name: Run test
         shell: bash
-        run: |
-          molecule test -s $SCENARIO
+        run: cd ivansible/$ROLE_NAME && molecule test -s $SCENARIO
 
   docker_test:
     name: tests in docker
@@ -55,7 +56,9 @@ jobs:
     env:
       SCENARIO: default
       IVATEST_FIREWALL: false
+      # perform ssh server test in docker
       IVATEST_SSH_SERVER: true
+      IVATEST_SSH_PORT: 22
 
     steps:  # copy-pasting above steps since anchors are unsupported
       - name: Checkout
@@ -74,6 +77,5 @@ jobs:
 
       - name: Run test
         shell: bash
-        run: |
-          molecule test -s $SCENARIO
+        run: cd ivansible/$ROLE_NAME && molecule test -s $SCENARIO
 ...

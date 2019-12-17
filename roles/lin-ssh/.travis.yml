@@ -11,6 +11,7 @@ env:
   global:
     - ROLE_NAME=ivansible.lin_ssh
     - IVATEST_SSH_SERVER=true
+    - IVATEST_SSH_PORT=22
 
 before_install:
   - ln -s $TRAVIS_BUILD_DIR $(dirname $TRAVIS_BUILD_DIR)/$ROLE_NAME
@@ -42,6 +43,7 @@ matrix:
       env:
         - IVATEST_FIREWALL=false
       script:
+        # run step by step to work around no-output delay with idempotence
         - molecule lint
         - molecule destroy
         - molecule dependency

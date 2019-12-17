@@ -20,20 +20,24 @@ provisioner:
       molecule:
         linsys_system_locale: en_US.UTF-8
         lin_use_ssh: ${IVATEST_SSH_SERVER:-true}
+        real_ssh_port: ${IVATEST_SSH_PORT:-22}
+        allow_sysctl: false
         # these pass on host:
         linsys_time_sync: true
         lin_use_firewall: ${IVATEST_FIREWALL:-true}
   playbooks:
     prepare: ../default/prepare.yml
     converge: ../default/playbook.yml
-    verify: ../default/verify.yml
   lint:
     name: ansible-lint
 verifier:
-  name: ansible
+  name: testinfra
   lint:
-    name: ansible-lint
-    enabled: false
+    name: flake8
+    options:
+      max-line-length: 120
+  directory:
+    ../default/tests
 lint:
   name: yamllint
   options:
