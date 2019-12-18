@@ -1,0 +1,5 @@
+---
+- name: root task1
+  debug:
+    msg: task1
+...
