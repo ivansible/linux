@@ -83,7 +83,6 @@ Enables SSH daemon (can fail on github runners).
 - `linsys_ssh` -- configure ssh port
 - `linsys_firewall` -- adjust ubuntu firewall
 - `linsys_settings` -- adjust system settings - locale, timezone etc
-- `linsys_motd` -- disable some motd banners
 - `linsys_all` -- all of above
 
 

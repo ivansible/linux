@@ -147,9 +147,4 @@
   import_tasks: firewall.yml
   when: lin_use_firewall |bool
   tags: linsys_firewall
-
-
-- name: disable some motd banners
-  import_tasks: motd.yml
-  tags: linsys_motd
 ...
