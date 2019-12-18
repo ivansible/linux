@@ -1,6 +1,27 @@
 ---
-- name: become root and install role
-  import_tasks: root.yml
-  become: true
-  tags: role_all
+- name: disable motd banners on ubuntu xenial
+  include_tasks: motd-xenial.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_motd_xenial
+        - lin_motd_all
+  when: ansible_lsb.codename == 'xenial'
+  tags:
+    - lin_motd_xenial
+    - lin_motd_all
+
+- name: disable motd banners on ubuntu bionic
+  include_tasks: motd-bionic.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_motd_bionic
+        - lin_motd_all
+  when: ansible_lsb.codename == 'bionic'
+  tags:
+    - lin_motd_bionic
+    - lin_motd_all
 ...

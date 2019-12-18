@@ -1,0 +1,17 @@
+---
+- name: disable xenial motd banners by disabling execution (ok to fail)
+  file:
+    path: /etc/update-motd.d/{{ item }}
+    mode: 0644
+  loop:
+    - 10-help-text
+    - 50-motd-news
+    - 90-updates-available
+    - 91-release-upgrade
+    - 99-esm
+  loop_control:
+    label: "{{ item }}"
+  # ignore missing banners and supress error messages
+  ignore_errors: true
+  no_log: "{{ hide_secrets |bool }}"
+...

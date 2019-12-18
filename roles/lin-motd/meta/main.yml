@@ -1,10 +1,11 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base  # for hide_secrets
 
 galaxy_info:
   role_name: lin_motd
   author: "Ivan Andreev"
-  description: "disable motd banners"
+  description: "disable some motd banners on linux"
   company: "IvanSible"
   license: MIT
   min_ansible_version: 2.5
@@ -17,7 +18,7 @@ galaxy_info:
 
   galaxy_tags:
     - linux
-    - ansible
+    - motd
 
   github_branch: master
 ...

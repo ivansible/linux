@@ -10,7 +10,8 @@ os: linux
 env:
   global:
     - ROLE_NAME=ivansible.lin_motd
-    - IVATEST_SSH_SERVER=true
+    - IVATEST_SSH_SERVER=false
+    - IVATEST_FIREWALL=none
 
 before_install:
   - ln -s $TRAVIS_BUILD_DIR $(dirname $TRAVIS_BUILD_DIR)/$ROLE_NAME
@@ -24,23 +25,17 @@ matrix:
   include:
     - name: test on xenial
       dist: xenial
-      env:
-        - IVATEST_FIREWALL=ferm
       script:
         - molecule test -s localhost
 
     - name: test on bionic
       dist: bionic
-      env:
-        - IVATEST_FIREWALL=ferm
       script:
         - molecule test -s localhost
 
     - name: tests in docker
       dist: bionic
       services: docker
-      env:
-        - IVATEST_FIREWALL=none
       script:
         # run step by step to work around no-output delay with idempotence
         - molecule lint
