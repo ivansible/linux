@@ -42,41 +42,8 @@
   tags: lin_ssh_settings
 
 
-- name: ensure ssh_known_hosts exists
-  copy:
-    dest: /etc/ssh/ssh_known_hosts
-    content: ""
-    force: false
-  tags: lin_ssh_known_hosts
-
-- name: harden permissions on ssh_known_hosts
-  file:
-    path: /etc/ssh/ssh_known_hosts
-    owner: root
-    group: root
-    mode: 0644
-  tags: lin_ssh_known_hosts
-
-
-- name: enable public keys of known hosts
-  known_hosts:
-    path: "{{ key_file }}"
-    name: "{{ key_name }}"
-    ## fall back to locally cached host keys if ssh keyscan fails
-    key: "{{ lookup('pipe', keyscan_cmd) or lookup('pipe', fallback_cmd) }}"
-  vars:
-    key_file: /etc/ssh/ssh_known_hosts
-    key_type: rsa
-    keyscan_cmd: "ssh-keyscan -t {{ key_type }} -p {{ ssh_port }} {{ hostname }} 2>/dev/null"
-    fallback_cmd: "grep -F '{{ key_name }}' '{{ key_file }}' ||true |grep ssh-{{ key_type }} |head -1"
-    hostname: "{{ item |regex_replace(':.*') }}"
-    ssh_port: "{{ (item |regex_search(':[0-9]+'))[1:] if ':' in item else '22' }}"
-    ## key_name: host -> host, host:port -> [host]:port
-    key_name: "{{ hostname if ssh_port == '22' else '[%s]:%s' % (hostname, ssh_port) }}"
-  ## retry sporadic ssh-keyscan failures on vagrant
-  register: ssh_keyscan_result
-  until: ssh_keyscan_result is successful
-  loop: "{{ lin_ssh_known_hosts }}"
+- name: update known hosts
+  import_tasks: known_hosts.yml
   tags: lin_ssh_known_hosts
 
 
