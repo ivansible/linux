@@ -1,5 +1,6 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base  # for lin_use_syslog
 
 galaxy_info:
   role_name: lin_syslog
@@ -17,7 +18,8 @@ galaxy_info:
 
   galaxy_tags:
     - linux
-    - ansible
+    - syslog
+    - rsyslog
 
   github_branch: master
 ...

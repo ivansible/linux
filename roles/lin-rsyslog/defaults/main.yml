@@ -1,3 +1,13 @@
 ---
 # defaults for ivansible.lin_syslog
+
+lin_syslog_keenetic_ip: ""
+
+lin_syslog_separate_ufw: false
+lin_syslog_separate_drupal: false
+lin_syslog_separate_cron: false
+
+lin_syslog_thin_php_cleaner: false
+
+lin_syslog_force_rules: false
 ...

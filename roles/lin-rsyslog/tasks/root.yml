@@ -1,5 +1,177 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install syslog and logrotate
+  apt:
+    name:
+      - rsyslog
+      - logrotate
+    state: present
+  tags: lin_syslog_packages
+
+- name: disable kernel logging in docker
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regex: "{{ item }}"
+    line: '#\1'
+    backrefs: true
+  loop:
+    - '^(\$?ModLoad imklog.*)$'
+    - '^(module\(load=\"imklog\".*)$'
+  notify: restart syslog service
+  when: ansible_virtualization_type == 'docker'
+  tags: lin_syslog_docker
+
+
+- name: adjust mail logging
+  # use standard logrotate rules for mail
+  copy:
+    dest: /etc/rsyslog.d/33-mail.conf
+    content: |
+      #mail.info	-/var/log/mail.info
+      #mail.warn	-/var/log/mail.warn
+      {# noqa 203 (force tabs) #}mail.err	/var/log/mail.err
+      {# noqa 203 (force tabs #}mail.*		-/var/log/mail.log
+      & stop
+    force: "{{ lin_syslog_force_rules |bool }}"
+  notify: restart syslog service
+  tags: lin_syslog_mail
+
+
+- name: log ufw messages to separate log
+  copy:
+    dest: /etc/rsyslog.d/20-ufw.conf
+    content: |
+      # Log kernel generated UFW log messages to file
+      :msg,contains,"[UFW " /var/log/ufw.log
+
+      # Uncomment the following to stop logging anything that matches the last rule.
+      # Doing this will stop logging kernel generated UFW log messages to the file
+      # normally containing kern.* messages (eg, /var/log/kern.log)
+      & stop
+    force: "{{ lin_syslog_force_rules |bool }}"
+  notify: restart syslog service
+  when: lin_syslog_separate_ufw |bool
+  tags: lin_syslog_ufw
+
+- name: keep ufw messages only in dedicated file, remove from kernel log
+  lineinfile:
+    path: /etc/rsyslog.d/20-ufw.conf
+    regex: '^#*& stop'
+    line: '& stop'
+    insertbefore: EOF
+  notify: restart syslog service
+  when: lin_syslog_separate_ufw |bool
+  tags: lin_syslog_ufw
+
+- name: limit size of rotated ufw log
+  # besides size, use standard logrotate rules for ufw
+  lineinfile:
+    path: /etc/logrotate.d/ufw
+    regex: '^\s+maxsize'
+    line: "\tmaxsize 1M"
+    insertbefore: '^\s+weekly|^}'
+    firstmatch: true
+  when: lin_syslog_separate_ufw |bool
+  tags: lin_syslog_ufw
+
+
+- name: log drupal to dedicated log
+  copy:
+    dest: /etc/rsyslog.d/33-drupal.conf
+    content: |
+      :programname,isequal,"drupal" /var/log/drupal.log
+      & stop
+    force: "{{ lin_syslog_force_rules |bool }}"
+  notify: restart syslog service
+  when: lin_syslog_separate_drupal |bool
+  tags: lin_syslog_drupal
+
+- name: rotate drupal log
+  copy:
+    dest: /etc/logrotate.d/drupal
+    content: |
+      /var/log/drupal.log {
+          rotate 4
+          maxsize 1M
+          weekly
+          missingok
+          notifempty
+          compress
+          delaycompress
+          sharedscripts
+          postrotate
+              invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
+          endscript
+      }
+    force: "{{ lin_syslog_force_rules |bool }}"
+  when: lin_syslog_separate_drupal |bool
+  tags: lin_syslog_drupal
+
+
+- name: log keenetic to dedicated log
+  copy:
+    dest: /etc/rsyslog.d/33-keenetic.conf
+    content: |
+      module(load="imudp")
+      input(type="imudp" port="514")
+      {# noqa 203 (force tabs) #}:FROMHOST,isequal,"{{ lin_syslog_keenetic_ip }}"	/var/log/keenetic.log
+      & stop
+    force: "{{ lin_syslog_force_rules |bool }}"
+  notify: restart syslog service
+  when: lin_syslog_keenetic_ip != '' # noqa 602
+  tags: lin_syslog_keenetic
+
+- name: rotate keenetic log
+  copy:
+    dest: /etc/logrotate.d/keenetic
+    content: |
+      /var/log/keenetic.log {
+          rotate 4
+          maxsize 1M
+          weekly
+          missingok
+          notifempty
+          compress
+          delaycompress
+          sharedscripts
+          postrotate
+              invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
+          endscript
+      }
+    force: "{{ lin_syslog_force_rules |bool }}"
+  when: lin_syslog_keenetic_ip != '' # noqa 602
+  tags: lin_syslog_keenetic
+
+
+- name: log cron to dedicated log
+  # use standard logrotate rules for cron
+  copy:
+    dest: /etc/rsyslog.d/33-cron.conf
+    content: |
+      :programname,isequal,"CRON" /var/log/cron.log
+      & stop
+    force: "{{ lin_syslog_force_rules |bool }}"
+  notify: restart syslog service
+  when: lin_syslog_separate_cron |bool
+  tags: lin_syslog_cron
+
+
+- name: systemd directory for php cleaner overrides
+  file:
+    path: /etc/systemd/system/phpsessionclean.timer.d
+    state: directory
+  when: lin_syslog_thin_php_cleaner |bool
+  tags: lin_syslog_php
+
+- name: thin out the runs of php session cleaner
+  copy:
+    dest: /etc/systemd/system/phpsessionclean.timer.d/interval.conf
+    content: |
+      # ansible-managed
+      [Timer]
+      OnCalendar=
+      OnCalendar=*-*-* 01,13:00:00
+    force: "{{ lin_syslog_force_rules |bool }}"
+  notify: reload systemd daemon
+  when: lin_syslog_thin_php_cleaner |bool
+  tags: lin_syslog_php
 ...

@@ -1,6 +1,10 @@
 ---
-- name: become root and install role
+- name: become root and apply syslog settings
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: lin_use_syslog |bool
+  tags: lin_syslog_all
+
+- name: flush handlers
+  meta: flush_handlers
 ...
