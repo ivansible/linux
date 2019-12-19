@@ -32,7 +32,6 @@ linsys_packages_core:
   # system core
   - openssh-server
   - openssh-client
-  - rsyslog
   # support for en_US.UTF-8
   - locales
   # getfacl, setfacl

@@ -65,6 +65,15 @@
         update_cache: true
   tags: linsys_packages
 
+- name: install system logger
+  apt:
+    name:
+      - rsyslog
+      - logrotate
+    state: present
+  when: lin_use_syslog |bool
+  tags: linsys_packages
+
 - name: install core development packages
   apt:
     name: "{{ linsys_packages_devel }}"

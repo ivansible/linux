@@ -71,6 +71,9 @@ Enables firewall, eg. UFW (firewall can fail in docker containers).
     lin_use_ssh: true
 Enables SSH daemon (can fail on github runners).
 
+    lin_use_syslog: true
+Enables rsyslog.
+
 
 ## Tags
 
