@@ -1,0 +1,49 @@
+---
+- name: detect latest restic release
+  github_release:
+    repository: restic
+    release: "{{ lin_restic_version }}"
+    owner: "{{ lin_restic_repo_owner }}"
+    template: '{download_url}/restic_{ver}_linux_amd64.bz2'
+    strip_v: true
+    creates: "{{ lin_restic_binary }}"
+    reinstall: "{{ lin_restic_allow_reinstall |bool }}"
+  register: latest_restic_release
+
+- name: download compressed restic binary
+  get_url:
+    url: "{{ latest_restic_release.url }}"
+    dest: "{{ lin_restic_binary }}.bz2"
+    force: true
+  when: latest_restic_release is changed
+
+- name: uncompress restic binary
+  command: bunzip2 -f "{{ lin_restic_binary }}.bz2"
+  when: latest_restic_release is changed
+
+- name: ensure permissions of restic binary
+  file:
+    path: "{{ lin_restic_binary }}"
+    owner: root
+    group: rclone
+    mode: 0750
+  register: restic_binary_mode_result
+
+- name: add full backup capabilities to restic binary
+  # https://restic.readthedocs.io/en/stable/080_examples.html#full-backup-without-root
+  capabilities:
+    path: "{{ lin_restic_binary }}"
+    capability: cap_dac_read_search=+ep
+    state: present
+  # workaround for buggy setcap, which is always "changed"
+  when: latest_restic_release is changed
+        or restic_binary_mode_result is changed
+
+- name: generate restic bash completion
+  command: >
+    "{{ lin_restic_binary }}" generate --bash-completion "{{ completion_script }}"
+  args:
+    creates: "{{ completion_script }}"
+  vars:
+    completion_script: /etc/bash_completion.d/restic
+...

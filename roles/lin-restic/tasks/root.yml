@@ -1,5 +1,49 @@
 ---
-- name: root task 1
-  debug:
-    msg: task 1
+- name: install restic binary
+  import_tasks: install.yml
+  tags: lin_restic_install
+
+- name: create dedicated restic user
+  import_tasks: user.yml
+  tags: lin_restic_user
+
+- name: setup rclone remote for restic
+  include_role:
+    name: ivansible.lin_rclone
+    tasks_from: _mount.yml
+    apply:
+      become: true
+      tags: lin_restic_rclone
+  vars:
+    item:
+      name: "{{ lin_restic_rclone_remote }}"
+      config: "{{ lin_restic_rclone_config }}"
+      path: ''
+      token: "{{ lin_restic_rclone_token }}"
+      reuse_token: "{{ lin_restic_rclone_reuse_token }}"
+      fstab_default: false
+  when: lin_restic_rclone_config != '' # noqa 602
+  tags: lin_restic_rclone
+
+- name: verify that restic repository is already created
+  command: rclone ls "{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}/config"
+  register: restic_repo_check
+  changed_when: restic_repo_check.stderr |default('') |regex_search('directory not found') is not none
+  failed_when: false
+  environment:
+    RCLONE_CONFIG: "{{ lin_rclone_config }}"
+  tags: lin_restic_repo
+
+- name: setup new restic repository
+  command: restic init
+  environment:
+    RESTIC_REPOSITORY: "{{ lin_restic_repository }}"
+    RESTIC_PASSWORD: "{{ lin_restic_password }}"
+    RCLONE_CONFIG: "{{ lin_rclone_config }}"
+  when: restic_repo_check is changed
+  tags: lin_restic_repo
+
+- name: activate restic cron jobs
+  import_tasks: cron.yml
+  tags: lin_restic_cron
 ...

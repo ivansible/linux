@@ -1,0 +1,102 @@
+---
+- name: restic environment variables for cron
+  blockinfile:
+    dest: /etc/default/restic
+    content: |
+      RESTIC_REPOSITORY={{ lin_restic_repository }}
+      RESTIC_PASSWORD={{ lin_restic_password }}
+      RCLONE_CONFIG={{ lin_rclone_config }}
+    marker: '# RESTIC {mark}'
+    owner: root
+    group: rclone
+    mode: 0640
+    create: true
+  no_log: "{{ hide_secrets |bool }}"
+
+
+- name: validate restic backup jobs
+  assert:
+    that:
+      - item.name is defined
+      - item.type is in ['filesystem', 'postgres']
+  loop: "{{ lin_restic_jobs }}"
+
+- name: restic backup service
+  template:
+    src: restic-backup.service.j2
+    dest: /etc/systemd/system/restic-backup.service
+
+- name: configure restic backup timer
+  copy:
+    dest: /etc/systemd/system/restic-backup.timer
+    content: |
+      # ansible-managed
+      [Unit]
+      Description=Restic backup
+      [Timer]
+      OnCalendar={{ lin_restic_cron_time_backup }}
+      [Install]
+      WantedBy=timers.target
+    force: true
+
+- name: activate the daily restic backup job
+  systemd:
+    name: restic-backup.timer
+    state: started
+    enabled: true
+    daemon_reload: true
+
+
+- name: weekly restic prune service
+  copy:
+    dest: /etc/systemd/system/restic-prune.service
+    content: |
+      # ansible-managed
+      [Unit]
+      Description=Restic prune
+      {% if lin_restic_cron_ordering |bool %}
+      After=restic-backup.service
+      {% endif %}
+      [Service]
+      Type=oneshot
+      User=restic
+      Group=rclone
+      EnvironmentFile=/etc/default/restic
+      ExecStart={{ lin_restic_binary }} version
+      ExecStart={{ lin_restic_binary }} forget {{ verbose_option }}{{ forget_options }}
+      ExecStart={{ lin_restic_binary }} prune
+      ExecStart={{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
+      ExecStart={{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
+      ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:
+      ExecStart=/bin/echo prune done
+    force: true
+  vars:
+    forget_options: >-
+      --group-by=host,paths,tags
+      --keep-last={{ lin_restic_forget_keep_last }}
+      --keep-daily={{ lin_restic_forget_keep_daily }}
+      --keep-weekly={{ lin_restic_forget_keep_weekly }}
+      --keep-monthly={{ lin_restic_forget_keep_monthly }}
+      --keep-yearly={{ lin_restic_forget_keep_yearly }}
+    verbose_option: "{{ '--verbose=%s ' % lin_restic_cron_verbose if lin_restic_cron_verbose |int > 0 else '' }}"
+
+- name: configure restic prune timer
+  copy:
+    dest: /etc/systemd/system/restic-prune.timer
+    content: |
+      # ansible-managed
+      [Unit]
+      Description=Restic prune
+      [Timer]
+      OnCalendar={{ lin_restic_cron_day_prune }} {{ lin_restic_cron_time_prune }}
+      [Install]
+      WantedBy=timers.target
+    force: true
+
+- name: activate the weekly restic prune job
+  systemd:
+    name: restic-prune.timer
+    state: started
+    enabled: true
+    daemon_reload: true
+...

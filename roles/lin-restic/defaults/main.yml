@@ -1,3 +1,39 @@
 ---
 # defaults for ivansible.lin_restic
+
+lin_restic_version: latest
+lin_restic_allow_reinstall: false
+lin_restic_repo_owner: restic
+lin_restic_binary: /usr/bin/restic
+
+lin_restic_authorized_keys: "{{ lin_ssh_keys_files }}"
+
+lin_restic_rclone_remote: restic
+lin_restic_rclone_config: ""
+lin_restic_rclone_token: ""
+lin_restic_rclone_reuse_token: false
+
+lin_restic_reponame: "{{ inventory_hostname }}"
+lin_restic_password: supersecret
+
+lin_restic_repository: rclone:{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
+
+lin_restic_postgres_port: 5432
+
+lin_restic_cron_time_backup: '2:00'
+lin_restic_cron_time_prune: '5:00'
+lin_restic_cron_ordering: true
+lin_restic_cron_verbose: 0
+
+lin_restic_cron_day_prune: sun
+#lin_restic_cron_day_prune: mon-sun
+
+lin_restic_forget_keep_last: 2
+lin_restic_forget_keep_daily: 7
+lin_restic_forget_keep_weekly: 4
+lin_restic_forget_keep_monthly: 12
+lin_restic_forget_keep_yearly: 2
+
+lin_restic_environ_for_restic: true
+lin_restic_environ_for_root: true
 ...

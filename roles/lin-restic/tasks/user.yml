@@ -1,0 +1,56 @@
+---
+- name: create dedicated restic user
+  user:
+    name: restic
+    groups:
+      - rclone
+    append: true
+    shell: /bin/bash
+    # no password, login with ssh keys only
+    password: '!'
+  register: restic_user_result
+
+- name: authorize public keys
+  authorized_key:
+    user: restic
+    key: "{{ lookup('pipe', 'chmod 600 \"{{ item }}\" && ssh-keygen -y -f \"{{ item }}\"') }}"
+    comment: "{{ item |basename |regex_replace('\\.key$') }}"
+  when: item != '' # noqa 602
+  loop: "{{ lin_restic_authorized_keys }}"
+  loop_control:
+    label: "{{ item |basename }}"
+
+- name: restic environment variables for interactive use
+  blockinfile:
+    path: "{{ item.home }}/.bashrc"
+    block: |
+      export RESTIC_REPOSITORY={{ lin_restic_repository }}
+      export RESTIC_PASSWORD={{ lin_restic_password }}
+      export RCLONE_CONFIG={{ lin_rclone_config }}
+    marker: '# RESTIC {mark}'
+    insertbefore: interactively
+    owner: "{{ item.user }}"
+    group: "{{ item.group }}"
+    mode: 0600
+    create: true
+  when: item.enable |bool
+  loop:
+    - user: restic
+      group: rclone
+      home: "{{ restic_user_result.home }}"
+      enable: "{{ lin_restic_environ_for_restic }}"
+    - user: root
+      group: root
+      home: /root
+      enable: "{{ lin_restic_environ_for_root }}"
+  no_log: "{{ hide_secrets |bool }}"
+
+- name: allow user restic to impersonate as postgres for database backups
+  copy:
+    dest: /etc/sudoers.d/99-restic
+    content: |
+      restic ALL=(postgres) NOPASSWD: /usr/bin/pg_dump
+      restic ALL=(postgres) NOPASSWD: /usr/bin/pg_dumpall
+    owner: root
+    mode: 0440
+...
