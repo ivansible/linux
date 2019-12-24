@@ -1,3 +1,15 @@
 ---
 # handlers for ivansible.lin_ferm
+
+- name: restart ferm service
+  systemd:
+    name: ferm
+    state: restarted
+  become: true
+
+- name: reload ferm service
+  systemd:
+    name: ferm
+    state: reloaded
+  become: true
 ...

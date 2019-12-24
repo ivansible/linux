@@ -1,3 +1,16 @@
 ---
 # defaults for ivansible.lin_ferm
+
+ferm_enable: true
+
+ferm_docker: true
+ferm_docker_iface: docker0
+ferm_docker_subnet4: 172.17.0.0/16
+
+ferm_binary: /usr/local/sbin/ferm
+ferm_dir: /etc/ferm
+ferm_config: /etc/ferm/ferm.conf
+
+ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
+ferm_allow_reinstall: true
 ...

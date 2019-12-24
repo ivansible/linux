@@ -1,0 +1,140 @@
+# fERM rules
+# ansible-managed
+
+# Chains
+domain (ip ip6) {
+    table raw {
+        chain PREROUTING policy ACCEPT;
+        chain OUTPUT policy ACCEPT;
+    }
+    table mangle {
+        chain PREROUTING policy ACCEPT;
+        chain INPUT policy ACCEPT;
+        chain FORWARD policy ACCEPT;
+        chain OUTPUT policy ACCEPT;
+        chain POSTROUTING policy ACCEPT;
+    }
+    table nat {
+        chain PREROUTING policy ACCEPT;
+        chain INPUT policy ACCEPT;
+        chain OUTPUT policy ACCEPT;
+        chain POSTROUTING policy ACCEPT;
+    }
+    table filter {
+        chain INPUT policy DROP;
+        chain FORWARD policy DROP;
+        chain OUTPUT policy ACCEPT;
+    }
+}
+
+{% if ferm_docker |bool %}
+@def $docker0 = {{ ferm_docker_iface }};
+@def $docker_subnet4 = {{ ferm_docker_subnet4 }};
+domain ip {
+    table nat {
+        chain DOCKER;
+        chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
+        chain OUTPUT daddr ! 127.0.0.0/8 mod addrtype dst-type LOCAL jump DOCKER;
+        chain POSTROUTING saddr $docker_subnet4 outerface ! $docker0 MASQUERADE;
+        chain DOCKER interface $docker0 RETURN;
+    }
+
+    table filter {
+        chain DOCKER;
+        chain DOCKER-ISOLATION-STAGE-1;
+        chain DOCKER-ISOLATION-STAGE-2;
+        chain DOCKER-USER;
+
+        chain FORWARD {
+            jump DOCKER-USER;
+            jump DOCKER-ISOLATION-STAGE-1;
+            outerface $docker0 {
+                mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
+                jump DOCKER;
+            }
+            interface $docker0 {
+                outerface ! $docker0 ACCEPT;
+                outerface $docker0 ACCEPT;
+            }
+        }
+
+        chain DOCKER-ISOLATION-STAGE-1 {
+            interface $docker0 outerface ! $docker0 {
+                jump DOCKER-ISOLATION-STAGE-2;
+            }
+            RETURN;
+        }
+        chain DOCKER-ISOLATION-STAGE-2 {
+            outerface $docker0 DROP;
+            RETURN;
+        }
+        chain DOCKER-USER {
+            RETURN;
+        }
+    }
+}
+{% endif %}
+
+# IPv6 RT 0
+domain ip6 table filter chain (INPUT FORWARD OUTPUT) {
+    mod rt rt-type 0 DROP;
+}
+
+# Filter
+domain (ip ip6) {
+    table filter {
+        chain INPUT {
+            interface lo ACCEPT;
+            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
+            mod conntrack ctstate INVALID DROP;
+        }
+        chain INPUT proto (tcp udp) {
+            dport (443) ACCEPT;
+        }
+        chain INPUT proto tcp {
+            dport (22) ACCEPT;
+        }
+        chain INPUT proto udp {
+            dport (123) ACCEPT;
+        }
+
+        chain FORWARD {
+            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
+        }
+
+        chain OUTPUT {
+            outerface lo ACCEPT;
+            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
+        }
+    }
+}
+
+# IPv4 ICMP
+domain ip table filter {
+    chain (INPUT FORWARD) {
+        proto icmp icmp-type (3 4 11 12 8) ACCEPT;
+    }
+    chain OUTPUT {
+        proto icmp ACCEPT;
+    }
+    chain FORWARD {
+        proto udp sport 67 dport 68 ACCEPT;
+    }
+}
+
+# IPv6 ICMP
+domain ip6 table filter {
+    chain (INPUT FORWARD) {
+        proto ipv6-icmp {
+            icmpv6-type (1 2 3 4 128 129 144 145 146 147) ACCEPT;
+            icmpv6-type (133 134 135 136 141 142 148 149) mod hl hl-eq 255 ACCEPT;
+        }
+        saddr fe80::/10 proto ipv6-icmp {
+            icmpv6-type (130 131 132 143) ACCEPT;
+            icmpv6-type (151 152 153) mod hl hl-eq 1 ACCEPT;
+        }
+    }
+    chain OUTPUT {
+        proto ipv6-icmp ACCEPT;
+    }
+}

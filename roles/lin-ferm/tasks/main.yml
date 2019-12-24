@@ -1,6 +1,7 @@
 ---
-- name: become root and install role
+- name: become root and deploy ferm
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: ferm_enable |bool
+  tags: lin_ferm_all
 ...

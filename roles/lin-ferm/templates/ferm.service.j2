@@ -1,0 +1,15 @@
+# ansible-managed
+[Unit]
+Description=Ferm frontend for iptables
+
+Conflicts=ufw.service
+Before=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart={{ ferm_binary }} {{ ferm_config }}
+ExecStop={{ ferm_binary }} -F {{ ferm_config }}
+
+[Install]
+WantedBy=multi-user.target

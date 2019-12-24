@@ -1,10 +1,11 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base
 
 galaxy_info:
   role_name: lin_ferm
   author: "Ivan Andreev"
-  description: "setup the ferm frontend for iptables with ipset support"
+  description: "Setup FERM, frontend for iptables with ipset support"
   company: "IvanSible"
   license: MIT
   min_ansible_version: 2.5
@@ -17,7 +18,8 @@ galaxy_info:
 
   galaxy_tags:
     - linux
-    - ansible
+    - firewall
+    - ferm
 
   github_branch: master
 ...

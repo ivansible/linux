@@ -1,5 +1,64 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: remove stock ferm
+  apt:
+    name: ferm
+    state: absent
+
+- name: download ferm script
+  get_url:
+    url: "{{ ferm_script_url }}"
+    dest: "{{ ferm_binary }}"
+    mode: 0755
+    force: "{{ ferm_allow_reinstall |bool }}"
+  notify: restart ferm service
+
+- name: directory for ferm configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ ferm_dir }}"
+    - "{{ ferm_dir }}/input"
+
+- name: create ferm configuration
+  template:
+    src: ferm.conf.j2
+    dest: "{{ ferm_config }}"
+    mode: 0640
+  notify: restart ferm service
+  tags: lin_ferm_config
+
+- name: setup ferm service
+  template:
+    src: ferm.service.j2
+    dest: /etc/systemd/system/ferm.service
+  notify: restart ferm service
+
+- block:
+    - name: directory for docker adjustments
+      file:
+        state: directory
+        path: /etc/systemd/system/docker.service.d
+    - name: adjust docker to (re)start after ferm
+      copy:
+        dest: /etc/systemd/system/docker.service.d/ferm.conf
+        content: |
+          # ansible-managed
+          # (re)start docker after ferm
+          [Unit]
+          PartOf=ferm.service
+          After=ferm.service
+  when: ferm_docker |bool
+
+- name: disable ufw
+  ufw:
+    state: disabled
+  no_log: "{{ hide_secrets |bool }}"
+
+- name: activate ferm
+  systemd:
+    name: ferm
+    state: started
+    enabled: true
+    daemon_reload: true
 ...
