@@ -4,6 +4,10 @@
 ferm_enable: true
 ferm_mimic_ufw: true
 
+ferm_open_ports: [443]
+ferm_open_ports_tcp: [22]
+ferm_open_ports_udp: [123]
+
 ferm_docker: true
 ferm_docker_iface: docker0
 ferm_docker_subnet4: 172.17.0.0/16
