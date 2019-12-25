@@ -1,5 +1,9 @@
 # fERM rules
 # ansible-managed
+@def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
+@def $do_docker = {{ ferm_docker |bool |ternary(1,0) }};
+@def $docker0 = {{ ferm_docker_iface }};
+@def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
 # Chains
 domain (ip ip6) {
@@ -27,10 +31,8 @@ domain (ip ip6) {
     }
 }
 
-{% if ferm_docker |bool %}
-@def $docker0 = {{ ferm_docker_iface }};
-@def $docker_subnet4 = {{ ferm_docker_subnet4 }};
-domain ip {
+# Docker
+@if $do_docker domain ip {
     table nat {
         chain DOCKER;
         chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
@@ -73,68 +75,75 @@ domain ip {
         }
     }
 }
-{% endif %}
 
-# IPv6 RT 0
-domain ip6 table filter chain (INPUT FORWARD OUTPUT) {
-    mod rt rt-type 0 DROP;
-}
-
-# Filter
-domain (ip ip6) {
-    table filter {
-        chain INPUT {
-            interface lo ACCEPT;
-            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
-            mod conntrack ctstate INVALID DROP;
-        }
-        chain INPUT proto (tcp udp) {
-            dport (443) ACCEPT;
-        }
-        chain INPUT proto tcp {
-            dport (22) ACCEPT;
-        }
-        chain INPUT proto udp {
-            dport (123) ACCEPT;
-        }
-
-        chain FORWARD {
-            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
-        }
-
-        chain OUTPUT {
-            outerface lo ACCEPT;
-            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
-        }
+# Pre-Filter 1
+@if $do_ufw domain (ip ip6) table filter {
+    chain INPUT interface lo ACCEPT;
+    chain OUTPUT outerface lo ACCEPT;
+    chain (INPUT FORWARD OUTPUT) {
+        @if @eq($DOMAIN,ip6) mod rt rt-type 0 DROP;
+        mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
     }
+    chain INPUT mod conntrack ctstate INVALID DROP;
 }
 
-# IPv4 ICMP
+# ICMP
 domain ip table filter {
-    chain (INPUT FORWARD) {
-        proto icmp icmp-type (3 4 11 12 8) ACCEPT;
-    }
-    chain OUTPUT {
-        proto icmp ACCEPT;
-    }
-    chain FORWARD {
-        proto udp sport 67 dport 68 ACCEPT;
+    chain (INPUT FORWARD) proto icmp icmp-type (3 11 12 8) ACCEPT;
+}
+domain ip6 table filter {
+    chain (OUTPUT) proto icmp ACCEPT;
+    chain (FORWARD) proto icmp icmp-type (1 2 3 4 128 129) ACCEPT;
+    chain (INPUT) proto icmp {
+        icmp-type (1 2 3 4 128 129 144 145 146 147) ACCEPT;
+        icmp-type (133 134 135 136 141 142) mod hl hl-eq 255 ACCEPT;
+        icmp-type (148 149) mod hl hl-eq 255 ACCEPT;
+        icmp-type (130 131 132 143) saddr fe80::/10  ACCEPT;
+        icmp-type (151 152 153) mod hl hl-eq 1 saddr fe80::/10 ACCEPT;
     }
 }
 
-# IPv6 ICMP
-domain ip6 table filter {
-    chain (INPUT FORWARD) {
-        proto ipv6-icmp {
-            icmpv6-type (1 2 3 4 128 129 144 145 146 147) ACCEPT;
-            icmpv6-type (133 134 135 136 141 142 148 149) mod hl hl-eq 255 ACCEPT;
-        }
-        saddr fe80::/10 proto ipv6-icmp {
-            icmpv6-type (130 131 132 143) ACCEPT;
-            icmpv6-type (151 152 153) mod hl hl-eq 1 ACCEPT;
-        }
+# Pre-Filter 2
+@if $do_ufw domain ip table filter {
+    chain nonlocal {
+        mod addrtype dst-type (LOCAL MULTICAST) RETURN;
+        mod addrtype dst-type (BROADCAST) RETURN;
+        DROP;
+    }
+    chain INPUT {
+        proto udp sport 67 dport 68 ACCEPT;
+        jump nonlocal;
+        daddr 224.0.0.251/32 protocol udp dport 5353 ACCEPT;
+        daddr 239.255.255.250/32 protocol udp dport 1900 ACCEPT;
+    }
+}
+@if $do_ufw domain ip6 table filter chain INPUT {
+    proto udp saddr fe80::/10 daddr fe80::/10 sport 547 dport 546 ACCEPT;
+    proto udp daddr ff02::fb/128 dport 5353 ACCEPT;
+    proto udp daddr ff02::f/128 dport 1900 ACCEPT;
+}
+
+# User Filter
+domain (ip ip6) table filter chain INPUT {
+    # @include(user-input);
+    proto (tcp udp) dport (443) ACCEPT;
+    proto tcp dport (22 80) ACCEPT;
+    proto udp dport (123) ACCEPT;
+}
+domain (ip ip6) table filter chain FORWARD {
+    # @include(user-forward);
+}
+
+# Post-Filter
+@if $do_ufw domain (ip ip6) table filter {
+    chain INPUT {
+        proto udp dport (137 138) DROP;
+        proto tcp dport (139 445) DROP;
+        @if @eq($DOMAIN,ip) proto udp dport (67 68) DROP;
+        @if @eq($DOMAIN,ip6) proto udp dport (546 547) DROP;
+        @if @eq($DOMAIN,ip) mod addrtype dst-type BROADCAST DROP;
     }
     chain OUTPUT {
-        proto ipv6-icmp ACCEPT;
+        proto (tcp udp) mod conntrack ctstate (NEW) ACCEPT;
     }
 }

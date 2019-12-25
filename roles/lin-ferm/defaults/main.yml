@@ -2,6 +2,7 @@
 # defaults for ivansible.lin_ferm
 
 ferm_enable: true
+ferm_mimic_ufw: true
 
 ferm_docker: true
 ferm_docker_iface: docker0
