@@ -1,0 +1,25 @@
+---
+- name: remove stock ferm
+  apt:
+    name: ferm
+    state: absent
+
+- name: download ferm script
+  get_url:
+    url: "{{ ferm_script_url }}"
+    dest: "{{ ferm_binary }}"
+    owner: root
+    group: root
+    mode: 0755
+    force: "{{ ferm_allow_reinstall |bool }}"
+  notify: restart ferm service
+
+- name: upload ferm ipset script
+  template:
+    src: ferm-ipset
+    dest: "{{ ferm_ipset_binary }}"
+    owner: root
+    group: root
+    mode: 0755
+  notify: restart ferm service
+...

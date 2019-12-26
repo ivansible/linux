@@ -1,0 +1,35 @@
+---
+- name: setup ferm service
+  template:
+    src: ferm.service.j2
+    dest: /etc/systemd/system/ferm.service
+  notify: restart ferm service
+
+- block:
+    - name: directory for docker adjustments
+      file:
+        state: directory
+        path: /etc/systemd/system/docker.service.d
+    - name: adjust docker to (re)start after ferm
+      copy:
+        dest: /etc/systemd/system/docker.service.d/ferm.conf
+        content: |
+          # ansible-managed
+          # (re)start docker after ferm
+          [Unit]
+          PartOf=ferm.service
+          After=ferm.service
+  when: ferm_docker |bool
+
+- name: disable ufw
+  ufw:
+    state: disabled
+  no_log: "{{ hide_secrets |bool }}"
+
+- name: activate ferm
+  systemd:
+    name: ferm
+    state: started
+    enabled: true
+    daemon_reload: true
+...

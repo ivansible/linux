@@ -1,0 +1,50 @@
+---
+- name: directory for ferm configuration
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - "{{ ferm_dir }}"
+    - "{{ ferm_dir }}/input"
+
+- name: create ferm configuration
+  template:
+    src: ferm.conf.j2
+    dest: "{{ ferm_config }}"
+  notify: restart ferm service
+
+- name: create ferm port lists
+  copy:
+    dest: "{{ ferm_dir }}/ports.{{ item }}"
+    content: |
+      # ferm ports ({{ item }}ernal)
+      # ansible-managed
+    force: false
+  loop: [ext, int]
+  notify: restart ferm service
+
+- name: set permissions of ferm config files
+  file:
+    path: "{{ item }}"
+    owner: root
+    group: root
+    mode: 0640
+  loop:
+    - "{{ ferm_config }}"
+    - "{{ ferm_ports_external_file }}"
+    - "{{ ferm_ports_internal_file }}"
+
+- name: open external ports in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/ports.ext"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_ports_external }}"
+  notify: reload ferm service
+
+- name: open internal ports in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/ports.int"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_ports_internal }}"
+  notify: reload ferm service
+...

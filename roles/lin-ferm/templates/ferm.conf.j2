@@ -1,8 +1,5 @@
 # fERM rules
 # ansible-managed
-@def $open_ports = ({{ ferm_open_ports |join(' ') }});
-@def $open_ports_tcp = ({{ ferm_open_ports_tcp |join(' ') }});
-@def $open_ports_udp = ({{ ferm_open_ports_udp |join(' ') }});
 @def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
 @def $do_docker = {{ ferm_docker |bool |ternary(1,0) }};
 @def $docker0 = {{ ferm_docker_iface }};
@@ -129,9 +126,9 @@ domain ip6 table filter {
 # User Filter
 domain (ip ip6) table filter chain INPUT {
     # @include(user-input);
-    proto (tcp udp) dport ($open_ports) ACCEPT;
-    proto tcp dport ($open_ports_tcp) ACCEPT;
-    proto udp dport ($open_ports_udp) ACCEPT;
+    proto (tcp udp) mod set set ferm_ports_ext_ip dst ACCEPT;
+    proto tcp mod set set ferm_ports_ext_tcp dst ACCEPT;
+    proto udp mod set set ferm_ports_ext_udp dst ACCEPT;
 }
 domain (ip ip6) table filter chain FORWARD {
     # @include(user-forward);

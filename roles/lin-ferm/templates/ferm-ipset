@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+use strict;
+
+my $ipset = '/sbin/ipset';
+my $tempset = '';
+
+END {
+    if ($tempset) {
+        `$ipset destroy $tempset`;
+    }
+}
+
+sub run {
+    my $cmd = join(' && ', @_);
+    #print "running: $cmd\n";
+    my $out = `($cmd) 2>&1`;
+    die "error: $out" if $?;
+}
+
+sub make_tempset {
+    for (my $num = 1; $num < 100; $num++) {
+        my $name = "ferm$num";
+        my $out = `ipset create $name bitmap:port range 1-2 2>&1`;
+        unless ($?) {
+            $tempset = $name;
+            last;
+        }
+    }
+    die "cannot create temporary ipset\n" unless $tempset;
+}
+
+sub parse_ports {
+    my ($domain, $filename) = @_;
+    my %ports;
+
+    open(PORTS, $filename) or die("can't open $filename");
+    for (<PORTS>) {
+        s/#.*$//;
+        s/^\s+|\s+$//;
+        next if /^$/;
+        /^(\d+)(?:-(\d+))?(?:\/(ip|tcp|udp))?$/;
+        my ($start, $end, $type) = ($1, $2, $3);
+        die "invalid port: $_\n" unless defined $start;
+        $end = $start unless defined $end;
+        $type = 'ip' unless defined $type;
+        next if $end < $start;
+        my $port = ($start == $end ? "$start" : "$start-$end");
+        $ports{$type}{$port} = $port;
+    }
+    close(PORTS);
+
+    for my $type ('ip', 'tcp', 'udp') {
+        my $hash = $ports{$type};
+        my $setname = "ferm_ports_${domain}_${type}";
+        my @cmd = (
+            "$ipset create -exist $setname bitmap:port range 0-65535",
+            "$ipset destroy $tempset",
+            "$ipset create $tempset bitmap:port range 0-65535",
+        );
+        push @cmd, "$ipset add $tempset $_" for (sort keys %$hash);
+        push @cmd, "$ipset swap $tempset $setname";
+        run @cmd;
+    }
+}
+
+# main
+make_tempset;
+parse_ports 'ext', '{{ ferm_ports_external_file }}';
+parse_ports 'int', '{{ ferm_ports_internal_file }}';

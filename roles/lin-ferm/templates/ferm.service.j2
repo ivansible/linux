@@ -1,15 +1,19 @@
 # ansible-managed
 [Unit]
-Description=Ferm frontend for iptables
+Description=Ferm frontend for iptables with ipset
 
+DefaultDependencies=no
 Conflicts=ufw.service
 Before=network.target
+Before=netfilter-persistent.service
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
+ExecStartPre={{ ferm_ipset_binary }} start
 ExecStart={{ ferm_binary }} {{ ferm_config }}
-ExecStop={{ ferm_binary }} -F {{ ferm_config }}
+ExecStop={{ ferm_binary }} --flush {{ ferm_config }}
+ExecReload={{ ferm_ipset_binary }} reload
 
 [Install]
 WantedBy=multi-user.target

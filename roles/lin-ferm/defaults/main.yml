@@ -4,17 +4,23 @@
 ferm_enable: true
 ferm_mimic_ufw: true
 
-ferm_open_ports: [443]
-ferm_open_ports_tcp: [22]
-ferm_open_ports_udp: [123]
+ferm_ports_external:
+  - 443
+  - 22/tcp
+  - 123/udp
+ferm_ports_internal: []
 
 ferm_docker: true
 ferm_docker_iface: docker0
 ferm_docker_subnet4: 172.17.0.0/16
 
-ferm_binary: /usr/local/sbin/ferm
 ferm_dir: /etc/ferm
-ferm_config: /etc/ferm/ferm.conf
+ferm_bindir: /usr/local/sbin
+ferm_binary: "{{ ferm_bindir }}/ferm"
+ferm_ipset_binary: "{{ ferm_bindir }}/ferm-ipset"
+ferm_config: "{{ ferm_dir }}/ferm.conf"
+ferm_ports_external_file: "{{ ferm_dir }}/ports.ext"
+ferm_ports_internal_file: "{{ ferm_dir }}/ports.int"
 
 ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
 ferm_allow_reinstall: true
