@@ -1,6 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
+use IPC::Open2;
 
 my $ferm_dir = '/etc/ferm';
 my $ipset = '/sbin/ipset';
@@ -12,11 +13,22 @@ END {
     }
 }
 
+$| = 1;
+
 sub run {
-    my $cmd = join(' && ', @_);
-    #print "running: $cmd\n";
-    my $out = `($cmd) 2>&1`;
-    die "error: $out" if $?;
+    my ($cmd, $input) = @_;
+    my $pid = open2(my $stdout, my $stdin, "($cmd) 2>&1")
+        or die "cannot run $cmd\n";
+    print $stdin $input;
+    close $stdin or die;
+    my $output = '';
+    while (<$stdout>) {
+        $output .= $_;
+    }
+    close $stdout or die;
+    waitpid $pid, 0;
+    die "error: $output" if $?;
+    return $output;
 }
 
 sub make_tempset {
@@ -35,18 +47,20 @@ sub parse_ports {
     my ($domain, $filename) = @_;
     my %ports;
 
-    open(PORTS, $filename) or die("can't open $filename");
+    open(PORTS, $filename)
+        or die("can't open $filename");
     for (<PORTS>) {
         s/#.*$//;
         s/^\s+|\s+$//;
         next if /^$/;
+
         /^(\d+)(?:-(\d+))?(?:\/(ip|tcp|udp))?$/;
         my ($start, $end, $type) = ($1, $2, $3);
         die "invalid port: $_\n" unless defined $start;
         $end = $start unless defined $end;
         $type = 'ip' unless defined $type;
         next if $end < $start;
-        my $port = ($start == $end ? "$start" : "$start-$end");
+        my $port = ($start == $end) ? "$start" : "$start-$end";
         $ports{$type}{$port} = $port;
     }
     close(PORTS);
@@ -55,13 +69,13 @@ sub parse_ports {
         my $hash = $ports{$type};
         my $setname = "ferm_ports_${domain}_${type}";
         my @cmd = (
-            "$ipset create -exist $setname bitmap:port range 0-65535",
-            "$ipset destroy $tempset",
-            "$ipset create $tempset bitmap:port range 0-65535",
+            "create -exist $setname bitmap:port range 0-65535",
+            "destroy $tempset",
+            "create $tempset bitmap:port range 0-65535",
         );
-        push @cmd, "$ipset add $tempset $_" for (sort keys %$hash);
-        push @cmd, "$ipset swap $tempset $setname";
-        run @cmd;
+        push @cmd, "add $tempset $_" for (sort keys %$hash);
+        push @cmd, "swap $tempset $setname";
+        run "$ipset -", join("\n", @cmd) . "\n";
     }
 }
 
