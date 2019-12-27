@@ -18,9 +18,22 @@ ferm_dir: /etc/ferm
 ferm_bindir: /usr/local/sbin
 ferm_binary: "{{ ferm_bindir }}/ferm"
 ferm_ipset_binary: "{{ ferm_bindir }}/ferm-ipset"
-ferm_config: "{{ ferm_dir }}/ferm.conf"
-ferm_ports_external_file: "{{ ferm_dir }}/ports.ext"
-ferm_ports_internal_file: "{{ ferm_dir }}/ports.int"
+
+ferm_configs:
+  - config.ferm
+  - parts/chains.ferm
+  - parts/docker.ferm
+  - parts/icmp.ferm
+  - parts/ufw-pre1.ferm
+  - parts/ufw-pre2.ferm
+  - parts/ufw-post.ferm
+
+ferm_lists:
+  - ports.ext
+  - ports.int
+  - ports.block
+  - hosts.int
+  - hosts.block
 
 ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
 ferm_allow_reinstall: true

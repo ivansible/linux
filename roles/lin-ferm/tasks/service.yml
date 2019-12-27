@@ -1,7 +1,7 @@
 ---
 - name: setup ferm service
   template:
-    src: ferm.service.j2
+    src: ferm.service
     dest: /etc/systemd/system/ferm.service
   notify: restart ferm service
 

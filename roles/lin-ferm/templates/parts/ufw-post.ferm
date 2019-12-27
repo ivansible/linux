@@ -1,0 +1,14 @@
+# Post-Filter
+
+domain (ip ip6) table filter {
+    chain INPUT {
+        proto udp dport (137 138) DROP;
+        proto tcp dport (139 445) DROP;
+        @if @eq($DOMAIN,ip) proto udp dport (67 68) DROP;
+        @if @eq($DOMAIN,ip6) proto udp dport (546 547) DROP;
+        @if @eq($DOMAIN,ip) mod addrtype dst-type BROADCAST DROP;
+    }
+    chain OUTPUT {
+        proto (tcp udp) mod conntrack ctstate (NEW) ACCEPT;
+    }
+}

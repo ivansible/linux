@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use strict;
+use warnings;
 
+my $ferm_dir = '/etc/ferm';
 my $ipset = '/sbin/ipset';
 my $tempset = '';
 
@@ -65,5 +67,6 @@ sub parse_ports {
 
 # main
 make_tempset;
-parse_ports 'ext', '{{ ferm_ports_external_file }}';
-parse_ports 'int', '{{ ferm_ports_internal_file }}';
+parse_ports 'ext', "$ferm_dir/ports.ext";
+parse_ports 'int', "$ferm_dir/ports.int";
+parse_ports 'block', "$ferm_dir/ports.block";

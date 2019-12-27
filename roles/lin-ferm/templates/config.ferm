@@ -1,0 +1,36 @@
+# fERM rules
+# ansible-managed
+
+@def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
+@def $do_docker = {{ ferm_docker |bool |ternary(1,0) }};
+@def $docker0 = {{ ferm_docker_iface }};
+@def $docker_subnet4 = {{ ferm_docker_subnet4 }};
+
+@include 'parts/chains.ferm';
+
+@if $do_docker { @include 'parts/docker.ferm'; }
+
+@if $do_ufw { @include 'parts/ufw-pre1.ferm'; }
+
+@include @glob('before/*.ferm');
+
+@if $do_ufw { @include 'parts/ufw-pre2.ferm'; }
+
+# User Filters
+domain (ip ip6) table filter chain INPUT {
+    @include @glob('input/*.ferm');
+
+    proto (tcp udp) mod set set ferm_ports_ext_ip dst ACCEPT;
+    proto tcp mod set set ferm_ports_ext_tcp dst ACCEPT;
+    proto udp mod set set ferm_ports_ext_udp dst ACCEPT;
+}
+
+domain (ip ip6) table filter chain FORWARD {
+    @include @glob('forward/*.ferm');
+}
+
+@include 'parts/icmp.ferm';
+
+@include @glob('after/*.ferm');
+
+@if $do_ufw @include 'parts/ufw-post.ferm';

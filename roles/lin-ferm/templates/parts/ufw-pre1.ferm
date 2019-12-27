@@ -1,0 +1,11 @@
+# Pre-Filter I
+
+domain (ip ip6) table filter {
+    chain INPUT interface lo ACCEPT;
+    chain OUTPUT outerface lo ACCEPT;
+    chain (INPUT FORWARD OUTPUT) {
+        @if @eq($DOMAIN,ip6) mod rt rt-type 0 DROP;
+        mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
+    }
+    chain INPUT mod conntrack ctstate INVALID DROP;
+}
