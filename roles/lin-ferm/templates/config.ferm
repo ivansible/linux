@@ -6,6 +6,9 @@
 @def $docker0 = {{ ferm_docker_iface }};
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
+# WARNING: errors in ferm-ipset will be ignored!!
+@hook pre "{{ ferm_ipset_binary }} -c {{ ferm_dir }}";
+
 @include 'parts/chains.ferm';
 
 # Pre Rules

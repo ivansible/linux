@@ -4,7 +4,7 @@
     name: ferm
     state: absent
 
-- name: install perl Net::DNS
+- name: install perl Net::DNS package
   apt:
     name: libnet-dns-perl
     state: present
@@ -17,7 +17,7 @@
     group: root
     mode: 0755
     force: "{{ ferm_allow_reinstall |bool }}"
-  notify: restart ferm service
+  notify: reload ferm service
 
 - name: upload ferm ipset script
   template:
@@ -26,5 +26,5 @@
     owner: root
     group: root
     mode: 0755
-  notify: restart ferm service
+  notify: reload ferm service
 ...

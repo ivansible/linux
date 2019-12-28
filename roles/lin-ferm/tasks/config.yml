@@ -16,9 +16,9 @@
     src: "{{ item }}"
     dest: "{{ ferm_dir }}/{{ item }}"
   loop: "{{ ferm_configs }}"
-  notify: restart ferm service
+  notify: reload ferm service
 
-- name: create ferm port/host lists
+- name: create files for ferm host/port rules
   copy:
     dest: "{{ ferm_dir }}/{{ item }}"
     content: |
@@ -26,7 +26,7 @@
       # ansible-managed
     force: false
   loop: "{{ ferm_lists }}"
-  notify: restart ferm service
+  notify: reload ferm service
 
 - name: set permissions of ferm config files
   file:
@@ -39,9 +39,11 @@
     - "{{ ferm_lists }}"
 
 - name: open external ports in ferm before first start
-  lineinfile:
-    path: "{{ ferm_dir }}/ports.ext"
-    line: "{{ item |string }}"
+  ferm_port:
+    port: "{{ item |string }}"
+    domain: external
+    ferm_dir: "{{ ferm_dir }}"
+    reload: false
   loop: "{{ ferm_ports_external }}"
-  notify: restart ferm service
+  notify: reload ferm service
 ...

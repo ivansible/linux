@@ -3,23 +3,12 @@
   template:
     src: ferm.service
     dest: /etc/systemd/system/ferm.service
-  notify: restart ferm service
+  register: ferm_service_result
+  notify: reload ferm service
 
-- block:
-    - name: directory for docker adjustments
-      file:
-        state: directory
-        path: /etc/systemd/system/docker.service.d
-    - name: adjust docker to (re)start after ferm
-      copy:
-        dest: /etc/systemd/system/docker.service.d/ferm.conf
-        content: |
-          # ansible-managed
-          # (re)start docker after ferm
-          [Unit]
-          PartOf=ferm.service
-          After=ferm.service
-  when: ferm_docker |bool
+- name: reload ferm service config in systemd
+  command: systemctl daemon-reload  # noqa 303
+  when: ferm_service_result is changed
 
 - name: disable ufw
   ufw:
@@ -31,5 +20,4 @@
     name: ferm
     state: started
     enabled: true
-    daemon_reload: true
 ...
