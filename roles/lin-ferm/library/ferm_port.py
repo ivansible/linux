@@ -44,6 +44,10 @@ options:
     type: str
     choices: [ absent, present ]
     default: present
+  reload:
+    description:
+      - Reload firewall rules in case of changes.
+    default: true
   ferm_dir:
     description:
       - Ferm configuration directory.
@@ -85,20 +89,23 @@ def ferm_config(module, filename):
     return to_native(b_path, errors='surrogate_or_strict')
 
 
-def write_changes(module, path, b_lines):
+def write_changes(module, path, b_lines, reload=True):
+
     tmpfd, tmpfile = tempfile.mkstemp()
     with os.fdopen(tmpfd, 'wb') as f:
         f.writelines(b_lines)
 
     module.atomic_move(tmpfile, path, unsafe_writes=False)
 
-    cmd = ['systemctl', 'reload-or-restart', 'ferm']
-    rc, stdout, stderr = module.run_command(cmd)
-    if rc:
-        module.fail_json(msg='Failed to reload ferm', rc=rc, stdout=stdout, stderr=stderr)
+    if reload:
+        cmd = ['systemctl', 'reload-or-restart', 'ferm.service']
+        rc, stdout, stderr = module.run_command(cmd)
+        if rc:
+            module.fail_json(msg='Failed to reload ferm',
+                             rc=rc, stdout=stdout, stderr=stderr)
 
 
-def present(module, path, line):
+def present(module, path, line, reload=True):
 
     with open(path, 'rb') as f:
         b_lines = f.readlines()
@@ -131,7 +138,7 @@ def present(module, path, line):
         diff['after'] = to_native(b''.join(b_lines))
 
     if changed and not module.check_mode:
-        write_changes(module, path, b_lines)
+        write_changes(module, path, b_lines, reload)
 
     if module.check_mode and not os.path.exists(path):
         module.exit_json(changed=changed, msg=msg, diff=diff)
@@ -139,7 +146,7 @@ def present(module, path, line):
     module.exit_json(changed=changed, msg=msg, diff=diff)
 
 
-def absent(module, path, line):
+def absent(module, path, line, reload=True):
 
     with open(path, 'rb') as f:
         b_lines = f.readlines()
@@ -158,7 +165,7 @@ def absent(module, path, line):
     msg = "%s line(s) removed" % found if changed else ''
 
     if changed and not module.check_mode:
-        write_changes(module, path, b_lines)
+        write_changes(module, path, b_lines, reload)
 
     if module._diff:
         diff['after'] = to_native(b''.join(b_lines))
@@ -173,15 +180,14 @@ def main():
             domain=dict(type='str', default='external',
                         choices=['external', 'internal', 'blocked']),
             state=dict(type='str', default='present', choices=['present', 'absent']),
+            reload=dict(type='bool', default=True),
             ferm_dir=dict(type='str', default='/etc/ferm'),
         ),
         supports_check_mode=True,
     )
 
-    params = module.params
-
-    port = params['port']
-    proto = params['proto']
+    port = module.params['port']
+    proto = module.params['proto']
     split = re.match('^([^/]+)/(tcp|udp|ip|any)$', port)
     if split:
         port, proto = split.group(1), split.group(2)
@@ -193,7 +199,7 @@ def main():
     else:
         line = '%s/%s' % (port, proto)
 
-    domain = params['domain']
+    domain = module.params['domain']
     domain_to_extension = {
         'external': 'ext',
         'internal': 'int',
@@ -203,10 +209,11 @@ def main():
         module.fail_json(rc=256, msg='Invalid domain argument')
     path = ferm_config(module, 'ports.%s' % domain_to_extension[domain])
 
-    if params['state'] == 'present':
-        present(module, path, line)
+    reload = module.params['reload']
+    if module.params['state'] == 'present':
+        present(module, path, line, reload)
     else:
-        absent(module, path, line)
+        absent(module, path, line, reload)
 
 
 if __name__ == '__main__':
