@@ -1,4 +1,4 @@
-# Post-Filter
+# UFW-like Post-Filter
 
 domain (ip ip6) table filter {
     chain INPUT {

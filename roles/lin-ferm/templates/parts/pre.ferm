@@ -1,4 +1,4 @@
-# Pre-Filter I
+# Pre-Filter
 
 domain (ip ip6) table filter {
     chain INPUT interface lo ACCEPT;

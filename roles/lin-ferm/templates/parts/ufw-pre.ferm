@@ -1,4 +1,4 @@
-# Pre-Filter II
+# UFW-like Pre-Filter
 
 domain ip table filter {
     chain INPUT {

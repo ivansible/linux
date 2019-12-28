@@ -15,7 +15,7 @@
 
 @if $do_docker { @include 'parts/docker.ferm'; }
 
-@if $do_ufw { @include 'parts/ufw-pre1.ferm'; }
+@include 'parts/pre.ferm';
 
 @include @glob('before/*.ferm');
 
@@ -42,7 +42,7 @@ domain (ip ip6) table filter {
     }
 }
 
-@if $do_ufw { @include 'parts/ufw-pre2.ferm'; }
+@if $do_ufw { @include 'parts/ufw-pre.ferm'; }
 
 # User Filters
 
@@ -68,6 +68,6 @@ domain (ip ip6) table filter chain FORWARD {
 
 @include 'parts/icmp.ferm';
 
-@include @glob('after/*.ferm');
-
 @if $do_ufw @include 'parts/ufw-post.ferm';
+
+@include @glob('after/*.ferm');

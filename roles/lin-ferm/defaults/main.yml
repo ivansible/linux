@@ -30,8 +30,8 @@ ferm_configs:
   - parts/chains.ferm
   - parts/docker.ferm
   - parts/icmp.ferm
-  - parts/ufw-pre1.ferm
-  - parts/ufw-pre2.ferm
+  - parts/pre.ferm
+  - parts/ufw-pre.ferm
   - parts/ufw-post.ferm
 
 ferm_lists:
