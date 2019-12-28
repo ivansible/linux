@@ -6,14 +6,15 @@ use Net::DNS;
 
 my $ferm_dir = '/etc/ferm';
 my $ipset = '/sbin/ipset';
+my @list_files = qw(
+        ports.int ports.ext ports.block
+        hosts.int hosts.block
+    );
+my $resolver = Net::DNS::Resolver->new;
 my $tempset = '';
 
-my $resolver = Net::DNS::Resolver->new;
-
 END {
-    if ($tempset) {
-        `$ipset destroy $tempset`;
-    }
+    `$ipset destroy $tempset` if $tempset;
 }
 
 $| = 1;
@@ -24,26 +25,24 @@ sub run {
         or die "cannot run $cmd\n";
     print $stdin $input;
     close $stdin or die;
-    my $output = '';
-    while (<$stdout>) {
-        $output .= $_;
-    }
-    close $stdout or die;
     waitpid $pid, 0;
+    my $output = '';
+    while (<$stdout>) { $output .= $_; }
+    close $stdout or die;
     die "error: $output" if $?;
     return $output;
 }
 
 sub make_tempset {
-    for (my $num = 1; $num < 100; $num++) {
-        my $name = "ferm$num";
+    for (my $try = 1; $try < 100; $try++) {
+        my $name = "ferm$try";
         my $out = `ipset create $name bitmap:port range 1-2 2>&1`;
         unless ($?) {
             $tempset = $name;
-            last;
+            return;
         }
     }
-    die "cannot create temporary ipset\n" unless $tempset;
+    die "cannot create temporary ipset\n";
 }
 
 sub parse_ports {
@@ -100,15 +99,16 @@ sub parse_hosts {
         }
         if (/^[0-9a-fA-F:]*:[0-9a-fA-F:]*(?:\/\d+)?$/) {
             $hosts{'ip6'}{$_} = 1;
+            next;
         }
 
-        /^([0-9a-zA-Z-_.]+)(\/\d+)?(?:\/(ipv4|ipv6|any))?$/;
+        /^([0-9a-zA-Z_.-]+)(\/\d+)?(?:\/(ipv4|ip4|ipv6|ip6|any))?$/;
         my ($hostname, $subnet, $type) = ($1, $2, $3);
         $subnet = '' unless defined $subnet;
         $type = 'any' unless defined $type;
         my $ok = 0;
 
-        if ($type eq 'ipv4' || $type eq 'any') {
+        if ($type =~ /ipv4|ip4|any/) {
             my $query4 = $resolver->search($hostname, 'A');
             if ($query4) {
                 for my $rr ($query4->answer) {
@@ -119,7 +119,7 @@ sub parse_hosts {
                 }
             }
         }
-        if ($type eq 'ipv6' || $type eq 'any') {
+        if ($type =~ /ipv6|ip6|any/) {
             my $query6 = $resolver->search($hostname, 'AAAA');
             if ($query6) {
                 for my $rr ($query6->answer) {
@@ -153,8 +153,11 @@ sub parse_hosts {
 
 # main
 make_tempset;
-parse_ports 'ext', "$ferm_dir/ports.ext";
-parse_ports 'int', "$ferm_dir/ports.int";
-parse_ports 'block', "$ferm_dir/ports.block";
-parse_hosts 'int', "$ferm_dir/hosts.int";
-parse_hosts 'block', "$ferm_dir/hosts.block";
+for (@list_files) {
+    my $path = "$ferm_dir/$_";
+    /^(ports|hosts)\.(ext|int|block)$/
+        or die "invalid input: $_\n";
+    my ($kind, $domain) = ($1, $2);
+    parse_ports($domain, $path) if $kind eq 'ports';
+    parse_hosts($domain, $path) if $kind eq 'hosts';
+}
