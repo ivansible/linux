@@ -1,0 +1,36 @@
+---
+- name: open external ports in ferm
+  ferm_port:
+    port: "{{ item |string }}"
+    domain: external
+    ferm_dir: "{{ ferm_dir }}"
+  loop: "{{ ferm_ports_external }}"
+
+- name: open internal ports in ferm
+  ferm_port:
+    port: "{{ item |string }}"
+    domain: internal
+    ferm_dir: "{{ ferm_dir }}"
+  loop: "{{ ferm_ports_internal }}"
+
+- name: block ports in ferm
+  ferm_port:
+    port: "{{ item |string }}"
+    domain: blocked
+    ferm_dir: "{{ ferm_dir }}"
+  loop: "{{ ferm_ports_block }}"
+
+- name: add internal hosts in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/hosts.int"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_hosts_internal }}"
+  notify: reload ferm service
+
+- name: block hosts in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/hosts.block"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_hosts_block }}"
+  notify: reload ferm service
+...

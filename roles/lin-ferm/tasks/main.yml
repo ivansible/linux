@@ -1,7 +1,38 @@
 ---
-- name: become root and deploy ferm
-  import_tasks: root.yml
+- name: install ferm
+  import_tasks: install.yml
   become: true
   when: ferm_enable |bool
-  tags: lin_ferm_all
+  tags:
+    - lin_ferm_install
+    - lin_ferm_all
+
+- name: configure ferm
+  import_tasks: config.yml
+  become: true
+  when: ferm_enable |bool
+  tags:
+    - lin_ferm_config
+    - lin_ferm_all
+
+- name: run ferm service
+  import_tasks: service.yml
+  become: true
+  when: ferm_enable |bool
+  tags:
+    - lin_ferm_service
+    - lin_ferm_all
+
+- name: restart ferm before setting rules
+  meta: flush_handlers
+  tags:
+    - lin_ferm_all
+
+- name: manage ferm host/port rules
+  import_tasks: rules.yml
+  become: true
+  when: ferm_enable |bool
+  tags:
+    - lin_ferm_rules
+    - lin_ferm_all
 ...
