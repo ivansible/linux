@@ -8,15 +8,41 @@
 
 @include 'parts/chains.ferm';
 
+# Pre Rules
+
 @if $do_docker { @include 'parts/docker.ferm'; }
 
 @if $do_ufw { @include 'parts/ufw-pre1.ferm'; }
 
 @include @glob('before/*.ferm');
 
+# Block Hosts/Ports
+
+domain (ip ip6) table filter {
+    chain int_hosts;
+
+    chain ext_hosts {
+        # goto outta here if host is internal
+        @if @eq($DOMAIN,ip) mod set set ferm_hosts_int_ip4 src goto int_hosts;
+        @if @eq($DOMAIN,ip6) mod set set ferm_hosts_int_ip6 src goto int_hosts;
+
+        # rules for external hosts below
+        proto (tcp udp) mod set set ferm_ports_block_ip dst DROP;
+        proto tcp mod set set ferm_ports_block_tcp dst DROP;
+        proto udp mod set set ferm_ports_block_udp dst DROP;
+    }
+
+    chain (INPUT FORWARD) proto (tcp udp) {
+        @if @eq($DOMAIN,ip) mod set set ferm_hosts_block_ip4 src DROP;
+        @if @eq($DOMAIN,ip6) mod set set ferm_hosts_block_ip6 src DROP;
+        jump ext_hosts;
+    }
+}
+
 @if $do_ufw { @include 'parts/ufw-pre2.ferm'; }
 
 # User Filters
+
 domain (ip ip6) table filter chain INPUT {
     @include @glob('input/*.ferm');
 
@@ -25,9 +51,17 @@ domain (ip ip6) table filter chain INPUT {
     proto udp mod set set ferm_ports_ext_udp dst ACCEPT;
 }
 
+domain (ip ip6) table filter chain int_hosts {
+    proto (tcp udp) mod set set ferm_ports_int_ip dst ACCEPT;
+    proto tcp mod set set ferm_ports_int_tcp dst ACCEPT;
+    proto udp mod set set ferm_ports_int_udp dst ACCEPT;
+}
+
 domain (ip ip6) table filter chain FORWARD {
     @include @glob('forward/*.ferm');
 }
+
+# Post Rules
 
 @include 'parts/icmp.ferm';
 

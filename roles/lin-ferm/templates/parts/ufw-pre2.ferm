@@ -1,13 +1,7 @@
 # Pre-Filter II
 
 domain ip table filter {
-    chain nonlocal {
-        mod addrtype dst-type (LOCAL MULTICAST) RETURN;
-        mod addrtype dst-type (BROADCAST) RETURN;
-        DROP;
-    }
     chain INPUT {
-        jump nonlocal;
         proto udp sport 67 dport 68 ACCEPT;
         daddr 224.0.0.251/32 protocol udp dport 5353 ACCEPT;
         daddr 239.255.255.250/32 protocol udp dport 1900 ACCEPT;

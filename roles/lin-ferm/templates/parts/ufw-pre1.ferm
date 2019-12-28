@@ -9,3 +9,12 @@ domain (ip ip6) table filter {
     }
     chain INPUT mod conntrack ctstate INVALID DROP;
 }
+
+domain ip table filter {
+    chain nonlocal {
+        mod addrtype dst-type (LOCAL MULTICAST) RETURN;
+        mod addrtype dst-type (BROADCAST) RETURN;
+        DROP;
+    }
+    chain INPUT jump nonlocal;
+}

@@ -4,6 +4,11 @@
     name: ferm
     state: absent
 
+- name: install perl Net::DNS
+  apt:
+    name: libnet-dns-perl
+    state: present
+
 - name: download ferm script
   get_url:
     url: "{{ ferm_script_url }}"

@@ -2,10 +2,13 @@
 use strict;
 use warnings;
 use IPC::Open2;
+use Net::DNS;
 
 my $ferm_dir = '/etc/ferm';
 my $ipset = '/sbin/ipset';
 my $tempset = '';
+
+my $resolver = Net::DNS::Resolver->new;
 
 END {
     if ($tempset) {
@@ -61,20 +64,89 @@ sub parse_ports {
         $type = 'ip' unless defined $type;
         next if $end < $start;
         my $port = ($start == $end) ? "$start" : "$start-$end";
-        $ports{$type}{$port} = $port;
+        $ports{$type}{$port} = 1;
     }
     close(PORTS);
 
     for my $type ('ip', 'tcp', 'udp') {
         my $hash = $ports{$type};
-        my $setname = "ferm_ports_${domain}_${type}";
+        my $name = "ferm_ports_${domain}_${type}";
+        my $opts = "bitmap:port range 0-65535";
         my @cmd = (
-            "create -exist $setname bitmap:port range 0-65535",
+            "create -exist $name $opts",
             "destroy $tempset",
-            "create $tempset bitmap:port range 0-65535",
+            "create $tempset $opts",
         );
         push @cmd, "add $tempset $_" for (sort keys %$hash);
-        push @cmd, "swap $tempset $setname";
+        push @cmd, "swap $tempset $name";
+        run "$ipset -", join("\n", @cmd) . "\n";
+    }
+}
+
+sub parse_hosts {
+    my ($domain, $filename) = @_;
+    my %hosts;
+
+    open(HOSTS, $filename)
+        or die("can't open $filename");
+    for (<HOSTS>) {
+        s/#.*$//;
+        s/^\s+|\s+$//;
+        next if /^$/;
+
+        if (/^\d+\.\d+\.\d+\.\d+(?:\/\d+)?$/) {
+            $hosts{'ip4'}{$_} = 1;
+            next;
+        }
+        if (/^[0-9a-fA-F:]*:[0-9a-fA-F:]*(?:\/\d+)?$/) {
+            $hosts{'ip6'}{$_} = 1;
+        }
+
+        /^([0-9a-zA-Z-_.]+)(\/\d+)?(?:\/(ipv4|ipv6|any))?$/;
+        my ($hostname, $subnet, $type) = ($1, $2, $3);
+        $subnet = '' unless defined $subnet;
+        $type = 'any' unless defined $type;
+        my $ok = 0;
+
+        if ($type eq 'ipv4' || $type eq 'any') {
+            my $query4 = $resolver->search($hostname, 'A');
+            if ($query4) {
+                for my $rr ($query4->answer) {
+                    next unless $rr->type eq 'A';
+                    my $addr = $rr->address;
+                    $hosts{'ip4'}{"$addr$subnet comment $hostname"} = 1;
+                    $ok = 1;
+                }
+            }
+        }
+        if ($type eq 'ipv6' || $type eq 'any') {
+            my $query6 = $resolver->search($hostname, 'AAAA');
+            if ($query6) {
+                for my $rr ($query6->answer) {
+                    next unless $rr->type eq 'AAAA';
+                    my $addr = $rr->address;
+                    $hosts{'ip6'}{"$addr$subnet comment $hostname"} = 1;
+                    $ok = 1;
+                }
+            }
+        }
+        print STDERR "dns query failed: $hostname\n"
+            unless $ok;
+    }
+    close(HOSTS);
+
+    for my $type ('ip4', 'ip6') {
+        my $hash = $hosts{$type};
+        my $family = ($type eq 'ip4') ? 'inet' : 'inet6';
+        my $name = "ferm_hosts_${domain}_${type}";
+        my $opts = "hash:net family $family comment";
+        my @cmd = (
+            "create -exist $name $opts",
+            "destroy $tempset",
+            "create $tempset $opts",
+        );
+        push @cmd, "add $tempset $_" for (sort keys %$hash);
+        push @cmd, "swap $tempset $name";
         run "$ipset -", join("\n", @cmd) . "\n";
     }
 }
@@ -84,3 +156,5 @@ make_tempset;
 parse_ports 'ext', "$ferm_dir/ports.ext";
 parse_ports 'int', "$ferm_dir/ports.int";
 parse_ports 'block', "$ferm_dir/ports.block";
+parse_hosts 'int', "$ferm_dir/hosts.int";
+parse_hosts 'block', "$ferm_dir/hosts.block";

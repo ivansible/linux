@@ -9,6 +9,12 @@ ferm_ports_external:
   - 22/tcp
   - 123/udp
 ferm_ports_internal: []
+ferm_ports_block: []
+
+ferm_hosts_internal:
+  - 192.168.0.0/16
+  - 10.0.0.0/8
+ferm_hosts_block: []
 
 ferm_docker: true
 ferm_docker_iface: docker0

@@ -51,4 +51,25 @@
     line: "{{ item |string }}"
   loop: "{{ ferm_ports_internal }}"
   notify: reload ferm service
+
+- name: block ports in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/ports.block"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_ports_block }}"
+  notify: reload ferm service
+
+- name: add internal hosts in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/hosts.int"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_hosts_internal }}"
+  notify: reload ferm service
+
+- name: block hosts in ferm
+  lineinfile:
+    path: "{{ ferm_dir }}/hosts.block"
+    line: "{{ item |string }}"
+  loop: "{{ ferm_hosts_block }}"
+  notify: reload ferm service
 ...
