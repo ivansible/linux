@@ -1,13 +1,11 @@
 ---
 # defaults for ivansible.lin_ferm
 
-ferm_enable: true
+ferm_install: false
 ferm_mimic_ufw: true
 
 ferm_ports_external:
-  - 443
   - 22/tcp
-  - 123/udp
 ferm_ports_internal: []
 ferm_ports_block: []
 

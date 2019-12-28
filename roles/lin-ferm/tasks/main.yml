@@ -1,37 +1,49 @@
 ---
 - name: install ferm
-  import_tasks: install.yml
-  become: true
-  when: ferm_enable |bool
+  include_tasks:
+    file: install.yml
+    apply:
+      become: true
+      tags: lin_ferm_install
+  when: ferm_install |bool
   tags:
     - lin_ferm_install
     - lin_ferm_all
 
 - name: configure ferm
-  import_tasks: config.yml
-  become: true
-  when: ferm_enable |bool
+  include_tasks:
+    file: config.yml
+    apply:
+      become: true
+      tags: lin_ferm_config
+  when: ferm_install |bool
   tags:
     - lin_ferm_config
     - lin_ferm_all
 
 - name: run ferm service
-  import_tasks: service.yml
-  become: true
-  when: ferm_enable |bool
+  include_tasks:
+    file: service.yml
+    apply:
+      become: true
+      tags: lin_ferm_service
+  when: ferm_install |bool
   tags:
     - lin_ferm_service
     - lin_ferm_all
 
-- name: restart ferm before setting rules
+- name: start ferm before setting rules
   meta: flush_handlers
   tags:
     - lin_ferm_all
 
-- name: manage ferm host/port rules
-  import_tasks: rules.yml
-  become: true
-  when: ferm_enable |bool
+- name: setup ferm host/port rules
+  include_tasks:
+    file: rules.yml
+    apply:
+      become: true
+      tags: lin_ferm_rules
+  when: ferm_install |bool
   tags:
     - lin_ferm_rules
     - lin_ferm_all
