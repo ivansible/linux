@@ -41,6 +41,7 @@
     rules: "{{ lookup('template', 'rules/%s.ferm' % item.name) }}"
     reload: false
     ferm_dir: "{{ ferm_dir }}"
+  tags: skip_ansible_lint
   notify: reload ferm service
   loop:
     - name: docker
@@ -66,6 +67,7 @@
     domain: external
     reload: false
     ferm_dir: "{{ ferm_dir }}"
+  tags: skip_ansible_lint
   loop: "{{ ferm_ports_external }}"
   notify: reload ferm service
 ...
