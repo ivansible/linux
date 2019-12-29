@@ -25,7 +25,7 @@
   loop: "{{ ferm_list_files }}"
   notify: reload ferm service
 
-- name: set permissions of ferm config file
+- name: set permissions of ferm config files
   file:
     path: "{{ ferm_dir }}/{{ item }}"
     owner: root

@@ -4,9 +4,12 @@
     name: ferm
     state: absent
 
-- name: install perl Net::DNS package
+- name: install perl Net::DNS and ipset packages
   apt:
-    name: libnet-dns-perl
+    name:
+      - libnet-dns-perl
+      - ipset
+      - iptables
     state: present
 
 - name: download ferm script

@@ -37,7 +37,7 @@
   tags:
     - lin_ferm_all
 
-- name: setup ferm host/port rules
+- name: setup ferm rules
   include_tasks: rules.yml
   args:
     apply:
