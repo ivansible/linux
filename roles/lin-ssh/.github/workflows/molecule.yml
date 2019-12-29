@@ -24,7 +24,7 @@ jobs:
           - ubuntu-18.04
     env:
       SCENARIO: localhost
-      IVATEST_FIREWALL: true
+      IVATEST_FIREWALL: ferm
       # disable ssh server on github runners
       IVATEST_SSH_SERVER: false
       IVATEST_SSH_PORT: 0
@@ -55,7 +55,7 @@ jobs:
       fail-fast: false
     env:
       SCENARIO: default
-      IVATEST_FIREWALL: false
+      IVATEST_FIREWALL: none
       # perform ssh server test in docker
       IVATEST_SSH_SERVER: true
       IVATEST_SSH_PORT: 22
