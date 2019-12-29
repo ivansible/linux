@@ -1,5 +1,6 @@
-# UFW-like Post-Filter
+# Post-Filter (UFW)
 
+@if $do_ufw
 domain (ip ip6) table filter {
     chain INPUT {
         proto udp dport (137 138) DROP;

@@ -1,5 +1,6 @@
 # Docker
 
+@if $do_docker
 domain ip table nat {
     chain DOCKER;
     chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
@@ -8,6 +9,7 @@ domain ip table nat {
     chain DOCKER interface $docker0 RETURN;
 }
 
+@if $do_docker
 domain ip table filter {
     chain DOCKER;
     chain DOCKER-ISOLATION-STAGE-1;

@@ -23,16 +23,7 @@ ferm_bindir: /usr/local/sbin
 ferm_binary: "{{ ferm_bindir }}/ferm"
 ferm_ipset_binary: "{{ ferm_bindir }}/ferm-ipset"
 
-ferm_configs:
-  - config.ferm
-  - parts/chains.ferm
-  - parts/docker.ferm
-  - parts/icmp.ferm
-  - parts/pre.ferm
-  - parts/ufw-pre.ferm
-  - parts/ufw-post.ferm
-
-ferm_lists:
+ferm_list_files:
   - ports.ext
   - ports.int
   - ports.block

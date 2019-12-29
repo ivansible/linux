@@ -14,10 +14,9 @@ PropagateReloadTo=docker.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-{% set ferm_config = ferm_dir + '/' + ferm_configs[0] %}
-ExecStart={{ ferm_binary }} {{ ferm_config }}
-ExecReload={{ ferm_binary }} {{ ferm_config }}
-ExecStop={{ ferm_binary }} --flush {{ ferm_config }}
+ExecStart={{ ferm_binary }} {{ ferm_dir }}/config.ferm
+ExecReload={{ ferm_binary }} {{ ferm_dir }}/config.ferm
+ExecStop={{ ferm_binary }} --flush {{ ferm_dir }}/config.ferm
 
 [Install]
 WantedBy=multi-user.target

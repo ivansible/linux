@@ -1,5 +1,6 @@
-# UFW-like Pre-Filter
+# Pre-Filter (UFW)
 
+@if $do_ufw
 domain ip table filter {
     chain INPUT {
         proto udp sport 67 dport 68 ACCEPT;
@@ -8,6 +9,7 @@ domain ip table filter {
     }
 }
 
+@if $do_ufw
 domain ip6 table filter chain INPUT {
     proto udp saddr fe80::/10 daddr fe80::/10 sport 547 dport 546 ACCEPT;
     proto udp daddr ff02::fb/128 dport 5353 ACCEPT;

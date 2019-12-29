@@ -1,7 +1,7 @@
 ---
 - name: install ferm
-  include_tasks:
-    file: install.yml
+  include_tasks: install.yml
+  args:
     apply:
       become: true
       tags: lin_ferm_install
@@ -11,8 +11,8 @@
     - lin_ferm_all
 
 - name: configure ferm
-  include_tasks:
-    file: config.yml
+  include_tasks: config.yml
+  args:
     apply:
       become: true
       tags: lin_ferm_config
@@ -22,8 +22,8 @@
     - lin_ferm_all
 
 - name: run ferm service
-  include_tasks:
-    file: service.yml
+  include_tasks: service.yml
+  args:
     apply:
       become: true
       tags: lin_ferm_service
@@ -38,8 +38,8 @@
     - lin_ferm_all
 
 - name: setup ferm host/port rules
-  include_tasks:
-    file: rules.yml
+  include_tasks: rules.yml
+  args:
     apply:
       become: true
       tags: lin_ferm_rules
