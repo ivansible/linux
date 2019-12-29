@@ -152,8 +152,26 @@
   when: lin_use_ssh |bool
   tags: linsys_ssh
 
-- name: activate firewall
-  import_tasks: firewall.yml
-  when: lin_use_firewall |bool
+- name: assert that firewall selector is valid
+  assert:
+    that: lin_firewall in ['ufw', 'ferm', 'none']
+  tags: linsys_firewall
+
+- name: setup ufw firewall
+  include_tasks: firewall-ufw.yml
+  args:
+    apply:
+      become: true
+      tags: linsys_firewall
+  when: lin_firewall == 'ufw'
+  tags: linsys_firewall
+
+- name: setup ferm firewall
+  include_tasks: firewall-ferm.yml
+  args:
+    apply:
+      become: true
+      tags: linsys_firewall
+  when: lin_firewall == 'ferm'
   tags: linsys_firewall
 ...

@@ -65,8 +65,8 @@ Incorrect value may result in the real ssh port being firewalled by the role.
 
 ### Imported Variables (ivansible.lin_base)
 
-    lin_use_firewall: true
-Enables firewall, eg. UFW (firewall can fail in docker containers).
+    lin_firewall: ferm
+Linux firewall to use, one of: `ufw`, `ferm`, `none` (firewall can fail in docker).
 
     lin_use_ssh: true
 Enables SSH daemon (can fail on github runners).
@@ -91,7 +91,8 @@ Enables rsyslog.
 
 ## Dependencies
 
-- `ivansible.lin_base` -- for `ssh` restart handler, `lin_use_firewall` etc
+- `ivansible.lin_base` -- for ferm modules, `ssh` restart handler, `lin_firewall` etc
+- `ivansible.lin_ferm` -- to install ferm
 
 
 ## Example Playbook
@@ -101,7 +102,7 @@ Enables rsyslog.
       roles:
          - role: ivansible.lin_system
            linsys_apt_fast_mirrors: true
-           lin_use_firewall: false # firewall fails in docker
+           lin_firewall: none  # firewall fails in docker
 
 
 ## License

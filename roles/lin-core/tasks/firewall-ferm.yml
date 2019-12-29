@@ -1,0 +1,33 @@
+---
+- name: activate ferm firewall
+  import_role:
+    name: ivansible.lin_ferm
+  vars:
+    ferm_install: true
+    ferm_ports_external:
+      # open actual ssh port
+      - "{{ real_ssh_port |string }}/tcp"
+      # open ntp port
+      - 123/udp
+
+- name: fix ssh port in ferm firewall
+  block:
+    - name: close port 22/tcp in ferm, if not used
+      ferm_port:
+        port: 22
+        proto: tcp
+        state: absent
+      tags: skip_ansible_lint
+
+    - name: close port 22 (tcp+udp) in ferm, if not used
+      ferm_port:
+        port: 22
+        state: absent
+      tags: skip_ansible_lint
+  when: lin_use_ssh |bool
+        and real_ssh_port |int != 22
+  tags: linsys_ssh
+
+- name: test connection
+  ping:
+...

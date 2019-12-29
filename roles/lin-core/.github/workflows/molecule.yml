@@ -28,7 +28,7 @@ jobs:
           - ubuntu-18.04
     env:
       SCENARIO: localhost
-      IVATEST_FIREWALL: true
+      IVATEST_FIREWALL: ferm
 
     steps:
       - name: Checkout
@@ -56,7 +56,7 @@ jobs:
       fail-fast: false
     env:
       SCENARIO: default
-      IVATEST_FIREWALL: false
+      IVATEST_FIREWALL: none
 
     steps:  # copy-pasting above steps since anchors are unsupported
       - name: Checkout

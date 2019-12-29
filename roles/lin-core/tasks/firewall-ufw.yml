@@ -1,7 +1,7 @@
 ---
-- name: fix ssh port in firewall
+- name: fix ssh port in ufw firewall
   block:
-    - name: close port 22/tcp, if not used
+    - name: close port 22/tcp in ufw, if not used
       ufw:
         rule: allow
         port: '22'
@@ -9,7 +9,7 @@
         delete: true
       no_log: "{{ hide_secrets |bool }}"
 
-    - name: close port 22 (tcp+udp), if not used
+    - name: close port 22 (tcp+udp) in ufw, if not used
       ufw:
         rule: allow
         port: '22'
@@ -19,7 +19,7 @@
         and real_ssh_port |int != 22
   tags: linsys_ssh
 
-- name: open actual ssh port
+- name: open actual ssh port in ufw
   ufw:
     rule: allow
     port: "{{ real_ssh_port |string }}"
@@ -29,14 +29,21 @@
   tags: linsys_ssh
 
 
-- name: open ntp port
+- name: open ntp port in ufw
   ufw:
     rule: allow
     port: '123'
     proto: udp
   no_log: "{{ hide_secrets |bool }}"
 
-- name: activate firewall
+
+- name: disable ferm firewall
+  systemd:
+    name: ferm
+    state: stopped
+    enabled: false
+
+- name: activate ufw firewall
   ufw:
     state: enabled
   no_log: "{{ hide_secrets |bool }}"
