@@ -25,14 +25,14 @@ matrix:
     - name: test on xenial
       dist: xenial
       env:
-        - IVATEST_FIREWALL=true
+        - IVATEST_FIREWALL=ferm
       script:
         - molecule test -s localhost
 
     - name: test on bionic
       dist: bionic
       env:
-        - IVATEST_FIREWALL=true
+        - IVATEST_FIREWALL=ferm
       script:
         - molecule test -s localhost
 
@@ -40,7 +40,7 @@ matrix:
       dist: bionic
       services: docker
       env:
-        - IVATEST_FIREWALL=false
+        - IVATEST_FIREWALL=none
       script:
         # run step by step to work around no-output delay with idempotence
         - molecule lint

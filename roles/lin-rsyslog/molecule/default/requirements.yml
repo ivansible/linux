@@ -2,6 +2,9 @@
 - src: https://github.com/ivansible/lin-base
   name: ivansible.lin_base
   scm: git
+- src: https://github.com/ivansible/lin-ferm
+  name: ivansible.lin_ferm
+  scm: git
 - src: https://github.com/ivansible/lin-system
   name: ivansible.lin_system
   scm: git
