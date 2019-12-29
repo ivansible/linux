@@ -23,7 +23,7 @@ provisioner:
         allow_sysctl: false
         # these pass on host:
         linsys_time_sync: true
-        lin_use_firewall: ${IVATEST_FIREWALL:-true}
+        lin_firewall: ${IVATEST_FIREWALL:-ferm}
   playbooks:
     prepare: ../default/prepare.yml
     converge: ../default/playbook.yml

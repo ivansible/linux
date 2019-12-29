@@ -5,6 +5,9 @@
 - src: https://github.com/ivansible/backup-base
   name: ivansible.backup_base
   scm: git
+- src: https://github.com/ivansible/lin-ferm
+  name: ivansible.lin_ferm
+  scm: git
 - src: https://github.com/ivansible/lin-system
   name: ivansible.lin_system
   scm: git

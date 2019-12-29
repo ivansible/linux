@@ -33,7 +33,7 @@ provisioner:
         allow_sysctl: false
         # these will fail in docker:
         linsys_time_sync: false
-        lin_use_firewall: ${IVATEST_FIREWALL:-true}
+        lin_firewall: ${IVATEST_FIREWALL:-ferm}
   lint:
     name: ansible-lint
 verifier:
