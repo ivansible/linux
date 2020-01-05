@@ -16,6 +16,8 @@ lin_restic_rclone_reuse_token: false
 lin_restic_reponame: "{{ inventory_hostname }}"
 lin_restic_password: supersecret
 
+lin_restic_mount_dir: /mnt/restic
+
 lin_restic_repository: rclone:{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
 
 lin_restic_postgres_port: 5432

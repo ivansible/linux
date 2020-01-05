@@ -7,6 +7,16 @@
   import_tasks: user.yml
   tags: lin_restic_user
 
+- name: create directory for restic mounts
+  file:
+    path: "{{ lin_restic_mount_dir }}"
+    state: directory
+    owner: root
+    group: rclone
+    mode: 0750
+  when: lin_restic_mount_dir != ''  # noqa 602
+  tags: lin_restic_user
+
 - name: setup rclone remote for restic
   include_role:
     name: ivansible.lin_rclone
