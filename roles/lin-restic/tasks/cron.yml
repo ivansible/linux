@@ -64,10 +64,12 @@
       EnvironmentFile=/etc/default/restic
       ExecStart={{ lin_restic_binary }} version
       ExecStart={{ lin_restic_binary }} forget {{ verbose_option }}{{ forget_options }}
+      ExecStart={{ lin_restic_binary }} check
+      ExecStart={{ lin_restic_binary }} unlock
       ExecStart={{ lin_restic_binary }} prune
       ExecStart={{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
       ExecStart={{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
-      ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:
+      ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
       ExecStart=/bin/echo prune done
     force: true
   vars:
