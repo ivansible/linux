@@ -1,23 +1,25 @@
 ---
-- name: add ansible ppa
-  apt_repository:
-    repo: ppa:ansible/ansible
-    filename: ansible
-  become: yes
+- block:
+    - name: add ansible ppa
+      apt_repository:
+        repo: ppa:ansible/ansible
+        filename: ansible
+        mode: 0644
 
-- name: install ansible from ppa
-  apt:
-    name:
-      - python-pip
-      - virtualenv
-      - ansible
-  become: yes
+    - name: install ansible from ppa
+      apt:
+        name:
+          - python-pip
+          - virtualenv
+          - ansible
 
-# stock python-pywinrm does not provide ntlm
-# required by ssl winrm transport
-# probably bionic pywinrm is fine
-- name: upgrade pywinrm module
-  pip:
-    name: pywinrm
-  become: yes
+    # stock python-pywinrm does not provide ntlm
+    # required by ssl winrm transport
+    # probably bionic pywinrm is fine
+    - name: upgrade pywinrm module
+      pip:
+        name: pywinrm
+
+  become: true
+  tags: lin_ansible_all
 ...

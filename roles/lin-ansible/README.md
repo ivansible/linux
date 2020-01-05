@@ -16,7 +16,7 @@ None
 
 ## Tags
 
-None
+- `lin_ansible_all`
 
 
 ## Dependencies
@@ -26,7 +26,7 @@ None
 
 ## Example Playbook
 
-    - hosts: vag2
+    - hosts: vagrant
       roles:
         - role: ivansible.lin-ansible
 
@@ -38,4 +38,4 @@ MIT
 
 ## Author Information
 
-Created in 2018 by [IvanSible](https://github.com/ivansible)
+Created in 2018-2020 by [IvanSible](https://github.com/ivansible)
