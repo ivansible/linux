@@ -1,10 +1,11 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base  # for default settings and github_release/json_patch modules
 
 galaxy_info:
   role_name: lin_docker
   author: "Ivan Andreev"
-  description: "Install docker, docker-compose, docker-machine"
+  description: "install docker, docker-compose, docker-machine"
   company: "IvanSible"
   license: MIT
   min_ansible_version: 2.5
@@ -18,6 +19,7 @@ galaxy_info:
   galaxy_tags:
     - linux
     - docker
+    - compose
 
   github_branch: master
 ...

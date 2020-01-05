@@ -3,17 +3,19 @@
   apt:
     name:
       - docker-compose
+      - docker_compose
       # stock pyopenssl on xenial is incompatible with docker-compose
-      #- python-openssl
+      # - python-openssl
     state: absent
 
 - name: detect latest docker-compose release
   github_release:
     repository: docker/compose
     release: "{{ docker_compose_release }}"
-    template: "{download_url}/docker-compose-Linux-x86_64"
+    template: '{download_url}/docker-compose-Linux-x86_64'
     creates: "{{ docker_compose_binary_file }}"
     reinstall: "{{ docker_allow_reinstall |bool }}"
+  tags: skip_ansible_lint
   register: latest_dcomp_release
 
 - name: download docker-compose

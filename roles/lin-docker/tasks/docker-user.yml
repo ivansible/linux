@@ -3,8 +3,8 @@
   user:
     name: "{{ ansible_user_id }}"
     groups: docker
-    append: yes
-  become: yes
+    append: true
+  become: true
 
 - name: include the "reset ssh connection" task
   include_tasks: reset-connection.yml
@@ -21,13 +21,14 @@
     name:
       - gnupg2
       - pass
-      #- dbus-x11
+      # - dbus-x11
     state: present
-  become: yes
+  become: true
   when: ansible_lsb.codename == 'bionic'
 
+
 - name: login target user into docker hub
-  when: docker_hub_username != '' and docker_hub_password != '' # noqa 602
+  when: docker_hub_username != '' and docker_hub_password != ''  # noqa 602
   block:
     - name: attempt to login into docker hub as user (will rescue if it fails)
       command:
@@ -69,7 +70,7 @@
             rm -rf "{{ ansible_user_dir }}/.docker" &&
             mv ~/.docker "{{ ansible_user_dir }}/"
       # end of rescue block
-      become: yes
+      become: true
 
   # end of login block
   tags:

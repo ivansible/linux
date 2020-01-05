@@ -1,5 +1,5 @@
 ---
-# defaults file for ivansible.lin_docker
+# defaults for ivansible.lin_docker
 is_permitted: false
 docker_extras: false
 

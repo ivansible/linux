@@ -3,45 +3,45 @@
 
 - name: install docker core
   import_tasks: docker-core.yml
-  become: yes
+  become: true
   tags:
     - lin_docker_core
-    - lin_docker
+    - lin_docker_all
 
 - name: install ansible docker bindings
   apt:
     name:
       - python-docker
       - python3-docker
-  become: yes
+  become: true
   tags:
     - lin_docker_ansible
-    - lin_docker
+    - lin_docker_all
 
 - name: install docker-compose
   import_tasks: docker-compose.yml
-  become: yes
+  become: true
   tags:
     - lin_docker_compose
-    - lin_docker
+    - lin_docker_all
     - ip4only
 
 - name: install docker machine
   import_tasks: docker-machine.yml
   when: docker_extras |bool
-  become: yes
+  become: true
   tags:
     - lin_docker_machine
-    - lin_docker
+    - lin_docker_all
     - ip4only
 
 - name: create docker-enabled group
   group:
     name: docker
     state: present
-  become: yes
+  become: true
   tags:
-    - lin_docker
+    - lin_docker_all
 
 - name: checkout docker files, if permitted
   git:
@@ -49,17 +49,17 @@
     repo: "{{ docker_files_repo }}"
     version: "{{ docker_files_branch }}"
     # only clone, don't choke on pending modifications
-    update: no
-    accept_hostkey: yes
-  when: is_permitted |bool and docker_files_repo != '' # noqa 602
+    update: false
+    accept_hostkey: true
+  when: is_permitted |bool and docker_files_repo != ''  # noqa 602
   tags:
     - lin_docker_files
-    - lin_docker
+    - lin_docker_all
 
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
   when: docker_permit_user |bool and is_permitted |bool
   tags:
     - lin_docker_user
-    - lin_docker
+    - lin_docker_all
 ...

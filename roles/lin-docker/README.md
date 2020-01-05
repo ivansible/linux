@@ -16,7 +16,6 @@ None
 
 Available variables are listed below, along with default values.
 
-
     docker_machine_release: latest
 Docker-machine release to install. See new releases at
 https://github.com/docker/machine/releases
@@ -25,14 +24,14 @@ https://github.com/docker/machine/releases
 Docker-compose release to install. See new releases at
 https://github.com/docker/compose/releases
 
-    docker_allow_reinstall: no
+    docker_allow_reinstall: false
 Allows to refresh already downloaded docker redistributables.
 
-    docker_permit_user: no
+    docker_permit_user: false
 True allows to add target user in the docker group.
 
-    docker_hub_username: ''
-    docker_hub_password: ''
+    docker_hub_username: ""
+    docker_hub_password: ""
 Use non-empty values to login target user into docker hub. Only user
 in the docker group (`docker_permit_user` is true) will be authenticated.
 
@@ -51,6 +50,7 @@ checked out in the given local directory.
 - `lin_docker_machine` -- install docker-machine
 - `lin_docker_user` -- give target user permissions for docker daemon
                        and login into docker hub
+- `lin_docker_all` -- all tasks
 
 
 ## Dependencies
@@ -60,7 +60,7 @@ None
 
 ## Example Playbook
 
-    - hosts: vag2
+    - hosts: myhost
       roles:
         - role: ivansible.lin_docker
 
@@ -72,4 +72,4 @@ MIT
 
 ## Author Information
 
-Created in 2018 by [IvanSible](https://github.com/ivansible)
+Created in 2018-2020 by [IvanSible](https://github.com/ivansible)
