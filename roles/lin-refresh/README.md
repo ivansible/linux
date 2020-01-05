@@ -36,13 +36,15 @@ None
       strategy: free
       roles:
          - role: ivansible.lin_refresh
-           become: yes
+           become: true
            linref_apt_sources: false
 
 
 ## Usage
 
-    ansible-playbook plays/lin-refresh.yml -l vag2,vag3
+    ansible-playbook plays/lin-refresh.yml -l vag1
+    ivantory-role .lin-refresh vag2,vag3 -e linref_play_strategy=free
+    ./bin/lin-refresh vag2,vag3
 
 `Warning`: make sure your production hosts do not fall in the `vagrant` group.
 
@@ -53,4 +55,4 @@ MIT
 
 ## Author Information
 
-Created in 2018 by [IvanSible](https://github.com/ivansible)
+Created in 2018-2020 by [IvanSible](https://github.com/ivansible)

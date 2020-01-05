@@ -4,7 +4,7 @@ dependencies: []
 galaxy_info:
 
   author: "Ivan Andreev"
-  description: "Upgrade and resync a linux box"
+  description: "upgrade and resync a linux box"
   company: "IvanSible"
   license: MIT
   min_ansible_version: 2.5

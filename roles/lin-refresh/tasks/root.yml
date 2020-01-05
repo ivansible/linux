@@ -11,8 +11,8 @@
 - name: check for reboot marker
   stat:
     path: "{{ linref_reboot_marker }}"
-    get_checksum: no
-    get_mime: no
+    get_checksum: false
+    get_mime: false
   register: reboot_marker
   tags: linref_reboot
 
