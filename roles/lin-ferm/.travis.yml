@@ -48,8 +48,8 @@ matrix:
         - molecule dependency
         - molecule syntax
         - molecule create
-        #- molecule converge
-        #- travis_wait 30 molecule idempotence
-        #- molecule verify
+        # - molecule converge
+        # - travis_wait 30 molecule idempotence
+        # - molecule verify
         - molecule destroy
 ...
