@@ -63,11 +63,11 @@
 
 - name: open external ports in ferm before start
   ferm_port:
-    port: "{{ item |string }}"
+    port: "{{ ferm_ports_external }}"
     domain: external
+    comment: ferm core
     reload: false
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
-  loop: "{{ ferm_ports_external }}"
   notify: reload ferm service
 ...

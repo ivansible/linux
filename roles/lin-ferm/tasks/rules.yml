@@ -1,41 +1,41 @@
 ---
 - name: open external ports in ferm
   ferm_port:
-    port: "{{ item |string }}"
+    port: "{{ ferm_ports_external }}"
+    comment: ferm core
     domain: external
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
-  loop: "{{ ferm_ports_external }}"
 
 - name: open internal ports in ferm
   ferm_port:
-    port: "{{ item |string }}"
+    port: "{{ ferm_ports_internal }}"
+    comment: ferm core
     domain: internal
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
-  loop: "{{ ferm_ports_internal }}"
 
 - name: block ports in ferm
   ferm_port:
-    port: "{{ item |string }}"
+    port: "{{ ferm_ports_block }}"
+    comment: ferm core
     domain: blocked
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
-  loop: "{{ ferm_ports_block }}"
 
 - name: add internal hosts in ferm
   ferm_host:
-    host: "{{ item |string }}"
+    host: "{{ ferm_hosts_internal }}"
+    comment: ferm core
     domain: internal
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
-  loop: "{{ ferm_hosts_internal }}"
 
 - name: block hosts in ferm
   ferm_host:
-    host: "{{ item |string }}"
+    host: "{{ ferm_hosts_block }}"
+    comment: ferm core
     domain: blocked
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
-  loop: "{{ ferm_hosts_block }}"
 ...
