@@ -6,7 +6,7 @@
 @def $docker0 = {{ ferm_docker_iface }};
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
-# WARNING: errors in ferm-ipset will be ignored!!
+# HEADS UP! errors in ferm-ipset will be ignored!
 @hook pre "{{ ferm_ipset_binary }} -c {{ ferm_dir }}";
 
 # Create Chains
@@ -45,15 +45,15 @@ domain (ip ip6) {
 domain (ip ip6) table filter chain INPUT {
     @include @glob('input/*.ferm');
 
-    proto (tcp udp) mod set set ferm_ports_ext_ip dst ACCEPT;
-    proto tcp mod set set ferm_ports_ext_tcp dst ACCEPT;
-    proto udp mod set set ferm_ports_ext_udp dst ACCEPT;
+    proto (tcp udp) mod set set ferm-ports-ext dst ACCEPT;
+    proto tcp mod set set ferm-ports-ext-tcp dst ACCEPT;
+    proto udp mod set set ferm-ports-ext-udp dst ACCEPT;
 }
 
-domain (ip ip6) table filter chain int_hosts {
-    proto (tcp udp) mod set set ferm_ports_int_ip dst ACCEPT;
-    proto tcp mod set set ferm_ports_int_tcp dst ACCEPT;
-    proto udp mod set set ferm_ports_int_udp dst ACCEPT;
+domain (ip ip6) table filter chain ferm-int-hosts {
+    proto (tcp udp) mod set set ferm-ports-int dst ACCEPT;
+    proto tcp mod set set ferm-ports-int-tcp dst ACCEPT;
+    proto udp mod set set ferm-ports-int-udp dst ACCEPT;
 }
 
 domain (ip ip6) table filter chain FORWARD {

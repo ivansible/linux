@@ -11,10 +11,10 @@ domain (ip ip6) table filter {
 }
 
 domain ip table filter {
-    chain nonlocal {
+    chain ferm-nonlocal {
         mod addrtype dst-type (LOCAL MULTICAST) RETURN;
         mod addrtype dst-type (BROADCAST) RETURN;
         DROP;
     }
-    chain INPUT jump nonlocal;
+    chain INPUT jump ferm-nonlocal;
 }
