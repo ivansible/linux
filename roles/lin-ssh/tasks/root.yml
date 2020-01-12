@@ -15,6 +15,49 @@
   tags: lin_ssh_install
 
 
+- name: open ssh port in ufw
+  ufw:
+    rule: allow
+    port: "{{ real_ssh_port |string }}"
+    proto: tcp
+  no_log: "{{ hide_secrets |bool }}"
+  when: lin_firewall == 'ufw'
+  tags: lin_ssh_firewall
+
+- name: open ssh port in ferm
+  ferm_port:
+    port: "{{ real_ssh_port |string }}"
+    proto: tcp
+    domain: external
+    # usually this comment is set by ferm core
+    # comment: ssh
+  when: lin_firewall == 'ferm'
+  tags:
+    - skip_ansible_lint
+    - lin_ssh_firewall
+
+- name: set connection limit on ssh port
+  ferm_rule:
+    name: ssh-limit
+    rule: |
+      # SSH Connection Limit
+      proto tcp syn dport {{ real_ssh_port }} {{ match_limit }} DROP;
+    hook: input
+    prio: 50
+  vars:
+    match_limit: >-
+      mod hashlimit
+      hashlimit-above {{ lin_ssh_conn_limit }}
+      hashlimit-burst {{ lin_ssh_conn_burst }}
+      hashlimit-mode srcip
+      hashlimit-name ssh-conn
+  when: lin_firewall == 'ferm'
+        and lin_ssh_conn_limit |d('')
+  tags:
+    - skip_ansible_lint
+    - lin_ssh_firewall
+
+
 - name: enable public key authentication
   lineinfile:
     path: /etc/ssh/sshd_config

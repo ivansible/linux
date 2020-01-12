@@ -31,4 +31,8 @@ lin_ssh_settings:
   UseDNS: 'no'
 
 lin_ssh_idle_timeout_minutes: 10
+
+# up to 10 connections per second
+lin_ssh_conn_limit: 1/sec
+lin_ssh_conn_burst: 9
 ...

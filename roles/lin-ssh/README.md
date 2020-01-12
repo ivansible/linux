@@ -28,6 +28,10 @@ port 22 is used, otherwise the item should be formatted as `host:port`.
     lin_ssh_settings: {...}
 A dictionary with SSH daemon settings.
 
+    lin_ssh_conn_limit: 1/sec
+    lin_ssh_conn_burst: 9
+Set limit on SSH connections per second (if `limit` is not an empty string).
+
 
 ### Optional Variables
 
@@ -47,6 +51,7 @@ Unlocks this role (please lock if SSH can fail, eg. on github runners).
 ## Tags
 
 - `lin_ssh_install` -- install openssh and activate ssh service
+- `lin_ssh_firewall` -- open ssh ports in firewall
 - `lin_ssh_settings` -- customize ssh settings (eg. harden the security)
 - `lin_ssh_known_hosts` -- update global list of known hosts
 - `lin_ssh_all` -- all actions
