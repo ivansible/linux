@@ -3,11 +3,7 @@
   file:
     path: "{{ ferm_dir }}/{{ item }}"
     state: directory
-  loop:
-    - input
-    - forward
-    - before
-    - after
+  loop: "{{ ferm_rule_hooks }}"
 
 - name: create ferm configuration
   template:
@@ -15,14 +11,14 @@
     dest: "{{ ferm_dir }}/config.ferm"
   notify: reload ferm service
 
-- name: create files for ferm host/port rules
+- name: ensure ferm files exist for host/port sets
   copy:
     dest: "{{ ferm_dir }}/{{ item }}"
     content: |
       # ferm {{ item }}
       # ansible-managed
     force: false
-  loop: "{{ ferm_list_files }}"
+  loop: "{{ ferm_ipset_files }}"
   notify: reload ferm service
 
 - name: set permissions of ferm config files
@@ -31,35 +27,19 @@
     owner: root
     group: root
     mode: 0640
-  with_flattened: "{{ ['config.ferm', ferm_list_files] }}"
+  with_flattened: "{{ ['config.ferm', ferm_ipset_files] }}"
 
 - name: setup core ferm rules before start
   ferm_rule:
-    name: "{{ item.name }}"
-    weight: "{{ item.weight |default(omit) }}"
-    hook: "{{ item.hook |default(omit) }}"
-    rules: "{{ lookup('template', 'rules/%s.ferm' % item.name) }}"
+    name: "ferm-{{ item.name }}"
+    prio: "{{ item.prio }}"
+    hook: "{{ item.hook |default('custom') }}"
+    rule: "{{ lookup('template', 'rules/%s.ferm' % item.name) }}"
     reload: false
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
   notify: reload ferm service
-  loop:
-    - name: docker
-      hook: before
-      weight: 11
-    - name: pre
-      hook: before
-      weight: 12
-    - name: block
-      hook: before
-      weight: 51
-    - name: ufw-pre
-      hook: before
-      weight: 52
-    - name: icmp
-      hook: after
-    - name: ufw-post
-      hook: after
+  loop: "{{ ferm_core_rules }}"
 
 - name: open external ports in ferm before start
   ferm_port:

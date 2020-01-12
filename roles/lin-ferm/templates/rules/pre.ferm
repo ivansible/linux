@@ -1,4 +1,5 @@
 # Pre-Filter
+# core rule
 
 domain (ip ip6) table filter {
     chain INPUT interface lo ACCEPT;

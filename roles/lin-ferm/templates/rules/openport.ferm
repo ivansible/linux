@@ -1,0 +1,14 @@
+# Open Ports
+# core rule
+
+domain (ip ip6) table filter chain INPUT {
+    proto (tcp udp) mod set set ferm-ports-ext dst ACCEPT;
+    proto tcp mod set set ferm-ports-ext-tcp dst ACCEPT;
+    proto udp mod set set ferm-ports-ext-udp dst ACCEPT;
+}
+
+domain (ip ip6) table filter chain ferm-int-hosts {
+    proto (tcp udp) mod set set ferm-ports-int dst ACCEPT;
+    proto tcp mod set set ferm-ports-int-tcp dst ACCEPT;
+    proto udp mod set set ferm-ports-int-udp dst ACCEPT;
+}

@@ -1,4 +1,5 @@
 # ICMP
+# core rule
 
 domain ip table filter {
     chain (INPUT FORWARD) proto icmp icmp-type (3 11 12 8) ACCEPT;

@@ -36,30 +36,4 @@ domain (ip ip6) {
     }
 }
 
-# Pre Rules
-
-@include @glob('before/*.ferm');
-
-# User Filters
-
-domain (ip ip6) table filter chain INPUT {
-    @include @glob('input/*.ferm');
-
-    proto (tcp udp) mod set set ferm-ports-ext dst ACCEPT;
-    proto tcp mod set set ferm-ports-ext-tcp dst ACCEPT;
-    proto udp mod set set ferm-ports-ext-udp dst ACCEPT;
-}
-
-domain (ip ip6) table filter chain ferm-int-hosts {
-    proto (tcp udp) mod set set ferm-ports-int dst ACCEPT;
-    proto tcp mod set set ferm-ports-int-tcp dst ACCEPT;
-    proto udp mod set set ferm-ports-int-udp dst ACCEPT;
-}
-
-domain (ip ip6) table filter chain FORWARD {
-    @include @glob('forward/*.ferm');
-}
-
-# Post Rules
-
-@include @glob('after/*.ferm');
+@include @glob('custom/*.ferm');

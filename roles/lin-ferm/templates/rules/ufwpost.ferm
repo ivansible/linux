@@ -1,4 +1,5 @@
 # Post-Filter (UFW)
+# core rule
 
 @if $do_ufw
 domain (ip ip6) table filter {

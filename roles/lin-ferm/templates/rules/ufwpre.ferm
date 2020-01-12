@@ -1,4 +1,5 @@
 # Pre-Filter (UFW)
+# core rule
 
 @if $do_ufw
 domain ip table filter {
