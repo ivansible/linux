@@ -1,18 +1,18 @@
 # Include Sub-Hooks
 # core rule
 
-domain (ip ip6) table filter chain INPUT {
+domain $ip_all table filter chain INPUT {
     @include @glob('../input/*.ferm');
 }
 
-domain (ip ip6) table filter chain FORWARD {
+domain $ip_all table filter chain FORWARD {
     @include @glob('../forward/*.ferm');
 }
 
-domain (ip ip6) table filter chain ferm-int-hosts {
+domain $ip_all table filter chain ferm-int-hosts {
     @include @glob('../internal/*.ferm');
 }
 
-domain (ip ip6) table filter chain ferm-ext-hosts {
+domain $ip_all table filter chain ferm-ext-hosts {
     @include @glob('../external/*.ferm');
 }

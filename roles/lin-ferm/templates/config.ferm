@@ -1,6 +1,15 @@
 # fERM rules
 # ansible-managed
 
+{% if ferm_ipv4 |bool and ferm_ipv6 |bool %}
+@def $ip_all = (ip ip6);
+{% elif ferm_ipv4 |bool or ferm_ipv6 |bool %}
+@def $ip_all = {{ ferm_ipv4 |bool |ternary('ip','ip6') }};
+{% else %}
+@def $ip_all = ();
+{% endif %}
+@def $do_ipv4 = {{ ferm_ipv4 |bool |ternary(1,0) }};
+@def $do_ipv6 = {{ ferm_ipv6 |bool |ternary(1,0) }};
 @def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
 @def $do_docker = {{ ferm_docker |bool |ternary(1,0) }};
 @def $docker0 = {{ ferm_docker_iface }};
@@ -11,7 +20,7 @@
 
 # Create Chains
 
-domain (ip ip6) {
+domain $ip_all {
     table raw {
         chain PREROUTING policy ACCEPT;
         chain OUTPUT policy ACCEPT;

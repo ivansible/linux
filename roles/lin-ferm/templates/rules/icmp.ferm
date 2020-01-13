@@ -1,10 +1,12 @@
 # ICMP
 # core rule
 
+@if $do_ipv4
 domain ip table filter {
     chain (INPUT FORWARD) proto icmp icmp-type (3 11 12 8) ACCEPT;
 }
 
+@if $do_ipv6
 domain ip6 table filter {
     chain (OUTPUT) proto icmp ACCEPT;
     chain (FORWARD) proto icmp icmp-type (1 2 3 4 128 129) ACCEPT;

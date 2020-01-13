@@ -2,7 +2,7 @@
 # core rule
 
 @if $do_ufw
-domain (ip ip6) table filter {
+domain $ip_all table filter {
     chain INPUT {
         proto udp dport (137 138) DROP;
         proto tcp dport (139 445) DROP;

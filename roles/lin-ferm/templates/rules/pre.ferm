@@ -1,7 +1,7 @@
 # Pre-Filter
 # core rule
 
-domain (ip ip6) table filter {
+domain $ip_all table filter {
     chain INPUT interface lo ACCEPT;
     chain OUTPUT outerface lo ACCEPT;
     chain (INPUT FORWARD OUTPUT) {
@@ -11,6 +11,7 @@ domain (ip ip6) table filter {
     chain INPUT mod conntrack ctstate INVALID DROP;
 }
 
+@if $do_ipv4
 domain ip table filter {
     chain ferm-nonlocal {
         mod addrtype dst-type (LOCAL MULTICAST) RETURN;

@@ -1,7 +1,7 @@
 # Block Hosts
 # core rule
 
-domain (ip ip6) table filter {
+domain $ip_all table filter {
     chain ferm-int-hosts;
 
     chain ferm-ext-hosts {
