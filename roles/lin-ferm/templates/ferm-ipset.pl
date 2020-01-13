@@ -58,10 +58,10 @@ sub parse_ports {
         or die("can't open ${filename}\n");
     for (<PORTS>) {
         s/#.*$//;
-        s/^\s+|\s+$//;
+        s/^\s+|\s+$//g;
         next if /^$/;
 
-        /^(\d+)(?:-(\d+))?(?:\/(tcp|udp))?$/;
+        /^([0-9]{1,5})(?:[-]([0-9]{1,5}))?(?:\/(tcp|udp))?$/;
         my ($start, $end, $type) = ($1, $2, $3);
         die "invalid port in $filename: $_\n" unless defined $start;
 
@@ -98,23 +98,23 @@ sub parse_hosts {
         or die("can't open ${filename}\n");
     for (<HOSTS>) {
         my $comment = s/#+(.*)$// ? $1 : '';
-        $comment =~ s/^\s+|\s+$//;
-        s/^\s+|\s+$//;
+        s/^\s+|\s+$//g;
         next if /^$/;
 
-        my $line = $comment ? "$_ comment $comment" : $_;
+        my $line = $_;
+        $comment = '' unless defined $comment;
 
-        if (/^\d+\.\d+\.\d+\.\d+(?:\/\d+)?$/) {
-            $hosts{'ipv4'}{$line} = 1;
+        if (/^([0-9]{1,3}[.]){3}[0-9]{1,3}(?:\/[0-9]{1,3})?$/) {
+            $hosts{'ipv4'}{$line} = $comment;
             next;
         }
 
         if (/^[0-9a-fA-F:]*:[0-9a-fA-F:]*(?:\/\d+)?$/) {
-            $hosts{'ipv6'}{$line} = 1;
+            $hosts{'ipv6'}{$line} = $comment;
             next;
         }
 
-        /^([0-9a-zA-Z_.-]+)(\/\d+)?(?:\/(ipv4|ipv6))?$/;
+        /^([0-9a-zA-Z_.-]+)(\/[0-9]{1,3})?(?:\/(ipv4|ipv6))?$/;
         my ($hostname, $prefixlen, $type) = ($1, $2, $3);
         die "invalid host in ${filename}: $_\n" unless defined $hostname;
 
@@ -129,8 +129,8 @@ sub parse_hosts {
                 for my $rr ($query4->answer) {
                     next unless $rr->type eq 'A';
                     my $addr = $rr->address;
-                    $line = "${addr}${prefixlen} comment ${comment}";
-                    $hosts{'ipv4'}{$line} = 1;
+                    $line = "${addr}${prefixlen}";
+                    $hosts{'ipv4'}{$line} = $comment;
                     $ok = 1;
                 }
             }
@@ -142,8 +142,8 @@ sub parse_hosts {
                 for my $rr ($query6->answer) {
                     next unless $rr->type eq 'AAAA';
                     my $addr = $rr->address;
-                    $line = "${addr}${prefixlen} comment ${hostname}";
-                    $hosts{'ipv6'}{$line} = 1;
+                    $line = "${addr}${prefixlen}";
+                    $hosts{'ipv6'}{$line} = $comment;
                     $ok = 1;
                 }
             }
@@ -164,8 +164,13 @@ sub parse_hosts {
             "destroy $tempset",
             "create $tempset $opts",
         );
-        push @cmd, "add $tempset $_"
-            for (sort keys %$hash);
+        for my $line (sort keys %$hash) {
+            my $comment = $$hash{$line};
+            $comment =~ s/[\"\'\s]+/ /g;  # quotes are disallowed
+            $comment =~ s/^\s+|\s+$//g;
+            $line .= " comment \"$comment\"" if $comment;
+            push @cmd, "add $tempset $line";
+        }
         push @cmd, "swap $tempset $name";
         run "$ipset -", join("\n", @cmd) . "\n";
     }

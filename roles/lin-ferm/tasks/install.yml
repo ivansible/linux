@@ -24,7 +24,7 @@
 
 - name: upload ferm ipset script
   template:
-    src: ferm-ipset
+    src: ferm-ipset.pl
     dest: "{{ ferm_ipset_binary }}"
     owner: root
     group: root
