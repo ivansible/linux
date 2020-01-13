@@ -48,39 +48,16 @@
 
 
 - name: weekly restic prune service
-  copy:
+  template:
+    src: restic-prune.service.j2
     dest: /etc/systemd/system/restic-prune.service
-    content: |
-      # ansible-managed
-      [Unit]
-      Description=Restic prune
-      {% if lin_restic_cron_ordering |bool %}
-      After=restic-backup.service
-      {% endif %}
-      [Service]
-      Type=oneshot
-      User=restic
-      Group=rclone
-      EnvironmentFile=/etc/default/restic
-      ExecStart={{ lin_restic_binary }} version
-      ExecStart={{ lin_restic_binary }} forget {{ verbose_option }}{{ forget_options }}
-      ExecStart={{ lin_restic_binary }} check
-      ExecStart={{ lin_restic_binary }} unlock
-      ExecStart={{ lin_restic_binary }} prune
-      ExecStart={{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
-      ExecStart={{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
-      ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
-      ExecStart=/bin/echo prune done
-    force: true
   vars:
-    forget_options: >-
-      --group-by=host,paths,tags
+    forget_opts: >-
       --keep-last={{ lin_restic_forget_keep_last }}
       --keep-daily={{ lin_restic_forget_keep_daily }}
       --keep-weekly={{ lin_restic_forget_keep_weekly }}
       --keep-monthly={{ lin_restic_forget_keep_monthly }}
       --keep-yearly={{ lin_restic_forget_keep_yearly }}
-    verbose_option: "{{ '--verbose=%s ' % lin_restic_cron_verbose if lin_restic_cron_verbose |int > 0 else '' }}"
 
 - name: configure restic prune timer
   copy:

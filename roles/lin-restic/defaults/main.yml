@@ -27,8 +27,8 @@ lin_restic_cron_time_prune: '5:00'
 lin_restic_cron_ordering: true
 lin_restic_cron_verbose: 0
 
-lin_restic_cron_day_prune: sun
-#lin_restic_cron_day_prune: mon-sun
+lin_restic_cron_day_prune: Sun
+#lin_restic_cron_day_prune: Mon-Sun
 
 lin_restic_forget_keep_last: 2
 lin_restic_forget_keep_daily: 7

@@ -1,0 +1,21 @@
+# ansible-managed
+{% set verb_opts = ('--verbose=%s ' % lin_restic_cron_verbose) if (lin_restic_cron_verbose |int > 0) else '' %}
+[Unit]
+Description=Restic prune
+{% if lin_restic_cron_ordering |bool %}
+After=restic-backup.service
+{% endif %}
+[Service]
+Type=oneshot
+User=restic
+Group=rclone
+EnvironmentFile=/etc/default/restic
+ExecStart={{ lin_restic_binary }} version
+ExecStart={{ lin_restic_binary }} unlock
+ExecStart={{ lin_restic_binary }} check
+ExecStart={{ lin_restic_binary }} forget {{ verb_opts }}--group-by=host,paths,tags {{ forget_opts }}
+ExecStart={{ lin_restic_binary }} prune
+ExecStart={{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
+ExecStart={{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
+ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
+ExecStart=/bin/echo 'prune done'
