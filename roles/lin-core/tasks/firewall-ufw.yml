@@ -37,11 +37,12 @@
   no_log: "{{ hide_secrets |bool }}"
 
 
-- name: disable ferm firewall
+- name: disable ferm firewall (please ignore possible failure)
   systemd:
     name: ferm
     state: stopped
     enabled: false
+  ignore_errors: true
 
 - name: activate ufw firewall
   ufw:
