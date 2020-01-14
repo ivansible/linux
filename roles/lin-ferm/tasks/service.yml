@@ -10,10 +10,11 @@
   command: systemctl daemon-reload  # noqa 303
   when: ferm_service_result is changed
 
-- name: disable ufw
+- name: disable ufw (please ignore possible failure)
   ufw:
     state: disabled
   no_log: "{{ hide_secrets |bool }}"
+  ignore_errors: true
 
 - name: activate ferm
   systemd:
