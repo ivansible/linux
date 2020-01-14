@@ -74,10 +74,18 @@
   when: lin_use_syslog |bool
   tags: linsys_packages
 
-- name: install core development packages
-  apt:
-    name: "{{ linsys_packages_devel }}"
-    state: present
+- block:
+    - name: install core development packages (ok to fail once, log hidden)
+      apt:
+        name: "{{ linsys_packages_devel }}"
+        state: present
+      no_log: "{{ hide_secrets |bool }}"
+  rescue:
+    - name: update apt lists and install core development packages
+      apt:
+        name: "{{ linsys_packages_devel }}"
+        state: present
+        update_cache: true
   tags: linsys_packages
 
 # it may be a good idea to restart mitogen runner
