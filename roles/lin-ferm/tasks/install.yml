@@ -3,6 +3,7 @@
   apt:
     name: ferm
     state: absent
+    purge: true
 
 - name: install perl Net::DNS and ipset packages
   apt:
