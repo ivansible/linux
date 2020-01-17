@@ -4,16 +4,15 @@ use warnings;
 use IPC::Open2;
 use Net::DNS;
 
-my $ferm_dir = '/etc/ferm';
-my $ipset = '/sbin/ipset';
-
+# TODO cli args -c ferm_dir -l list_files
+my $ferm_dir = '{{ ferm_dir }}';
 my @list_files = qw(
-    ports.int
-    ports.ext
-    ports.block
-    hosts.int
-    hosts.block
+{% for file in ferm_ipset_files %}
+    {{ file }}
+{% endfor %}
 );
+
+my $ipset = '/sbin/ipset';
 
 my $resolver = Net::DNS::Resolver->new;
 my $tempset = '';
@@ -61,22 +60,26 @@ sub parse_ports {
         s/^\s+|\s+$//g;
         next if /^$/;
 
-        /^([0-9]{1,5})(?:[-]([0-9]{1,5}))?(?:\/(tcp|udp))?$/;
+        /^([0-9]{1,5})(?:[:-]([0-9]{1,5}))?(?:\/(tcp|udp))?$/;
         my ($start, $end, $type) = ($1, $2, $3);
         die "invalid port in $filename: $_\n" unless defined $start;
 
         $end = $start unless defined $end;
-        $type = 'any' unless defined $type;
         next if $end < $start;
         my $range = ($start == $end) ? "$start" : "$start-$end";
-        $ports{$type}{$range} = 1;
+
+        if (defined $type) {
+            $ports{$type}{$range} = 1;
+        } else {
+            $ports{'tcp'}{$range} = 1;
+            $ports{'udp'}{$range} = 1;
+        }
     }
     close(PORTS);
 
-    for my $type ('any', 'tcp', 'udp') {
+    for my $type ('tcp', 'udp') {
         my $hash = $ports{$type};
-        my $suffix = ($type eq 'any') ? '' : "-${type}";
-        my $name = "ferm-ports-${domain}${suffix}";
+        my $name = "ferm-ports-${domain}-${type}";
         my $opts = "bitmap:port range 0-65535";
         my @cmd = (
             "create -exist $name $opts",
@@ -177,12 +180,16 @@ sub parse_hosts {
 }
 
 # main
-make_tempset;
-for my $file (@list_files) {
-    my $path = "${ferm_dir}/${file}";
-    $file =~ /^(ports|hosts)\.(ext|int|block)$/
-        or die "invalid input: ${file}\n";
-    my ($kind, $domain) = ($1, $2);
-    parse_ports($domain, $path) if $kind eq 'ports';
-    parse_hosts($domain, $path) if $kind eq 'hosts';
+sub main {
+    make_tempset;
+    for my $file (@list_files) {
+        my $path = "${ferm_dir}/${file}";
+        $file =~ /^(ports|hosts)\.(ext|int|block)$/
+            or die "invalid input: ${file}\n";
+        my ($kind, $domain) = ($1, $2);
+        parse_ports($domain, $path) if $kind eq 'ports';
+        parse_hosts($domain, $path) if $kind eq 'hosts';
+    }
 }
+
+main;

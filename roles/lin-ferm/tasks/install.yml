@@ -25,10 +25,12 @@
 
 - name: upload ferm ipset script
   template:
-    src: ferm-ipset.pl
-    dest: "{{ ferm_ipset_binary }}"
+    src: "{{ item }}.pl"
+    dest: "{{ ferm_bindir }}/{{ item }}"
     owner: root
     group: root
-    mode: 0755
+    mode: 0754
+  loop:
+    - ferm-ipset
   notify: reload ferm service
 ...

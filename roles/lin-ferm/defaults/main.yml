@@ -24,7 +24,6 @@ ferm_docker_subnet4: 172.17.0.0/16
 ferm_dir: /etc/ferm
 ferm_bindir: /usr/local/sbin
 ferm_binary: "{{ ferm_bindir }}/ferm"
-ferm_ipset_binary: "{{ ferm_bindir }}/ferm-ipset"
 
 ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
 ferm_allow_reinstall: true
@@ -47,8 +46,8 @@ ferm_core_rules:
   - {name: docker, prio: 10}
   - {name: pre, prio: 12}
   - {name: ufwpre, prio: 15}
-  - {name: blockhost, prio: 20}
-  - {name: blockport, prio: 22}
+  - {name: blockport, prio: 20}
+  - {name: blockhost, prio: 22}
   - {name: includes, prio: 55}
   - {name: openport, prio: 70}
   - {name: icmp, prio: 80}

@@ -3,6 +3,7 @@
   file:
     path: "{{ ferm_dir }}/{{ item }}"
     state: directory
+    mode: 0755
   loop: "{{ ferm_rule_hooks }}"
 
 - name: create ferm configuration

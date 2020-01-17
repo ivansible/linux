@@ -15,12 +15,9 @@
 @def $docker0 = {{ ferm_docker_iface }};
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
-# HEADS UP! errors in ferm-ipset will be ignored!
-@hook pre "{{ ferm_ipset_binary }} -c {{ ferm_dir }}";
-
 # Create Chains
 
-domain $ip_all {
+@if $do_ipv4 domain ip {
     table raw {
         chain PREROUTING policy ACCEPT;
         chain OUTPUT policy ACCEPT;
@@ -44,5 +41,33 @@ domain $ip_all {
         chain OUTPUT policy ACCEPT;
     }
 }
+
+@if $do_ipv6 domain ip6 {
+    table raw {
+        chain PREROUTING policy ACCEPT;
+        chain OUTPUT policy ACCEPT;
+    }
+    table mangle {
+        chain PREROUTING policy ACCEPT;
+        chain INPUT policy ACCEPT;
+        chain FORWARD policy ACCEPT;
+        chain OUTPUT policy ACCEPT;
+        chain POSTROUTING policy ACCEPT;
+    }
+    table nat {
+        chain PREROUTING policy ACCEPT;
+        chain INPUT policy ACCEPT;
+        chain OUTPUT policy ACCEPT;
+        chain POSTROUTING policy ACCEPT;
+    }
+    table filter {
+        chain INPUT policy DROP;
+        chain FORWARD policy DROP;
+        chain OUTPUT policy ACCEPT;
+    }
+}
+
+# HEADS UP! errors in ferm-ipset will be ignored!
+@hook pre "{{ ferm_bindir }}/ferm-ipset -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }}";
 
 @include @glob('custom/*.ferm');
