@@ -13,8 +13,11 @@
 - name: authorize public keys
   authorized_key:
     user: restic
-    key: "{{ lookup('pipe', 'chmod 600 \"{{ item }}\" && ssh-keygen -y -f \"{{ item }}\"') }}"
-    comment: "{{ item |basename |regex_replace('\\.key$') }}"
+    key: "{{ lookup('pipe', keygen_cmd) }}"
+    comment: "{{ item |basename |regex_replace('[.]key$') }}"
+  vars:
+    # use '&&' in the pipe to fail on chmod errors
+    keygen_cmd: 'chmod 600 "{{ item }}" && ssh-keygen -y -f "{{ item }}"'
   when: item != '' # noqa 602
   loop: "{{ lin_restic_authorized_keys }}"
   loop_control:
