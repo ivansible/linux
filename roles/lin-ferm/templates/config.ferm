@@ -1,6 +1,7 @@
 # fERM rules
 # ansible-managed
 
+@def $openvz = {{ ferm_openvz |bool |ternary(1,0) }};
 {% if ferm_ipv4 |bool and ferm_ipv6 |bool %}
 @def $ip_all = (ip ip6);
 {% elif ferm_ipv4 |bool or ferm_ipv6 |bool %}
@@ -31,7 +32,7 @@
     }
     table nat {
         chain PREROUTING policy ACCEPT;
-        chain INPUT policy ACCEPT;
+        @if @not($openvz) chain INPUT policy ACCEPT;
         chain OUTPUT policy ACCEPT;
         chain POSTROUTING policy ACCEPT;
     }
@@ -43,7 +44,7 @@
 }
 
 @if $do_ipv6 domain ip6 {
-    table raw {
+    @if @not($openvz) table raw {
         chain PREROUTING policy ACCEPT;
         chain OUTPUT policy ACCEPT;
     }
@@ -54,7 +55,7 @@
         chain OUTPUT policy ACCEPT;
         chain POSTROUTING policy ACCEPT;
     }
-    table nat {
+    @if @not($openvz) table nat {
         chain PREROUTING policy ACCEPT;
         chain INPUT policy ACCEPT;
         chain OUTPUT policy ACCEPT;
@@ -67,7 +68,17 @@
     }
 }
 
-# HEADS UP! errors in ferm-ipset will be ignored!
-@hook pre "{{ ferm_bindir }}/ferm-ipset -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }}";
+# HEADS UP! errors in ferm-ipset/ferm-openvz will be ignored!
+@if $openvz {
+    # setup host/port multi-lists
+    @hook pre "{{ ferm_bindir }}/ferm-openvz -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }} -o {{ ferm_openvz_file }}";
+    @include '{{ ferm_openvz_file }}';
 
-@include @glob('custom/*.ferm');
+    @include @glob('custom/*.ferm');
+}
+@else {
+    # setup host/port ipsets
+    @hook pre "{{ ferm_bindir }}/ferm-ipset -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }}";
+
+    @include @glob('custom/*.ferm');
+}

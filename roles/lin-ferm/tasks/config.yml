@@ -6,6 +6,19 @@
     mode: 0755
   loop: "{{ ferm_rule_hooks }}"
 
+- name: directory for ferm openvz file
+  file:
+    path: "{{ ferm_openvz_file |dirname }}"
+    state: directory
+    mode: 0750
+
+- name: ensure ferm openvz file exists
+  template:
+    src: initial-openvz.ferm
+    dest: "{{ ferm_openvz_file }}"
+    mode: 0640
+    force: false
+
 - name: create ferm configuration
   template:
     src: config.ferm

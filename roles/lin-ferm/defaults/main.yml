@@ -17,6 +17,8 @@ ferm_hosts_block: []
 ferm_ipv4: true
 ferm_ipv6: true
 
+ferm_openvz: false
+
 ferm_docker: true
 ferm_docker_iface: docker0
 ferm_docker_subnet4: 172.17.0.0/16
@@ -24,6 +26,7 @@ ferm_docker_subnet4: 172.17.0.0/16
 ferm_dir: /etc/ferm
 ferm_bindir: /usr/local/sbin
 ferm_binary: "{{ ferm_bindir }}/ferm"
+ferm_openvz_file: /var/lib/ferm/openvz.ferm
 
 ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
 ferm_allow_reinstall: true

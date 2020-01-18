@@ -23,7 +23,7 @@
     force: "{{ ferm_allow_reinstall |bool }}"
   notify: reload ferm service
 
-- name: upload ferm ipset script
+- name: upload ferm ipset/openvz scripts
   template:
     src: "{{ item }}.pl"
     dest: "{{ ferm_bindir }}/{{ item }}"
@@ -32,5 +32,6 @@
     mode: 0754
   loop:
     - ferm-ipset
+    - ferm-openvz
   notify: reload ferm service
 ...

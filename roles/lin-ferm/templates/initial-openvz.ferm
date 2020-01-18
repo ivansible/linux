@@ -1,0 +1,6 @@
+{% for host_var in 'block_ipv4 block_ipv6 int_ipv4 int_ipv6'.split() %}
+@def $ferm_hosts_{{ host_var }} = ();
+{% endfor %}
+{% for port_var in 'block_tcp block_udp ext_tcp ext_udp int_tcp int_udp'.split() %}
+@def $ferm_ports_{{ port_var }} = ();
+{% endfor %}

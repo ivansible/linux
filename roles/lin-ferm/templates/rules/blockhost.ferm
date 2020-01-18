@@ -3,10 +3,20 @@
 
 domain $ip_all table filter {
     chain (INPUT FORWARD) proto (tcp udp) {
-        @if @eq($DOMAIN,ip)
-            mod set  set ferm-hosts-block-ipv4 src  DROP;
-        @if @eq($DOMAIN,ip6)
-            mod set  set ferm-hosts-block-ipv6 src  DROP;
+        @if $openvz {
+            @if @eq($DOMAIN,ip)
+            @if $ferm_hosts_block_ipv4
+                saddr $ferm_hosts_block_ipv4  DROP;
+            @if @eq($DOMAIN,ip6)
+            @if $ferm_hosts_block_ipv6
+                saddr $ferm_hosts_block_ipv6  DROP;
+        }
+        @else {
+            @if @eq($DOMAIN,ip)
+                mod set  set ferm-hosts-block-ipv4 src  DROP;
+            @if @eq($DOMAIN,ip6)
+                mod set  set ferm-hosts-block-ipv6 src  DROP;
+        }
         jump ferm-ext-hosts;
     }
 }

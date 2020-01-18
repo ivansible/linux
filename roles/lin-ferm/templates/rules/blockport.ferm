@@ -6,13 +6,31 @@ domain $ip_all table filter {
 
     chain ferm-ext-hosts {
         # goto outta here if host is internal
-        @if @eq($DOMAIN,ip)
-            mod set  set ferm-hosts-int-ipv4 src  goto ferm-int-hosts;
-        @if @eq($DOMAIN,ip6)
-            mod set  set ferm-hosts-int-ipv6 src  goto ferm-int-hosts;
+        @if $openvz {
+            @if @eq($DOMAIN,ip)
+            @if $ferm_hosts_int_ipv4
+                saddr $ferm_hosts_int_ipv4  goto ferm-int-hosts;
+            @if @eq($DOMAIN,ip6)
+            @if $ferm_hosts_int_ipv6
+                saddr $ferm_hosts_int_ipv6  goto ferm-int-hosts;
+        }
+        @else {
+            @if @eq($DOMAIN,ip)
+                mod set  set ferm-hosts-int-ipv4 src  goto ferm-int-hosts;
+            @if @eq($DOMAIN,ip6)
+                mod set  set ferm-hosts-int-ipv6 src  goto ferm-int-hosts;
+        }
 
         # rules for external hosts below
-        proto tcp  mod set  set ferm-ports-block-tcp dst  DROP;
-        proto udp  mod set  set ferm-ports-block-udp dst  DROP;
+        @if $openvz {
+            @if $ferm_ports_block_tcp
+                proto tcp  mod multiport destination-ports $ferm_ports_block_tcp  DROP;
+            @if $ferm_ports_block_udp
+                proto udp  mod multiport destination-ports $ferm_ports_block_udp  DROP;
+        }
+        @else {
+            proto tcp  mod set  set ferm-ports-block-tcp dst  DROP;
+            proto udp  mod set  set ferm-ports-block-udp dst  DROP;
+        }
     }
 }
