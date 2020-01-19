@@ -71,8 +71,7 @@
 # HEADS UP! errors in ferm-ipset/ferm-openvz will be ignored!
 @if $openvz {
     # setup host/port multi-lists
-    @hook pre "{{ ferm_bindir }}/ferm-openvz -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }} -o {{ ferm_openvz_file }}";
-    @include '{{ ferm_openvz_file }}';
+    @include "{{ ferm_bindir }}/ferm-openvz -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }} -o {{ ferm_openvz_file }} -O |";
 
     @include @glob('custom/*.ferm');
 }

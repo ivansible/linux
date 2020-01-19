@@ -5,7 +5,9 @@ use IPC::Open2;
 use Net::DNS;
 
 # TODO cli args -c ferm_dir -l list_files
+# -c ferm_dir
 my $ferm_dir = '{{ ferm_dir }}';
+# -l list_files
 my @list_files = qw(
 {% for file in ferm_ipset_files %}
     {{ file }}

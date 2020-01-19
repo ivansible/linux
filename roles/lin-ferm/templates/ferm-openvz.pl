@@ -4,9 +4,12 @@ use warnings;
 use IPC::Open2;
 use Net::DNS;
 
-# TODO cli args -c ferm_dir -l list_files -o openvz_file
+# TODO cli args -c ferm_dir -l list_files -o openvz_file -O
+# -c ferm_dir
 my $ferm_dir = '{{ ferm_dir }}';
+# -o openvz_file
 my $openvz_file = '{{ ferm_openvz_file }}';
+# -l list_files
 my @list_files = qw(
 {% for file in ferm_ipset_files %}
     {{ file }}
@@ -22,16 +25,21 @@ sub fill_list {
 }
 
 sub dump_lists {
+    my $output = "";
+    for my $name (sort keys %lists) {
+        my $def = sprintf("%-28s", "\@def \$${name}");
+        my $value = join(' ', @{$lists{$name}});
+        $output .= "$def = ($value);\n";
+    }
+    # -o openvz_file
     open(LISTS, '>', $openvz_file)
         or die("can't write ${openvz_file}\n");
     chmod(0640, $openvz_file)
         or die("can't chmod ${openvz_file}\n");
-    for my $name (sort keys %lists) {
-        my $def = sprintf("%-28s", "\@def \$${name}");
-        my $value = join(' ', @{$lists{$name}});
-        print LISTS "$def = ($value);\n";
-    }
-    close(LISTS)
+    print LISTS $output;
+    close(LISTS);
+    # -O ...
+    print STDOUT $output;
 }
 
 sub parse_ports {
