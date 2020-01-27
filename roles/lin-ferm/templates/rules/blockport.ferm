@@ -24,9 +24,9 @@ domain $ip_all table filter {
         # rules for external hosts below
         @if $openvz {
             @if $ferm_ports_block_tcp
-                proto tcp  mod multiport destination-ports $ferm_ports_block_tcp  DROP;
+                proto tcp  dports $ferm_ports_block_tcp  DROP;
             @if $ferm_ports_block_udp
-                proto udp  mod multiport destination-ports $ferm_ports_block_udp  DROP;
+                proto udp  dports $ferm_ports_block_udp  DROP;
         }
         @else {
             proto tcp  mod set  set ferm-ports-block-tcp dst  DROP;

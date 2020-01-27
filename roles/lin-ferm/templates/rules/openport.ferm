@@ -17,9 +17,9 @@ domain $ip_all table filter chain INPUT {
 domain $ip_all table filter chain ferm-int-hosts {
     @if $openvz {
         @if $ferm_ports_int_tcp
-            proto tcp  mod multiport destination-ports $ferm_ports_int_tcp  ACCEPT;
+            proto tcp  dports $ferm_ports_int_tcp  ACCEPT;
         @if $ferm_ports_int_udp
-            proto udp  mod multiport destination-ports $ferm_ports_int_udp  ACCEPT;
+            proto udp  dports $ferm_ports_int_udp  ACCEPT;
     }
     @else {
         proto tcp  mod set  set ferm-ports-int-tcp dst  ACCEPT;
