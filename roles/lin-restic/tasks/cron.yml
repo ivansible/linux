@@ -25,6 +25,7 @@
   template:
     src: restic-backup.service.j2
     dest: /etc/systemd/system/restic-backup.service
+  notify: reload systemd daemon
 
 - name: configure restic backup timer
   copy:
@@ -38,6 +39,7 @@
       [Install]
       WantedBy=timers.target
     force: true
+  notify: reload systemd daemon
 
 - name: activate the daily restic backup job
   systemd:
@@ -58,6 +60,7 @@
       --keep-weekly={{ lin_restic_forget_keep_weekly }}
       --keep-monthly={{ lin_restic_forget_keep_monthly }}
       --keep-yearly={{ lin_restic_forget_keep_yearly }}
+  notify: reload systemd daemon
 
 - name: configure restic prune timer
   copy:
@@ -71,6 +74,7 @@
       [Install]
       WantedBy=timers.target
     force: true
+  notify: reload systemd daemon
 
 - name: activate the weekly restic prune job
   systemd:
