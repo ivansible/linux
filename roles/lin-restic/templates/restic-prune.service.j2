@@ -18,7 +18,7 @@ ExecStart={{ lin_restic_binary }} check
 ExecStart=/bin/echo '== forget =='
 ExecStart={{ lin_restic_binary }} forget {{ verb_opts }}--group-by=host,paths,tags {{ forget_opts }}
 ExecStart=/bin/echo '== prune =='
-ExecStart={{ lin_restic_binary }} prune
+ExecStart=/bin/bash -c '{{ lin_restic_binary }} prune 2>&1 | grep -v "finish writing GET request"'
 ExecStart=/bin/echo '== cleanup =='
 ExecStart={{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
 ExecStart=/bin/echo '== about =='
