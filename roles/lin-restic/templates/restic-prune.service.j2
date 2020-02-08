@@ -11,11 +11,18 @@ User=restic
 Group=rclone
 EnvironmentFile=/etc/default/restic
 ExecStart={{ lin_restic_binary }} version
+ExecStart=/bin/echo '== unlock =='
 ExecStart={{ lin_restic_binary }} unlock
+ExecStart=/bin/echo '== check =='
 ExecStart={{ lin_restic_binary }} check
+ExecStart=/bin/echo '== forget =='
 ExecStart={{ lin_restic_binary }} forget {{ verb_opts }}--group-by=host,paths,tags {{ forget_opts }}
+ExecStart=/bin/echo '== prune =='
 ExecStart={{ lin_restic_binary }} prune
+ExecStart=/bin/echo '== cleanup =='
 ExecStart={{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
+ExecStart=/bin/echo '== about =='
 ExecStart={{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
+ExecStart=/bin/echo '== size =='
 ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
-ExecStart=/bin/echo 'prune done'
+ExecStart=/bin/echo '== prune done =='
