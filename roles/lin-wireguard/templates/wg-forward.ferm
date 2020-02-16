@@ -1,0 +1,4 @@
+domain ($ip_all) table filter {
+    @def $wg_if = {{ lin_wg_iface }};
+    chain FORWARD interface $wg_if outerface $wg_if ACCEPT;
+}

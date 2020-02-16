@@ -1,5 +1,94 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: add wireguard ppa repository
+  apt_repository:
+    repo: ppa:wireguard/wireguard
+    ## if lsb_release executable is not installed on target,
+    ## the python aptsource module defaults to the codename "sid"
+    ## and fails. as a workaround, set codename here explicitly.
+    codename: "{{ ansible_lsb.codename }}"
+    filename: wireguard
+    mode: 0644
+    update_cache: true
+  tags: lin_wg_install
+
+- name: install wireguard from ppa
+  apt:
+    name: wireguard
+  tags: lin_wg_install
+
+- name: install wireguard-go on old kernels
+  block:
+    - name: check that wireguard-go binary exists
+      stat:
+        path: "{{ lin_wg_go_binary }}"
+      register: wireguard_go_binary_stat
+
+    - name: build wireguard-go
+      include_tasks: go.yml
+      args:
+        apply:
+          become: true
+          tags:
+            - lin_wg_go
+            - lin_wg_all
+      when: lin_wg_go_allow_reinstall |bool
+            or not wireguard_go_binary_stat.stat.exists
+  when: ansible_kernel is version('3.1', '<')
+  tags: lin_wg_go
+
+- name: create wireguard config directory
+  file:
+    path: /etc/wireguard
+    state: directory
+    mode: 0755
+  tags: lin_wg_conf
+
+- name: configure wireguard
+  template:
+    src: wireguard.conf
+    dest: /etc/wireguard/{{ lin_wg_iface }}.conf
+    mode: 0600
+  register: wg_conf_result
+  notify: restart wireguard service
+  tags: lin_wg_conf
+
+- name: open wireguard port in ufw
+  ufw:
+    port: "{{ lin_wg_port |string }}"
+    proto: udp
+  no_log: "{{ hide_secrets |bool }}"
+  when: lin_wg_port
+        and lin_firewall == 'ufw'
+  tags: lin_wg_firewall
+
+- name: open wireguard port in ferm
+  ferm_port:
+    port: "{{ lin_wg_port }}"
+    proto: udp
+    comment: wireguard
+  when: lin_wg_port
+        and lin_firewall == 'ferm'
+  tags:
+    - skip_ansible_lint
+    - lin_wg_firewall
+
+- name: enable wireguard forwarding
+  ferm_rule:
+    name: wireguard
+    prio: 77
+    hook: custom
+    rule: "{{ lookup('template', 'wg-forward.ferm') }}"
+    state: "{{ lin_wg_forward |bool |ternary('present','absent') }}"
+  when: lin_firewall == 'ferm'
+  tags:
+    - skip_ansible_lint
+    - lin_wg_firewall
+
+- name: enable wireguard service
+  systemd:
+    name: wg-quick@{{ lin_wg_iface }}
+    state: started
+    enabled: true
+    daemon_reload: "{{ wg_conf_result is changed }}"
+  tags: lin_wg_service
 ...

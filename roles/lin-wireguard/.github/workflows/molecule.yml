@@ -43,9 +43,10 @@ jobs:
           # molecule pulls: ansible-lint yamllint flake8 pytest testinfra
           sudo -H pip3 install molecule docker jmespath boto3
 
-      - name: Run test
-        shell: bash
-        run: cd ivansible/$ROLE_NAME && molecule test -s $SCENARIO
+# test this role in docker only, not on runner
+#      - name: Run test
+#        shell: bash
+#        run: cd ivansible/$ROLE_NAME && molecule test -s $SCENARIO
 
   docker_test:
     name: tests in docker

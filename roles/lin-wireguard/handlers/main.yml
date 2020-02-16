@@ -1,3 +1,23 @@
 ---
 # handlers for ivansible.lin_wireguard
+
+- name: remove wireguard-go build directory
+  file:
+    path: "{{ wireguard_go_build_dir.path }}"
+    state: absent
+  become: true
+
+- name: remove wireguard-go build cache
+  file:
+    path: ~/.cache/go-build
+    state: absent
+  become: true
+
+- name: restart wireguard service
+  systemd:
+    name: wg-quick@{{ lin_wg_iface }}
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  become: true
 ...

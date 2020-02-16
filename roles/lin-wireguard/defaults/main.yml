@@ -1,3 +1,32 @@
 ---
 # defaults for ivansible.lin_wireguard
+
+lin_wg_iface: wg0
+lin_wg_port: 0
+
+lin_wg_addr: 10.1.1.1/24
+lin_wg_host: "{{ ansible_default_ipv4.address }}"
+
+## commands to generate keys:
+## wg genkey | tee key | wg pubkey; cat key
+## wg genpsk
+lin_wg_key: ~
+lin_wg_pub: ~
+lin_wg_psk: ~
+
+lin_wg_mtu: 0
+lin_wg_keepalive: 0
+lin_wg_forward: true
+
+lin_wg_peers: []
+#   name: peer1    - peer name, informational, required
+#   key: xxx       - private key, informational, not required
+#   pub: yyy       - public key, required
+#   psk: zzz       - preshared key, optional
+#   ips: [ip/mask] - allowed IPs, list of ip/mask pairs
+#   host: ip       - IP address of endpoint, optional
+#   port: port     - port of endpoint, optional, defaults to lin_wg_port
+
+lin_wg_go_binary: /usr/bin/wireguard-go
+lin_wg_go_allow_reinstall: false
 ...

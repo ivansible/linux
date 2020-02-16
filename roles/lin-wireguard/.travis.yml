@@ -27,14 +27,16 @@ matrix:
       env:
         - IVATEST_FIREWALL=ferm
       script:
-        - molecule test -s localhost
+        - echo "test this role in docker only, not on runner"
+        # - molecule test -s localhost
 
     - name: test on bionic
       dist: bionic
       env:
         - IVATEST_FIREWALL=ferm
       script:
-        - molecule test -s localhost
+        - echo "test this role in docker only, not on runner"
+        # - molecule test -s localhost
 
     - name: tests in docker
       dist: bionic

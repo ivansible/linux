@@ -1,6 +1,11 @@
 ---
-- name: become root and install role
+- name: install wireguard as root
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: lin_wg_key |default('',true) and lin_wg_pub |default('',true)
+  tags: lin_wg_all
+
+- name: run wireguard handlers
+  meta: flush_handlers
+  tags: lin_wg_all
 ...
