@@ -26,7 +26,7 @@ provisioner:
         lin_firewall: ${IVATEST_FIREWALL:-ferm}
   playbooks:
     prepare: ../default/prepare.yml
-    converge: ../default/playbook.yml
+    converge: ../default/converge.yml
     verify: ../default/verify.yml
   lint:
     name: ansible-lint
@@ -35,10 +35,6 @@ verifier:
   lint:
     name: ansible-lint
     enabled: false
-lint:
-  name: yamllint
-  options:
-    config-file: .yamllint.yml
 scenario:
   name: localhost
   test_sequence:

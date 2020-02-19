@@ -1,5 +1,58 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install openvpn
+  import_tasks: install.yml
+  tags: srv_ovpn_install
+
+- name: setup easy-rsa
+  import_tasks: easy-rsa.yml
+  vars:
+    ca_cname: "{{ srv_ovpn_ca_cname |default(srv_ovpn_cname, true) |default(ansible_fqdn) }}"
+  tags: srv_ovpn_easyrsa
+
+- name: setup CA
+  import_tasks: ca.yml
+  vars:
+    ca_cname: "{{ srv_ovpn_ca_cname |default(srv_ovpn_cname, true) |default(ansible_fqdn) }}"
+    ca_from_vars: "{{ true if srv_ovpn_ca_cert |default('') else false }}"
+  tags: srv_ovpn_ca
+
+- name: common data for all servers
+  import_tasks: common.yml
+  vars:
+    tlscrypt_from_vars: "{{ true if srv_ovpn_tlscrypt_key |default('') else false }}"
+  tags:
+    - srv_ovpn_common
+    - srv_ovpn_servers
+    - srv_ovpn_clients
+
+- name: setup openvpn servers
+  include_tasks: _server.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - srv_ovpn_servers
+        - srv_ovpn_all
+  loop: "{{ srv_ovpn_servers |default([],true) |json_query('[?!disable]') }}"
+  loop_control:
+    loop_var: server
+    label: "{{ server_name }}"
+  vars:
+    server_dir: "{{ srv_ovpn_dir }}/servers/{{ server_name }}"
+    server_name: "{{ server.name }}"
+    server_cname: "{{ server.cname |default(srv_ovpn_cname, true) |default(server.name, true) }}"
+    server_proto: "{{ server.proto |default(srv_ovpn_proto, true) |default('udp', true) }}"
+    client_proto: "{{ 'udp' if server_proto == 'udp' else 'tcp-client' }}"
+    server_subnet4: "{{ server.subnet4 }}"
+    server_subnet6: "{{ server.subnet6 |default('') }}"
+    device: "{{ server.device |default('tun') }}"
+    internal: "{{ server.internal |default(false) |bool }}"
+    server_host: "{{ server.host |default(srv_ovpn_host, true) |default(ansible_fqdn, true) }}"
+    server_port: "{{ server.port |default(srv_ovpn_port, true) |default(1194, true) |int }}"
+    visible_port: "{{ server.visible_port |default(server_port, true) }}"
+    server_crt_from_vars: "{{ true if server.cert |default('') else false }}"
+  tags:
+    - srv_ovpn_servers
+    - srv_ovpn_clients
+    - srv_ovpn_firewall
 ...

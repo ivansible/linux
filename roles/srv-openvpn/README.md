@@ -37,7 +37,7 @@ None
 
     - hosts: vagrant-boxes
       roles:
-         - role: srv_openvpn
+         - role: ivansible.srv_openvpn
            variable1: 1
            variable2: 2
 

@@ -1,0 +1,71 @@
+---
+- name: upload TLS-crypt key from settings
+  copy:
+    dest: "{{ srv_ovpn_dir }}/tls-crypt.key"
+    content: "{{ srv_ovpn_tlscrypt_key }}"
+    owner: root
+    mode: 0600
+    force: true
+  when: tlscrypt_from_vars
+  notify: restart openvpn servers
+
+- name: generate new TLS-crypt key
+  command:
+    cmd: openvpn --genkey --secret "{{ srv_ovpn_dir }}/tls-crypt.key"
+    creates: "{{ srv_ovpn_dir }}/tls-crypt.key"
+  when: not tlscrypt_from_vars
+  notify: restart openvpn servers
+
+- name: ensure permissions on common TLS-crypt key
+  file:
+    path: "{{ srv_ovpn_dir }}/tls-crypt.key"
+    owner: root
+    mode: 0600
+
+- block:
+    - name: slurp common TLS-crypt key content
+      slurp:
+        src: "{{ srv_ovpn_dir }}/tls-crypt.key"
+      register: slurp_tlscrypt_key
+
+    - name: decode content of common TLS-crypt key
+      set_fact:
+        srv_ovpn_tlscrypt_key: "{{ slurp_tlscrypt_key.content |b64decode }}"
+  when: not tlscrypt_from_vars
+
+
+- name: create directories for servers/clients and templates
+  file:
+    path: "{{ srv_ovpn_dir }}/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - servers
+    - templates
+
+- name: create common server/client templates
+  template:
+    src: "{{ item }}/global.tpl"
+    dest: "{{ srv_ovpn_dir }}/templates/{{ item }}.tpl"
+    owner: root
+    group: root
+    mode: 0640
+    force: true
+    backup: "{{ srv_ovpn_backups |bool }}"
+  loop:
+    - server
+    - client
+
+- name: add template scripts
+  copy:
+    src: "{{ item }}"
+    dest: "{{ srv_ovpn_dir }}/templates/{{ item }}"
+    owner: root
+    group: root
+    mode: 0754
+  loop:
+    - add-server.sh
+    - add-client.sh
+...

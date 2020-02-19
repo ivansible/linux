@@ -1,0 +1,170 @@
+---
+- name: verify server parameters for '{{ server_name }}'
+  assert:
+    that:
+      - server_proto in ['tcp', 'udp']
+      - srv_ovpn_compress in ['lz4-v2', 'lz4', 'lzo', '', none]
+    quiet: true
+  tags:
+    - srv_ovpn_firewall
+    - srv_ovpn_clients
+
+- name: create directory for server '{{ server_name }}'
+  file:
+    path: "{{ server_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: upload cert from settings for server '{{ server_name }}'
+  copy:
+    dest: "{{ server_dir }}/server.crt"
+    content: "{{ server.cert }}"
+    owner: root
+    mode: 0600
+    force: true
+  notify: restart openvpn servers
+  when: server_crt_from_vars
+
+- name: upload key from settings for server '{{ server_name }}'
+  copy:
+    dest: "{{ server_dir }}/server.key"
+    content: "{{ server.key }}"
+    owner: root
+    mode: 0600
+    force: true
+  notify: restart openvpn servers
+  when: server_crt_from_vars
+
+- name: generate new cert/key for server '{{ server_name }}'
+  shell:
+    # noqa 302
+    cmd: |
+      rm -f "./pki/issued/{{ server_cname }}.crt"
+      rm -f "./pki/private/{{ server_cname }}.key"
+      rm -f "./pki/reqs/{{ server_cname }}.req"
+      ./easyrsa build-server-full "{{ server_cname }}" nopass
+      cp -f "./pki/issued/{{ server_cname }}.crt"  "{{ server_dir }}/server.crt"
+      cp -f "./pki/private/{{ server_cname }}.key" "{{ server_dir }}/server.key"
+    chdir: "{{ srv_ovpn_easyrsa_dir }}"
+    creates: "{{ server_dir }}/server.crt"
+  environment:
+    EASYRSA_CERT_EXPIRE: 3650
+  when: not server_crt_from_vars
+  notify: restart openvpn servers
+
+- name: ensure permissions on cert/key for server '{{ server_name }}'
+  file:
+    path: "{{ server_dir }}/{{ item }}"
+    owner: root
+    mode: 0600
+  loop:
+    - server.crt
+    - server.key
+
+- name: update server configuration for '{{ server_name }}'
+  template:
+    src: server/server.conf
+    dest: "{{ srv_ovpn_dir }}/{{ server_name }}.conf"
+    owner: root
+    group: root
+    mode: 0640
+    backup: "{{ srv_ovpn_backups |bool }}"
+  vars:
+    proto_ipv6: "{{ server.ipv6 |default(true) |bool }}"
+  notify: restart openvpn servers
+
+- name: update server routes for '{{ server_name }}'
+  template:
+    src: server/routes.j2
+    dest: "{{ server_dir }}/routes"
+    force: "{{ has_routes }}"
+    owner: root
+    group: root
+    mode: 0640
+    backup: "{{ srv_ovpn_backups |bool }}"
+  vars:
+    server_routes4: "{{ server.self_routes4 |default([],true) }}"
+    server_routes6: "{{ server.self_routes6 |default([],true) }}"
+    has_routes4: "{{ server.self_routes4 |default(none) is not none }}"
+    has_routes6: "{{ server.self_routes6 |default(none) is not none }}"
+    has_routes: "{{ has_routes4 or has_routes6 }}"
+    metric: "{{ server.metric |default(0) |int }}"
+    has_metric: "{{ metric |int > 0 }}"
+  notify: restart openvpn servers
+
+- name: update per-server client template for '{{ server_name }}'
+  template:
+    src: client/per-server.tpl
+    dest: "{{ server_dir }}/template.ovpn"
+    owner: root
+    group: root
+    mode: 0640
+    backup: "{{ srv_ovpn_backups |bool }}"
+  notify: restart openvpn servers
+  tags: srv_ovpn_clients
+
+- name: create client directories for server '{{ server_name }}'
+  file:
+    path: "{{ server_dir }}/{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - clients
+    - configs
+  tags: srv_ovpn_clients
+
+- name: setup clients for server '{{ server_name }}'
+  include_tasks: _client.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - srv_ovpn_servers
+        - srv_ovpn_clients
+        - srv_ovpn_all
+  loop: "{{ server.clients |default([],true) }}"
+  loop_control:
+    loop_var: client
+    label: "{{ full_name }}"
+  vars:
+    client_name: "{{ client.name }}"
+    client_cname: "{{ client_name }}"
+    full_name: "{{ server_name }}/{{ client_name }}"
+    client_crt_path: "{{ server_dir }}/clients/{{ client_name }}.crt"
+    client_key_path: "{{ server_dir }}/clients/{{ client_name }}.key"
+    client_crt_from_vars: "{{ true if client.cert |default('') else false }}"
+  tags: srv_ovpn_clients
+
+- name: start openvpn server '{{ server_name }}'
+  systemd:
+    name: "openvpn@{{ server_name }}"
+    state: started
+    enabled: true
+
+- name: open/block server port in ufw for '{{ server_name }}'
+  ufw:
+    port: "{{ server_port |string }}"
+    proto: "{{ server_proto }}"
+    rule: "{{ internal |ternary('deny','allow') }}"
+  no_log: "{{ hide_secrets |bool }}"
+  tags: srv_ovpn_firewall
+  notify: restart openvpn servers
+  when: lin_firewall == 'ufw'
+
+- name: open/block server port in ferm for '{{ server_name }}'
+  ferm_port:
+    port: "{{ server_port |int }}"
+    proto: "{{ server_proto }}"
+    domain: "{{ internal |ternary('internal','external') }}"
+    exclusive: true
+    comment: openvpn
+  tags:
+    - skip_ansible_lint
+    - srv_ovpn_firewall
+  notify: restart openvpn servers
+  when: lin_firewall == 'ferm'
+...

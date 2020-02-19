@@ -1,6 +1,41 @@
 ---
-- name: become root and install role
+- name: become root and install openvpn
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: srv_ovpn_enable |bool
+  tags:
+    - srv_ovpn_all
+    - srv_openvpn_all
+
+- name: run restart handlers before stopping services
+  meta: flush_handlers
+  tags:
+    - srv_ovpn_all
+    - srv_openvpn_all
+
+- block:
+    - name: enable generic openvpn service if there are configured servers (optional)
+      systemd:
+        name: openvpn.service
+        state: "{{ enable |ternary('started','stopped') }}"
+        enabled: "{{ enable }}"
+      vars:
+        enable: "{{ srv_ovpn_servers |default([],true) |json_query('[?!disable]') |length > 0 }}"
+      when: false  # step disabled
+
+    - name: stop disabled openvpn servers
+      systemd:
+        name: "openvpn@{{ item.name }}"
+        state: stopped
+        enabled: false
+      ignore_errors: true
+      loop: "{{ srv_ovpn_servers |default([],true) |json_query('[?!!disable]') }}"
+      loop_control:
+        label: "openvpn@{{ item.name }}"
+      tags: srv_ovpn_servers
+  become: true
+  when: srv_ovpn_enable |bool
+  tags:
+    - srv_ovpn_all
+    - srv_openvpn_all
 ...

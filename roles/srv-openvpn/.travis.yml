@@ -17,8 +17,8 @@ before_install:
 
 install:
   - pip3 install -U pip setuptools wheel
-  # molecule pulls: ansible-lint yamllint flake8 pytest testinfra
-  - pip3 install molecule docker jmespath boto3
+  - pip3 install docker jmespath boto3 mitogen molecule pytest testinfra
+  # also pulled: ansible-lint yamllint flake8
 
 matrix:
   include:
@@ -27,14 +27,16 @@ matrix:
       env:
         - IVATEST_FIREWALL=ferm
       script:
-        - molecule test -s localhost
+        - echo "test this role in docker only, not on runner"
+        # - molecule test -s localhost
 
     - name: test on bionic
       dist: bionic
       env:
         - IVATEST_FIREWALL=ferm
       script:
-        - molecule test -s localhost
+        - echo "test this role in docker only, not on runner"
+        # - molecule test -s localhost
 
     - name: tests in docker
       dist: bionic

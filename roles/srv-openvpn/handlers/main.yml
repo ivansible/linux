@@ -1,3 +1,13 @@
 ---
 # handlers for ivansible.srv_openvpn
+
+# concrete services openvpn@.service are part of generic service
+# openvpn.service and will be restarted when generic is restarted
+- name: restart openvpn servers
+  systemd:
+    name: openvpn.service
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  become: true
 ...

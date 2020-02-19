@@ -1,0 +1,119 @@
+---
+- block:
+    - name: upload cert from settings for client '{{ full_name }}'
+      copy:
+        dest: "{{ client_crt_path }}"
+        content: "{{ client.cert }}"
+        owner: root
+        mode: 0600
+        force: true
+
+    - name: upload key from settings for client '{{ full_name }}'
+      copy:
+        dest: "{{ client_key_path }}"
+        content: "{{ client.key }}"
+        owner: root
+        mode: 0600
+        force: true
+
+    - name: record content of cert/key for client '{{ full_name }}'
+      set_fact:
+        client_crt_text: "{{ client.cert }}"
+        client_key_text: "{{ client.key }}"
+  when: client_crt_from_vars
+
+- name: generate new cert/key for client '{{ full_name }}'
+  shell:
+    # noqa 302
+    cmd: |
+      rm -f "./pki/issued/{{ client_cname }}.crt"
+      rm -f "./pki/private/{{ client_cname }}.key"
+      rm -f "./pki/reqs/{{ client_cname }}.req"
+      ./easyrsa build-client-full "{{ client_cname }}" nopass
+      cp -f "./pki/issued/{{ client_cname }}.crt"  "{{ client_crt_path }}"
+      cp -f "./pki/private/{{ client_cname }}.key" "{{ client_key_path }}"
+    chdir: "{{ srv_ovpn_easyrsa_dir }}"
+    creates: "{{ client_crt_path }}"
+  environment:
+    EASYRSA_CERT_EXPIRE: 3650
+  when: not client_crt_from_vars
+
+- name: ensure permissions on cert/key for client '{{ full_name }}'
+  file:
+    path: "{{ item }}"
+    owner: root
+    mode: 0600
+  loop:
+    - "{{ client_crt_path }}"
+    - "{{ client_key_path }}"
+
+- block:
+    - name: slurp cert content for client '{{ full_name }}'
+      slurp:
+        src: "{{ client_crt_path }}"
+      register: slurp_client_crt
+
+    - name: slurp key content for client '{{ full_name }}'
+      slurp:
+        src: "{{ client_key_path }}"
+      register: slurp_client_key
+
+    - name: decode content of client cert/key for '{{ full_name }}'
+      set_fact:
+        client_crt_text: "{{ slurp_client_crt.content |b64decode }}"
+        client_key_text: "{{ slurp_client_key.content |b64decode }}"
+  when: not client_crt_from_vars
+
+- name: update configuration for client '{{ full_name }}'
+  template:
+    src: client/client.ovpn
+    dest: "{{ server_dir }}/clients/{{ client_name }}.ovpn"
+    owner: root
+    group: root
+    mode: 0644
+    backup: "{{ srv_ovpn_backups |bool }}"
+  vars:
+    proxy: "{{ client.proxy |default('',true) |string }}"
+    proxy_url: "{{ proxy if '//' in proxy else '//' + proxy }}"
+    proxy_type: "{{ proxy_url |urlsplit('scheme') or 'socks5' }}"
+    proxy_host: "{{ proxy_url |urlsplit('hostname') or '127.0.0.1' }}"
+    proxy_port: "{{ proxy_url |urlsplit('port') or 1080 }}"
+    interface_name: "{{ client.interface_name |default('') }}"
+  notify: restart openvpn servers
+
+- name: update per-client routes for '{{ full_name }}'
+  ## it's important to have per-client config (even blank) in case of ccd-only
+  template:
+    src: client/routes.j2
+    dest: "{{ server_dir }}/configs/{{ client_name }}"
+    force: "{{ has_config or has_subnet or has_push_routes or has_self_routes }}"
+    owner: root
+    group: root
+    mode: 0644
+    backup: "{{ srv_ovpn_backups |bool }}"
+  vars:
+    client_config: "{{ client.config |default('') }}"
+    has_config: "{{ client.config |default(none) is not none }}"
+
+    client_subnet4: "{{ client.subnet4 |default('') }}"
+    client_subnet6: "{{ client.subnet6 |default('') }}"
+    has_subnet4: "{{ true if client_subnet4 else false }}"
+    has_subnet6: "{{ true if client_subnet6 else false }}"
+    has_subnet: "{{ has_subnet4 or has_subnet6 }}"
+
+    push_routes4: "{{ client.push_routes4 |default([],true) }}"
+    push_routes6: "{{ client.push_routes6 |default([],true) }}"
+    has_push_routes4: "{{ client.push_routes4 |default(none) is not none }}"
+    has_push_routes6: "{{ client.push_routes6 |default(none) is not none }}"
+    has_push_routes: "{{ has_push_routes4 or has_push_routes6 }}"
+
+    self_routes4: "{{ client.self_routes4 |default([],true) }}"
+    self_routes6: "{{ client.self_routes6 |default([],true) }}"
+    has_self_routes4: "{{ client.self_routes4 |default(none) is not none }}"
+    has_self_routes6: "{{ client.self_routes6 |default(none) is not none }}"
+    has_self_routes: "{{ has_self_routes4 or has_self_routes6 }}"
+
+    metric: "{{ client.metric |default(0) |int }}"
+    has_metric: "{{ client_metric |int > 0 }}"
+  notify: restart openvpn servers
+...

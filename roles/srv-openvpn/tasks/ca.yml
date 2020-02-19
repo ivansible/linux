@@ -1,0 +1,115 @@
+---
+- name: fix CA common name in easy-rsa config
+  lineinfile:
+    dest: "{{ srv_ovpn_easyrsa_dir }}/vars"
+    regexp: '^#*set_var EASYRSA_REQ_CN'
+    line: "set_var EASYRSA_REQ_CN {{ ca_cname }}"
+    owner: root
+    group: root
+    mode: 0640
+  notify: restart openvpn servers
+
+- name: generate new CA cert/key in easy-rsa (can be overridden)
+  shell:
+    # noqa 302
+    cmd: |
+      rm -f ./pki/ca.crt
+      rm -f ./pki/private/ca.key
+      ./easyrsa --batch build-ca nopass
+    chdir: "{{ srv_ovpn_easyrsa_dir }}"
+    creates: "{{ srv_ovpn_easyrsa_dir }}/pki/ca.crt"
+  environment:
+    EASYRSA_CERT_EXPIRE: 3650
+  notify: restart openvpn servers
+
+- block:
+    - name: upload CA cert from settings
+      copy:
+        dest: "{{ srv_ovpn_dir }}/ca.crt"
+        content: "{{ srv_ovpn_ca_cert }}"
+        owner: root
+        mode: 0600
+        force: true
+      notify: restart openvpn servers
+
+    - name: upload CA key from settings
+      copy:
+        dest: "{{ srv_ovpn_dir }}/ca.key"
+        content: "{{ srv_ovpn_ca_key }}"
+        owner: root
+        mode: 0600
+        force: true
+      notify: restart openvpn servers
+
+    - name: override CA cert/key in easy-rsa from settings
+      copy:
+        remote_src: true
+        src: "{{ srv_ovpn_dir }}/{{ item |basename }}"
+        dest: "{{ srv_ovpn_easyrsa_dir }}/pki/{{ item }}"
+        owner: root
+        mode: 0600
+        force: true
+      loop:
+        - ca.crt
+        - private/ca.key
+      notify: restart openvpn servers
+  when: ca_from_vars
+
+- name: update common CA cert/key from easy-rsa
+  copy:
+    remote_src: true
+    src: "{{ srv_ovpn_easyrsa_dir }}/pki/{{ item }}"
+    dest: "{{ srv_ovpn_dir }}/{{ item |basename }}"
+    owner: root
+    mode: 0600
+    force: true
+  loop:
+    - ca.crt
+    - private/ca.key
+  when: not ca_from_vars
+  notify: restart openvpn servers
+
+- name: ensure permissions on CA cert/key
+  file:
+    path: "{{ srv_ovpn_dir }}/{{ item }}"
+    owner: root
+    mode: 0600
+  loop:
+    - ca.crt
+    - ca.key
+
+
+- block:
+    - name: slurp common CA cert content
+      slurp:
+        src: "{{ srv_ovpn_dir }}/ca.crt"
+      register: slurp_ca_cert
+
+    - name: decode content of common CA cert
+      set_fact:
+        srv_ovpn_ca_cert: "{{ slurp_ca_cert.content |b64decode }}"
+  when: not ca_from_vars
+  tags:
+    - srv_ovpn_servers
+    - srv_ovpn_clients
+
+
+- block:
+    - name: create common revocation list
+      shell:
+        cmd: |
+          ./easyrsa gen-crl
+          cp -f pki/crl.pem "{{ srv_ovpn_dir }}/crl.pem"
+        chdir: "{{ srv_ovpn_easyrsa_dir }}"
+        creates: "{{ srv_ovpn_dir }}/crl.pem"
+      environment:
+        EASYRSA_CRL_DAYS: 3650
+
+    - name: make common revocation list readable by non-root
+      file:
+        path: "{{ srv_ovpn_dir }}/crl.pem"
+        owner: root
+        group: root
+        mode: 0644
+  when: srv_ovpn_use_crl |bool
+...

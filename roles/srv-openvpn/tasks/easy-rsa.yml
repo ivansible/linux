@@ -1,0 +1,70 @@
+---
+- name: create directory for easy-rsa
+  file:
+    path: "{{ srv_ovpn_easyrsa_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0750
+
+- name: find latest version of easy-rsa
+  github_release:
+    repository: OpenVPN/easy-rsa
+    release: latest
+    template: '{download_url}/EasyRSA-unix-{ver}.tgz'
+    strip_v: false
+    creates: "{{ srv_ovpn_easyrsa_dir }}/easyrsa"
+    reinstall: "{{ srv_ovpn_upgrade_easyrsa |bool }}"
+  register: easyrsa_github_release
+
+- name: install easy-rsa from archive
+  unarchive:
+    remote_src: true
+    src: "{{ easyrsa_github_release.url }}"
+    dest: "{{ srv_ovpn_easyrsa_dir }}"
+    extra_opts: --strip-components=1
+  when: easyrsa_github_release is changed
+
+- name: configure easy-rsa
+  copy:
+    dest: "{{ srv_ovpn_easyrsa_dir }}/vars"
+    content: |
+      set_var EASYRSA_ALGO ec
+      set_var EASYRSA_CURVE {{ srv_ovpn_curve }}
+      set_var EASYRSA_REQ_CN {{ ca_cname }}
+    owner: root
+    group: root
+    mode: 0640
+    force: true
+  notify: restart openvpn servers
+
+- name: setup pki for easy-rsa
+  command:
+    cmd: ./easyrsa init-pki
+    chdir: "{{ srv_ovpn_easyrsa_dir }}"
+    creates: "{{ srv_ovpn_easyrsa_dir }}/pki"
+  notify: restart openvpn servers
+
+- name: workaround for harmless error until easy-rsa 3.0.7 (retry every line)
+  ## https://github.com/OpenVPN/easy-rsa/issues/261
+  lineinfile:
+    path: "{{ srv_ovpn_easyrsa_dir }}/pki/openssl-easyrsa.cnf"
+    regexp: '^(RANDFILE.*)$'
+    line: '#\1'
+    backrefs: true
+  register: disable_randfile_result
+  ## loop until replacements are done one line at a time
+  until: disable_randfile_result is not changed
+
+- name: create blank placeholders for easy-rsa pki
+  copy:
+    dest: "{{ srv_ovpn_easyrsa_dir }}/pki/{{ item }}"
+    content: ""
+    owner: root
+    group: root
+    mode: 0600
+    force: false
+  loop:
+    - index.txt
+    - index.txt.attr
+...

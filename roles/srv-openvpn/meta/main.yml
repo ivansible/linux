@@ -1,5 +1,6 @@
 ---
-dependencies: []
+dependencies:
+  - ivansible.lin_base
 
 galaxy_info:
   role_name: srv_openvpn
@@ -17,7 +18,7 @@ galaxy_info:
 
   galaxy_tags:
     - linux
-    - ansible
+    - openvpn
 
   github_branch: master
 ...

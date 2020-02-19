@@ -1,3 +1,77 @@
 ---
 # defaults for ivansible.srv_openvpn
+
+srv_ovpn_enable: true  # the role is skipped if this flag is false
+
+srv_ovpn_host: "{{ ansible_host }}"  # visible host name/address for client configs
+srv_ovpn_port: ~   # default port for servers (default: 1194)
+srv_ovpn_proto: ~  # default protocol for servers (default: udp)
+
+srv_ovpn_cname: "{{ ansible_fqdn }}"  # default common name for server certs
+srv_ovpn_ca_cname: ~  # default common name for CA cert (default: srv_ovpn_cname)
+
+srv_ovpn_ca_cert: ~        # predefined CA certificate text (default: generate)
+srv_ovpn_ca_key: ~         # predefined CA private key text (default: generate)
+srv_ovpn_tlscrypt_key: ~  # prefefined TLS-crypt key text (default: generate)
+
+srv_ovpn_servers: ~
+#  - name: server                       - server name (REQUIRED)
+#    disable: false                     - stops the server (default: false)
+#    device: tun                        - optional tunX device name (default: tun)
+#    host: ~                            - optional per-server host name/address
+#    proto: udp                         - protocol: tcp or udp (default: udp)
+#    ipv6: true                         - makes server socket listen to ipv6 (default: true)
+#    port: 1194                         - per-server port
+#    visible_port: ~                    - port visible by clients (tcp only, optional)
+#    internal: false                    - if true, the port will be closed for external hosts
+#    subnet4: 10.10.0.0/16              - ipv4 subnet in the form "network/bits" (REQUIRED)
+#    subnet6: fd00:0:10:10::/64         - ipv6 subnet in the form "network/bits" (optional)
+#    routes4: [192.168.2.0/24]          - list of extra ipv4 routes (optional)
+#    routes6: [fd00:2::/64]             - list of extra ipv6 routes (optional)
+#    metric: 1024                       - metric to assign for routes (optional)
+#    cert: ~                            - static certificate text (default: generate)
+#    key: ~                             - static private key text (default: generate)
+#    clients:                           - list of clients
+#      - name: client                   - client name (REQUIRED)
+#        interace_name: ~               - optional interface name (windows only)
+#        proxy: socks://127.0.0.1:1080  - optional proxy (works only with tcp protocol)
+#        subnet4: 10.10.1.2/24          - optional ipv4 subnet (default: dynamic)
+#        subnet6: fd00:0:10:10:2::/80   - optional ipv6 subnet (default: none)
+#        push_routes4: [192.168.2.0/24] - list of pushed ipv4 routes (optional)
+#        push_routes6: [fd00:2::/64]    - list of pushed ipv6 routes (optional)
+#        self_routes4: [192.168.3.0/24] - list of served ipv4 routes (optional)
+#        self_routes6: [fd00:3::/64]    - list of served ipv6 routes (optional)
+#        metric: 1024                   - metric to assign for pushed routes (optional)
+#        cert: ~                        - predefined certificate text (default: generate)
+#        key: ~                         - predefined private key text (default: generate)
+
+srv_ovpn_curve: prime256v1
+srv_ovpn_cipher: AES-128-GCM
+srv_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+srv_ovpn_hmac_alg: SHA256  # HMAC digest algorithm
+
+srv_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
+srv_ovpn_compress: ~  # one of: lz4-v2, lz4, lzo, none (default: no compression)
+
+srv_ovpn_keepalive_interval: 10
+srv_ovpn_keepalive_timeout: 120
+
+srv_ovpn_use_fast_io: true
+srv_ovpn_use_mlock: false
+srv_ovpn_use_crl: false
+srv_ovpn_redirect_gateway: false
+
+# DNS servers are pushed only if leak prevention is enabled
+srv_ovpn_prevent_dns_leak: false
+srv_ovpn_dns_servers:
+  - 1.1.1.1
+  - 8.8.8.8
+
+srv_ovpn_dir: /etc/openvpn
+srv_ovpn_run_dir: /run/openvpn
+srv_ovpn_easyrsa_dir: "{{ srv_ovpn_dir }}/easy-rsa"
+
+srv_ovpn_upgrade_easyrsa: false
+srv_ovpn_backups: true
+srv_ovpn_openvz_quirks: false
 ...

@@ -1,0 +1,84 @@
+---
+- name: create group for proxy processes
+  group:
+    name: proxy
+    gid: 13
+
+- name: enable https in apt for openvpn install
+  apt:
+    name: apt-transport-https
+
+- name: add openvpn signing key
+  apt_key:
+    url: https://swupdate.openvpn.net/repos/repo-public.gpg
+  register: ovpn_repo_key_result
+  until: ovpn_repo_key_result is successful
+
+- name: add openvpn repository
+  apt_repository:
+    repo: "deb [arch=amd64] {{ repo_url }} {{ ansible_lsb.codename }} main"
+    filename: openvpn
+    mode: 0644
+  vars:
+    repo_url: http://build.openvpn.net/debian/openvpn/stable
+  register: ovpn_repo_result
+  until: ovpn_repo_result is successful
+
+- name: install openvpn packages
+  apt:
+    name:
+      - openvpn
+      - openssl
+      - ipcalc
+      - ca-certificates
+      - gnupg
+      # /usr/bin/file is missing on bionic, required by openvpn installer
+      - file
+    state: present
+
+- name: create openvpn config directory
+  file:
+    path: "{{ srv_ovpn_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: remove unused resolvconf helper
+  file:
+    path: "{{ srv_ovpn_dir }}/update-resolv-conf"
+    state: absent
+
+- name: query openssl library version
+  package_facts:
+  tags: srv_ovpn_install_openssl
+
+- block:
+    - name: upgrade to latest openssl on bionic
+      apt:
+        name: openssl
+        # noqa 403
+        state: latest
+      notify: restart openvpn servers
+
+    - name: install libssl 1.1.1+ from ondrey sury ppa on xenial
+      ## https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
+      apt:
+        deb: "{{ ppa_url }}/+files/{{ item }}"
+      loop:
+        - libssl1.1_1.1.1d-1+ubuntu16.04.1+deb.sury.org+2_amd64.deb
+        # - libssl-dev_1.1.1d-1+ubuntu16.04.1+deb.sury.org+2_amd64.deb
+      vars:
+        ppa_url: https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
+      notify: restart openvpn servers
+      when: ansible_lsb.codename == 'xenial'
+  when: ansible_facts.packages['libssl1.1'].0.version |default('0') is version('1.1.1','<')
+  tags: srv_ovpn_install_openssl
+
+- name: fix openvpn service template for openvz
+  copy:
+    src: openvz-service-template.conf
+    dest: /etc/systemd/system/openvpn@.service
+  notify: restart openvpn servers
+  when: srv_ovpn_openvz_quirks |bool
+...

@@ -1,0 +1,8 @@
+{% for route4 in server_routes4 %}
+route {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}{% if has_metric %} default {{ metric }}{% endif %}
+
+{% endfor %}
+{% for route6 in server_routes6 %}
+route-ipv6 {{ route6 }}{% if has_metric %} default {{ metric }}{% endif %}
+
+{% endfor %}
