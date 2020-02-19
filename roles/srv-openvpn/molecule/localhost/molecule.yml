@@ -1,0 +1,52 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: molecule/default/requirements.yml
+driver:
+  name: delegated
+  options:
+    managed: false
+    ansible_connection_options:
+      ansible_connection: local
+platforms:
+  - name: localhost
+    groups:
+      - molecule
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      molecule:
+        linsys_system_locale: en_US.UTF-8
+        lin_use_ssh: ${IVATEST_SSH_SERVER:-true}
+        allow_sysctl: false
+        # these pass on host:
+        linsys_time_sync: true
+        lin_firewall: ${IVATEST_FIREWALL:-ferm}
+  playbooks:
+    prepare: ../default/prepare.yml
+    converge: ../default/playbook.yml
+    verify: ../default/verify.yml
+  lint:
+    name: ansible-lint
+verifier:
+  name: ansible
+  lint:
+    name: ansible-lint
+    enabled: false
+lint:
+  name: yamllint
+  options:
+    config-file: .yamllint.yml
+scenario:
+  name: localhost
+  test_sequence:
+    - lint
+    - dependency
+    - syntax
+    - prepare
+    - converge
+    - idempotence
+    - verify
+...

@@ -1,0 +1,63 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: xenial
+    image: ivandeex/molecule:16.04
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+    groups:
+      - molecule
+  - name: bionic
+    image: ivandeex/molecule:18.04
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+    groups:
+      - molecule
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      molecule:
+        ansible_user: ansible
+        linsys_system_locale: en_US.UTF-8
+        lin_use_ssh: ${IVATEST_SSH_SERVER:-true}
+        allow_sysctl: false
+        # these will fail in docker:
+        linsys_time_sync: false
+        lin_firewall: ${IVATEST_FIREWALL:-ferm}
+  lint:
+    name: ansible-lint
+verifier:
+  name: ansible
+  lint:
+    name: ansible-lint
+    enabled: false
+lint:
+  name: yamllint
+  options:
+    config-file: .yamllint.yml
+scenario:
+  name: default
+  converge_sequence:
+    - converge
+  test_sequence:
+    - lint
+    - dependency
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - destroy
+...
