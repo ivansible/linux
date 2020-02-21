@@ -49,6 +49,7 @@ between Wireguard interfaces.
 This is an array of records, where each record describes remote Wireguard peer
 and has the following fields:
   - `name` -- peer name, informational, required
+  - `active` -- optional boolean flag, defaults to true
   - `key` -- private key, informational, not required
   - `pub` -- public key, required
   - `psk` -- preshared key, optional

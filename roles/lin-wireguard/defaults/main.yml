@@ -20,6 +20,7 @@ lin_wg_forward: true
 
 lin_wg_peers: []
 #   name: peer1    - peer name, informational, required
+#   active: true   - optional flag, defaults to true
 #   key: xxx       - private key, informational, not required
 #   pub: yyy       - public key, required
 #   psk: zzz       - preshared key, optional
