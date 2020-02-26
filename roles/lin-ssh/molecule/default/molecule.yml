@@ -43,10 +43,6 @@ verifier:
     name: flake8
     options:
       max-line-length: 120
-lint:
-  name: yamllint
-  options:
-    config-file: .yamllint.yml
 scenario:
   name: default
   converge_sequence:
