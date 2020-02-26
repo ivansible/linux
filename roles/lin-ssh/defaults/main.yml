@@ -18,17 +18,22 @@ lin_ssh_settings:
   PermitEmptyPasswords: 'no'
   PermitRootLogin: 'no'
   UsePAM: 'no'
-  ## keepalive every minute
-  TCPKeepAlive: 'yes'
-  ClientAliveInterval: '60'
-  ClientAliveCountMax: "{{ lin_ssh_idle_timeout_minutes }}"
-  ## don't delay logins for banners
+  ## don't delay logins by banners
   ## https://linuxquestions.org/questions/linux-security-4/how-to-disable-ssh-version-banner-909540
   DebianBanner: 'no'
   PrintMotd: 'no'
   PrintLastLog: 'no'
-  ## don't delay logins for incoming host checks
+  ## don't delay logins by incoming host checks
   UseDNS: 'no'
+  ## keepalive every minute
+  TCPKeepAlive: 'yes'
+  ClientAliveInterval: '60'
+  ClientAliveCountMax: "{{ lin_ssh_idle_timeout_minutes }}"
+  ## rekey limits
+  ## https://man.openbsd.org/ssh_config#RekeyLimit
+  ## http://manpages.ubuntu.com/manpages/bionic/man5/sshd_config.5.html#time%20formats
+  RekeyLimit: '1G 2h'
+
 
 lin_ssh_idle_timeout_minutes: 10
 
