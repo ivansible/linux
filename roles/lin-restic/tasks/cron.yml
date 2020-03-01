@@ -18,7 +18,8 @@
   assert:
     that:
       - item.name is defined
-      - item.type is in ['filesystem', 'postgres']
+      - item.type in ['filesystem', 'postgres']
+    quiet: true
   loop: "{{ lin_restic_jobs }}"
 
 - name: restic backup service
