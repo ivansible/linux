@@ -23,12 +23,14 @@ linsys_apt_allow_backports: true
 linsys_hide_changes: true
 
 linsys_packages_core:
-  # timedatectl requires dbus, see https://askubuntu.com/a/1015391
-  - dbus
   - systemd
   - systemd-cron
   - ntp
   - ntpdate
+  # timedatectl requires dbus, see https://askubuntu.com/a/1015391
+  - dbus
+  # /usr/bin/file is missing on bionic, required by openvpn install
+  - file
   # system core
   - openssh-server
   - openssh-client
