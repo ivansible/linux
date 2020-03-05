@@ -86,6 +86,7 @@ Enables rsyslog.
 - `linsys_ssh` -- configure ssh port
 - `linsys_firewall` -- adjust ubuntu firewall
 - `linsys_settings` -- adjust system settings - locale, timezone etc
+- `linsys_utils` -- install helper scripts
 - `linsys_all` -- all of above
 
 

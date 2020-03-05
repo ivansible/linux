@@ -182,4 +182,17 @@
       tags: linsys_firewall
   when: lin_firewall == 'ferm'
   tags: linsys_firewall
+
+
+- name: install helper scripts
+  copy:
+    src: "utils/{{ item }}.sh"
+    dest: "/usr/local/bin/{{ item }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - clear-rootfs
+    - clear-swap
+  tags: linsys_utils
 ...
