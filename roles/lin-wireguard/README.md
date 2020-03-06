@@ -20,7 +20,8 @@ Available variables are listed below, along with default values.
 Network interface for Wireguard.
 
     lin_wg_addr: 10.1.1.1/24
-IP address and netmask to assign to VPN interface.
+IP address with netmask bit length or list of addresses/masks to assign to
+VPN interface. Both IPv4 and IPv6 are supported and can be intermixed.
 
     lin_wg_host: "{{ ansible_default_ipv4.address }}"
 Listening address or `~` if not listening.
@@ -53,7 +54,7 @@ and has the following fields:
   - `key` -- private key, informational, not required
   - `pub` -- public key, required
   - `psk` -- preshared key, optional
-  - `ips` -- allowed IPs, list of ip/mask pairs
+  - `ips` -- allowed IPs, list of ip/mask pairs (ipv4 and ipv6 can be intermixed)
   - `host` -- IP address of endpoint, optional
   - `port` -- port of endpoint, optional, defaults to lin_wg_port
 
