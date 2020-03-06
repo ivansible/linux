@@ -14,6 +14,7 @@ lin_wg_key: ~
 lin_wg_pub: ~
 lin_wg_psk: ~
 
+lin_wg_metric: 0
 lin_wg_mtu: 0
 lin_wg_keepalive: 0
 lin_wg_forward: true

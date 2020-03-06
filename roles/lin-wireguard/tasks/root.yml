@@ -36,6 +36,15 @@
   when: ansible_kernel is version('3.1', '<')
   tags: lin_wg_go
 
+- name: install wireguard config helper
+  copy:
+    src: wg-setmetric.sh
+    dest: /usr/local/sbin/wg-setmetric
+    owner: root
+    group: root
+    mode: 0755
+  tags: lin_wg_conf
+
 - name: create wireguard config directory
   file:
     path: /etc/wireguard

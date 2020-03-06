@@ -42,6 +42,9 @@ wg genpsk``
     lin_wg_keepalive: 0
 These settings allow to force MTU on interface or enable persistent keepalive.
 
+    lin_wg_metric: 0
+Assign given metric to new routes if this is non-zero.
+
     lin_wg_forward: true
 If this one is true, the role will allow packet forwarding
 between Wireguard interfaces.
