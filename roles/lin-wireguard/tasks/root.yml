@@ -99,5 +99,8 @@
     state: started
     enabled: true
     daemon_reload: "{{ wg_conf_result is changed }}"
+  register: enable_service_result
+  until: enable_service_result is successful
+  retries: 2  # workaround for pluto
   tags: lin_wg_service
 ...
