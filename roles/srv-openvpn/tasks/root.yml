@@ -41,16 +41,30 @@
     server_dir: "{{ srv_ovpn_dir }}/servers/{{ server_name }}"
     server_name: "{{ server.name }}"
     server_cname: "{{ server.cname |default(srv_ovpn_cname, true) |default(server.name, true) }}"
+    server_host: "{{ server.host |default(srv_ovpn_host, true) |default(ansible_fqdn, true) }}"
     server_proto: "{{ server.proto |default(srv_ovpn_proto, true) |default('udp', true) }}"
-    client_proto: "{{ 'udp' if server_proto == 'udp' else 'tcp-client' }}"
+    server_port: "{{ server.port |default(srv_ovpn_port, true) |default(1194, true) |int }}"
+    internal: "{{ server.internal |default(false) |bool }}"
+    server_crt_from_vars: "{{ true if server.cert |default('') else false }}"
+    ovpn_keepalive_interval: "{{ srv_ovpn_keepalive_interval }}"
+    ovpn_keepalive_timeout: "{{ srv_ovpn_keepalive_timeout }}"
+
     server_subnet4: "{{ server.subnet4 }}"
     server_subnet6: "{{ server.subnet6 |default('') }}"
     device: "{{ server.device |default('tun') }}"
-    internal: "{{ server.internal |default(false) |bool }}"
-    server_host: "{{ server.host |default(srv_ovpn_host, true) |default(ansible_fqdn, true) }}"
-    server_port: "{{ server.port |default(srv_ovpn_port, true) |default(1194, true) |int }}"
+
+    ovpn_curve: "{{ srv_ovpn_curve }}"
+    ovpn_cipher: "{{ srv_ovpn_cipher }}"
+    ovpn_cc_cipher: "{{ srv_ovpn_cc_cipher }}"
+    ovpn_hmac_alg: "{{ srv_ovpn_hmac_alg }}"
+    ovpn_reneg_sec: "{{ srv_ovpn_reneg_sec }}"
+    ovpn_compress: "{{ srv_ovpn_compress }}"
+
     visible_port: "{{ server.visible_port |default(server_port, true) }}"
-    server_crt_from_vars: "{{ true if server.cert |default('') else false }}"
+    client_proto: "{{ 'udp' if server_proto == 'udp' else 'tcp-client' }}"
+    client_device: "{{ srv_ovpn_default_client_device }}"
+    ovpn_prevent_dns_leak: "{{ srv_ovpn_prevent_dns_leak }}"
+    ovpn_redirect_gateway: "{{ srv_ovpn_redirect_gateway }}"
   tags:
     - srv_ovpn_servers
     - srv_ovpn_clients

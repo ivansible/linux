@@ -6,7 +6,7 @@ client
 {% block client_proto %}
 proto CLIENT_PROTO
 remote {{ srv_ovpn_host }} SERVER_PORT
-dev tun
+dev {{ client_device }}
 {% endblock client_proto %}
 {% block client_verify %}
 verify-x509-name SERVER_CN name

@@ -9,7 +9,7 @@ server SUBNET4_NET SUBNET4_MASK
 IF_IPV6 server-ipv6 SUBNET6
 {% endblock server_subnet %}
 {% block server_redirect %}
-{% set gw_comment = srv_ovpn_redirect_gateway |bool |ternary('','#') %}
+{% set gw_comment = ovpn_redirect_gateway |bool |ternary('','#') %}
 {{ gw_comment }}push "redirect-gateway def1 bypass-dhcp"
 IF_IPV6 {{ gw_comment }}push "route-ipv6 2000::/3"
 IF_IPV6 {{ gw_comment }}push "redirect-gateway ipv6"

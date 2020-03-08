@@ -80,15 +80,21 @@
 
 
 - block:
-    - name: slurp common CA cert content
+    - name: slurp content of common CA cert
       slurp:
         src: "{{ srv_ovpn_dir }}/ca.crt"
       register: slurp_ca_cert
+      when: not ca_from_vars
 
     - name: decode content of common CA cert
       set_fact:
-        srv_ovpn_ca_cert: "{{ slurp_ca_cert.content |b64decode }}"
-  when: not ca_from_vars
+        ovpn_ca_cert: "{{ slurp_ca_cert.content |b64decode }}"
+      when: not ca_from_vars
+
+    - name: register content of common CA cert
+      set_fact:
+        ovpn_ca_cert: "{{ srv_ovpn_ca_cert }}"
+      when: ca_from_vars
   tags:
     - srv_ovpn_servers
     - srv_ovpn_clients

@@ -45,27 +45,10 @@ srv_ovpn_servers: ~
 #        cert: ~                        - predefined certificate text (default: generate)
 #        key: ~                         - predefined private key text (default: generate)
 
-srv_ovpn_curve: prime256v1
-srv_ovpn_cipher: AES-128-GCM
-srv_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
-srv_ovpn_hmac_alg: SHA256  # HMAC digest algorithm
-
-srv_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
-srv_ovpn_compress: ~  # one of: lz4-v2, lz4, lzo, none (default: no compression)
-
-srv_ovpn_keepalive_interval: 10
-srv_ovpn_keepalive_timeout: 120
-
 srv_ovpn_use_fast_io: true
 srv_ovpn_use_mlock: false
 srv_ovpn_use_crl: false
 srv_ovpn_redirect_gateway: false
-
-# DNS servers are pushed only if leak prevention is enabled
-srv_ovpn_prevent_dns_leak: false
-srv_ovpn_dns_servers:
-  - 1.1.1.1
-  - 8.8.8.8
 
 srv_ovpn_dir: /etc/openvpn
 srv_ovpn_run_dir: /run/openvpn
@@ -74,4 +57,25 @@ srv_ovpn_easyrsa_dir: "{{ srv_ovpn_dir }}/easy-rsa"
 srv_ovpn_upgrade_easyrsa: false
 srv_ovpn_backups: true
 srv_ovpn_openvz_quirks: false
+
+srv_ovpn_keepalive_interval: 10
+srv_ovpn_keepalive_timeout: 120
+
+## DNS servers are pushed only if leak prevention is enabled
+srv_ovpn_prevent_dns_leak: false
+srv_ovpn_dns_servers:
+  - 1.1.1.1
+  - 8.8.8.8
+
+## Settings below this line must be synchronized between openvpn roles
+
+srv_ovpn_curve: prime256v1
+srv_ovpn_cipher: AES-128-GCM
+srv_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
+srv_ovpn_hmac_alg: SHA256  # HMAC digest algorithm
+
+srv_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
+srv_ovpn_compress: ~  # one of: lz4-v2, lz4, lzo, none (default: no compression)
+
+srv_ovpn_default_client_device: tun
 ...

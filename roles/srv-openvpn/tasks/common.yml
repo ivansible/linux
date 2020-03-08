@@ -22,16 +22,21 @@
     owner: root
     mode: 0600
 
-- block:
-    - name: slurp common TLS-crypt key content
-      slurp:
-        src: "{{ srv_ovpn_dir }}/tls-crypt.key"
-      register: slurp_tlscrypt_key
-
-    - name: decode content of common TLS-crypt key
-      set_fact:
-        srv_ovpn_tlscrypt_key: "{{ slurp_tlscrypt_key.content |b64decode }}"
+- name: slurp common TLS-crypt key content
+  slurp:
+    src: "{{ srv_ovpn_dir }}/tls-crypt.key"
+  register: slurp_tlscrypt_key
   when: not tlscrypt_from_vars
+
+- name: decode content of common TLS-crypt key
+  set_fact:
+    ovpn_tlscrypt_key: "{{ slurp_tlscrypt_key.content |b64decode }}"
+  when: not tlscrypt_from_vars
+
+- name: register content of common TLS-crypt key
+  set_fact:
+    ovpn_tlscrypt_key: "{{ srv_ovpn_tlscrypt_key }}"
+  when: tlscrypt_from_vars
 
 
 - name: create directories for servers/clients and templates
@@ -54,6 +59,19 @@
     mode: 0640
     force: true
     backup: "{{ srv_ovpn_backups |bool }}"
+  vars:
+    ovpn_curve: "{{ srv_ovpn_curve }}"
+    ovpn_cipher: "{{ srv_ovpn_cipher }}"
+    ovpn_cc_cipher: "{{ srv_ovpn_cc_cipher }}"
+    ovpn_hmac_alg: "{{ srv_ovpn_hmac_alg }}"
+    ovpn_reneg_sec: "{{ srv_ovpn_reneg_sec }}"
+    ovpn_compress: "{{ srv_ovpn_compress }}"
+
+    ovpn_redirect_gateway: "{{ srv_ovpn_redirect_gateway }}"
+    ovpn_prevent_dns_leak: "{{ srv_ovpn_prevent_dns_leak }}"
+    ovpn_keepalive_interval: "{{ srv_ovpn_keepalive_interval }}"
+    ovpn_keepalive_timeout: "{{ srv_ovpn_keepalive_timeout }}"
+    client_device: "{{ srv_ovpn_default_client_device }}"
   loop:
     - server
     - client
