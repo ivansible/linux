@@ -25,4 +25,6 @@ ExecStart=/bin/echo '== about =='
 ExecStart={{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
 ExecStart=/bin/echo '== size =='
 ExecStart={{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
+ExecStart=/bin/echo '== cache cleanup =='
+ExecStart={{ lin_restic_binary }} cache --cleanup
 ExecStart=/bin/echo '== prune done =='
