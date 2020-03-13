@@ -39,13 +39,16 @@ linsys_packages_core:
   # getfacl, setfacl
   - acl
   # network
+  - ifupdown
   - iproute2
   - iputils-ping
   - traceroute
   - dnsutils
+  - bind9-host
   - curl
   - wget
   - netcat
+  - iperf
   - ufw
   - rsync
   # utilities
@@ -53,7 +56,9 @@ linsys_packages_core:
   - vim
   - gzip
   - unzip
+  - dwdiff
   - tmux
+  - ncdu
 
 linsys_packages_devel:
   # packaging
