@@ -160,6 +160,13 @@
   when: lin_use_ssh |bool
   tags: linsys_ssh
 
+
+- name: create unix group for proxy processes
+  group:
+    name: proxy
+    gid: 13
+  tags: linsys_firewall
+
 - name: assert that firewall selector is valid
   assert:
     that: lin_firewall in ['ufw', 'ferm', 'none']
