@@ -8,6 +8,7 @@ linsys_timezone: ''
 linsys_sysctl: {}
 
 linsys_time_sync: true
+linsys_resync: false  # enable step-syncing system time
 linsys_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 
 linsys_swap_enable: false

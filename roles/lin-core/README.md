@@ -21,7 +21,11 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+Main variables are listed below:
+
+    linsys_resync: false
+Allows step-syncing hosts time.
+This step may take long, disabled by default.
 
     linsys_apt_fast_mirrors: false
 
@@ -81,6 +85,7 @@ Enables rsyslog.
 - `linsys_packages` -- install common software
 - `linsys_telemetry` -- disable telemetry on bionic
 - `linsys_timesync` -- synchronize system time
+- `linsys_resync` -- step-syncing system time
 - `linsys_sysctl` -- adjust kernel parameters
 - `linsys_swap` -- setup swap space
 - `linsys_ssh` -- configure ssh port

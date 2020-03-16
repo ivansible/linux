@@ -25,4 +25,6 @@
   command: ntpdate -t 10 -u "{{ linsys_time_server }}"
   changed_when: not linsys_hide_changes |bool
   ignore_errors: true
+  when: linsys_resync |bool
+  tags: linsys_resync
 ...
