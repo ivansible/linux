@@ -160,7 +160,7 @@
     port: "{{ server_port |int }}"
     proto: "{{ server_proto }}"
     domain: "{{ internal |ternary('internal','external') }}"
-    exclusive: true
+    solo: true
     comment: openvpn
   tags:
     - skip_ansible_lint
