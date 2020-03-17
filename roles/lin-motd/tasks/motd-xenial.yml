@@ -14,4 +14,12 @@
   # ignore missing banners and supress error messages
   ignore_errors: true
   no_log: "{{ hide_secrets |bool }}"
+
+- name: disable cron job motd-news
+  systemd:
+    name: motd-news.timer
+    state: stopped
+    enabled: false
+  ignore_errors: true
+  no_log: true
 ...
