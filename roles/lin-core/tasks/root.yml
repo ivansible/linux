@@ -152,6 +152,8 @@
                      | default(ansible_ssh_port)
                      | default(22) }}"
   tags:
+    - lin_ferm_rules
+    - lin_ferm_all
     - lin_core_ssh
     - lin_core_firewall
 
@@ -189,6 +191,12 @@
       tags: lin_core_firewall
   when: lin_firewall == 'ferm'
   tags:
+    - lin_ferm_config
+    - lin_ferm_install
+    - lin_ferm_rules
+    - lin_ferm_hosts
+    - lin_ferm_service
+    - lin_ferm_all
     - lin_core_firewall
 
 
