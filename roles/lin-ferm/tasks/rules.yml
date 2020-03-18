@@ -29,7 +29,9 @@
     comment: ferm core
     domain: internal
     ferm_dir: "{{ ferm_dir }}"
-  tags: skip_ansible_lint
+  tags:
+    - skip_ansible_lint
+    - lin_ferm_hosts
 
 - name: block hosts in ferm
   ferm_host:
@@ -37,5 +39,7 @@
     comment: ferm core
     domain: blocked
     ferm_dir: "{{ ferm_dir }}"
-  tags: skip_ansible_lint
+  tags:
+    - skip_ansible_lint
+    - lin_ferm_hosts
 ...

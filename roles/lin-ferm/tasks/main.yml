@@ -4,7 +4,9 @@
   args:
     apply:
       become: true
-      tags: lin_ferm_install
+      tags:
+        - lin_ferm_install
+        - lin_ferm_all
   when: ferm_install |bool
   tags:
     - lin_ferm_install
@@ -15,7 +17,9 @@
   args:
     apply:
       become: true
-      tags: lin_ferm_config
+      tags:
+        - lin_ferm_config
+        - lin_ferm_all
   when: ferm_install |bool
   tags:
     - lin_ferm_config
@@ -26,7 +30,9 @@
   args:
     apply:
       become: true
-      tags: lin_ferm_service
+      tags:
+        - lin_ferm_service
+        - lin_ferm_all
   when: ferm_install |bool
   tags:
     - lin_ferm_service
@@ -42,9 +48,12 @@
   args:
     apply:
       become: true
-      tags: lin_ferm_rules
+      tags:
+        - lin_ferm_rules
+        - lin_ferm_all
   when: ferm_install |bool
   tags:
     - lin_ferm_rules
+    - lin_ferm_hosts
     - lin_ferm_all
 ...
