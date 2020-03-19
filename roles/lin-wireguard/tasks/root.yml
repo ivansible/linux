@@ -16,6 +16,22 @@
     name: wireguard
   tags: lin_wg_install
 
+- name: install wireguard config helper
+  copy:
+    src: wg-setmetric.sh
+    dest: /usr/local/sbin/wg-setmetric
+    owner: root
+    group: root
+    mode: 0755
+  tags: lin_wg_install
+
+- name: create wireguard config directory
+  file:
+    path: /etc/wireguard
+    state: directory
+    mode: 0755
+  tags: lin_wg_install
+
 - name: install wireguard-go on old kernels
   block:
     - name: check that wireguard-go binary exists
@@ -36,47 +52,53 @@
   when: ansible_kernel is version('3.1', '<')
   tags: lin_wg_go
 
-- name: install wireguard config helper
-  copy:
-    src: wg-setmetric.sh
-    dest: /usr/local/sbin/wg-setmetric
-    owner: root
-    group: root
-    mode: 0755
-  tags: lin_wg_conf
-
-- name: create wireguard config directory
-  file:
-    path: /etc/wireguard
-    state: directory
-    mode: 0755
-  tags: lin_wg_conf
-
 - name: configure wireguard
   template:
     src: wireguard.conf
-    dest: /etc/wireguard/{{ lin_wg_iface }}.conf
+    dest: /etc/wireguard/{{ iface }}.conf
     mode: 0600
+  vars:
+    iface: "wg{{ idx }}"
+    mtu: "{{ net.mtu |default(0) |int }}"
+    addr: "{{ net.addr }}"
+    port: "{{ net.port |default(0) |int }}"
+    key: "{{ net.key }}"
+    metric: "{{ net.metric |default(none) }}"
+    peers: "{{ net.peers |default([],true) |flatten }}"
+    keepalive: "{{ net.keepalive |default(0) |int }}"
+  loop: "{{ lin_wg_nets }}"
+  loop_control:
+    loop_var: net
+    index_var: idx
+    label: "{{ net.name |default(iface) }}"
   register: wg_conf_result
   notify: restart wireguard service
-  tags: lin_wg_conf
+  tags: lin_wg_config
 
 - name: open wireguard port in ufw
   ufw:
-    port: "{{ lin_wg_port |string }}"
+    port: "{{ item.port |default(0) |string }}"
     proto: udp
   no_log: "{{ hide_secrets |bool }}"
-  when: lin_wg_port
-        and lin_firewall == 'ufw'
+  loop: "{{ lin_wg_nets }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name |default('wg%d' % idx) }}"
+  when: lin_firewall == 'ufw'
+        and item.port |default(0) |int
   tags: lin_wg_firewall
 
 - name: open wireguard port in ferm
   ferm_port:
-    port: "{{ lin_wg_port }}"
+    port: "{{ item.port |default(0) }}"
     proto: udp
     comment: wireguard
-  when: lin_wg_port
-        and lin_firewall == 'ferm'
+  loop: "{{ lin_wg_nets }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name |default('wg%d' % idx) }}"
+  when: lin_firewall == 'ferm'
+        and item.port |default(0) |int
   tags:
     - skip_ansible_lint
     - lin_wg_firewall
@@ -95,10 +117,14 @@
 
 - name: enable wireguard service
   systemd:
-    name: wg-quick@{{ lin_wg_iface }}
+    name: "wg-quick@wg{{ idx }}"
     state: started
     enabled: true
-    daemon_reload: "{{ wg_conf_result is changed }}"
+    daemon_reload: "{{ wg_conf_result |default({}) is changed }}"
+  loop: "{{ lin_wg_nets }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name |default('wg%d' % idx) }}"
   register: enable_service_result
   until: enable_service_result is successful
   retries: 2  # workaround for pluto
