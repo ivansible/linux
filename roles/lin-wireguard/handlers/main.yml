@@ -15,13 +15,12 @@
 
 - name: restart wireguard service
   systemd:
-    name: "wg-quick@wg{{ idx }}"
+    name: "wg-quick@wg{{ item }}"
     state: restarted
     enabled: true
     daemon_reload: true
   become: true
-  loop: "{{ lin_wg_nets }}"
+  loop: "{{ range(lin_wg_nets |count) |list }}"
   loop_control:
-    index_var: idx
-    label: "{{ item.name |default('wg%d' % idx) }}"
+    label: "wg{{ item }}"
 ...

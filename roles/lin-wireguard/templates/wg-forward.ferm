@@ -1,6 +1,6 @@
 domain ($ip_all) table filter {
-{% for net in lin_wg_nets %}
-{%   set iface = 'wg%d' % loop.index0 %}
+{% for idx in range(lin_wg_nets |count) %}
+{%   set iface = 'wg%d' % idx %}
     chain FORWARD interface {{ iface }} outerface {{ iface }} ACCEPT;
 {% endfor %}
 }
