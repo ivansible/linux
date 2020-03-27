@@ -1,0 +1,6 @@
+---
+- name: become root and install role
+  import_tasks: root.yml
+  become: true
+  tags: role_all
+...
