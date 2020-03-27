@@ -9,7 +9,7 @@ os: linux
 
 env:
   global:
-    - ROLE_NAME=ivansible.lin_system
+    - ROLE_NAME=ivansible.lin_core
     # ssh is installed by later role, skip the test
     - IVATEST_SSH_SERVER=false
     - IVATEST_SSH_PORT=0

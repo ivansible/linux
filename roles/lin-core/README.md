@@ -1,8 +1,8 @@
-# ivansible.lin_system
+# ivansible.lin_core
 
-[![Github Test Status](https://github.com/ivansible/lin-system/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-system/actions)
-[![Travis Test Status](https://travis-ci.org/ivansible/lin-system.svg?branch=master)](https://travis-ci.org/ivansible/lin-system)
-[![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__system-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_system/)
+[![Github Test Status](https://github.com/ivansible/lin-core/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-core/actions)
+[![Travis Test Status](https://travis-ci.org/ivansible/lin-core.svg?branch=master)](https://travis-ci.org/ivansible/lin-core)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__core-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_core/)
 
 Perform basic configuration of a linux box:
  - switch to fast apt mirrors;
@@ -23,37 +23,37 @@ None
 
 Main variables are listed below:
 
-    linsys_resync: false
+    lin_core_resync: false
 Allows step-syncing hosts time.
 This step may take long, disabled by default.
 
-    linsys_apt_fast_mirrors: false
+    lin_core_apt_fast_mirrors: false
 
 If this setting is `true` (usually in the `vagrant` host group),
 the role will replace package sources in `/etc/apt/sources.list`
 with links to presumably faster `mirror.yandex.ru`.
 
-    linsys_system_locale: ''
+    lin_core_system_locale: ''
 
 Preferred system locale, e.g. `en_US.UTF-8`
 
-    linsys_timezone: ''
+    lin_core_timezone: ''
 
 Preferred time zone, e.g. `Europe/Moscow`.
 
-    linsys_sysctl:
+    lin_core_sysctl:
       name: value
       ...
 
 Desired sysctl settings, will be recorded in `/etc/sysctl.d/77-system.conf`
 
-    linsys_swap_enable: false
+    lin_core_swap_enable: false
 Enables or disables confiration of swap file.
 
-    linsys_swap_mb: 0
+    lin_core_swap_mb: 0
 Swap file size in megabytes
 
-    linsys_swap_file: /swap
+    lin_core_swap_file: /swap
 Path to the swap file.
 
 
@@ -75,24 +75,24 @@ Linux firewall to use, one of: `ufw`, `ferm`, `none` (firewall can fail in docke
     lin_use_ssh: true
 Enables SSH daemon (can fail on github runners).
 
-    lin_use_syslog: true
+    lin_use_rsyslog: true
 Enables rsyslog.
 
 
 ## Tags
 
-- `linsys_mirrors` -- switch to fast apt mirrors
-- `linsys_packages` -- install common software
-- `linsys_telemetry` -- disable telemetry on bionic
-- `linsys_timesync` -- synchronize system time
-- `linsys_resync` -- step-syncing system time
-- `linsys_sysctl` -- adjust kernel parameters
-- `linsys_swap` -- setup swap space
-- `linsys_ssh` -- configure ssh port
-- `linsys_firewall` -- adjust ubuntu firewall
-- `linsys_settings` -- adjust system settings - locale, timezone etc
-- `linsys_utils` -- install helper scripts
-- `linsys_all` -- all of above
+- `lin_core_mirrors` -- switch to fast apt mirrors
+- `lin_core_packages` -- install common software
+- `lin_core_telemetry` -- disable telemetry on bionic
+- `lin_core_timesync` -- synchronize system time
+- `lin_core_resync` -- step-syncing system time
+- `lin_core_sysctl` -- adjust kernel parameters
+- `lin_core_swap` -- setup swap space
+- `lin_core_ssh` -- configure ssh port
+- `lin_core_firewall` -- adjust ubuntu firewall
+- `lin_core_settings` -- adjust system settings - locale, timezone etc
+- `lin_core_utils` -- install helper scripts
+- `lin_core_all` -- all of above
 
 
 ## Dependencies
@@ -106,8 +106,8 @@ Enables rsyslog.
     - hosts: docker-box
       strategy: free
       roles:
-         - role: ivansible.lin_system
-           linsys_apt_fast_mirrors: true
+         - role: ivansible.lin_core
+           lin_core_apt_fast_mirrors: true
            lin_firewall: none  # firewall fails in docker
 
 

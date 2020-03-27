@@ -2,7 +2,5 @@
 - name: use import to become root globally
   import_tasks: root.yml
   become: true
-  tags:
-    - linsys_all
-    - lin_system_all  # convenience alias
+  tags: lin_core_all
 ...

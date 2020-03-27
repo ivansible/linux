@@ -26,7 +26,7 @@
       tags: skip_ansible_lint
   when: lin_use_ssh |bool
         and real_ssh_port |int != 22
-  tags: linsys_ssh
+  tags: lin_core_ssh
 
 - name: test connection
   ping:

@@ -1,26 +1,26 @@
 ---
 - name: create swap file
   command: >
-    dd if=/dev/zero "of={{ linsys_swap_file }}"
-       bs=1M "count={{ linsys_swap_mb }}"
+    dd if=/dev/zero "of={{ lin_core_swap_file }}"
+       bs=1M "count={{ lin_core_swap_mb }}"
   args:
-    creates: "{{ linsys_swap_file }}"
+    creates: "{{ lin_core_swap_file }}"
   register: swap_status_result
 
 - name: set swap file permissions
   file:
-    path: "{{ linsys_swap_file }}"
+    path: "{{ lin_core_swap_file }}"
     mode: 0600
 
 - name: format swap file
-  command: mkswap "{{ linsys_swap_file }}"
+  command: mkswap "{{ lin_core_swap_file }}"
   when: swap_status_result is changed
 
 - name: add swap to fstab
   lineinfile:
     path: /etc/fstab
-    line: "{{ linsys_swap_file }} none swap sw 0 0"
-    regexp: "{{ linsys_swap_file }}"
+    line: "{{ lin_core_swap_file }} none swap sw 0 0"
+    regexp: "{{ lin_core_swap_file }}"
 
 - name: activate swap
   command: swapon -a

@@ -17,7 +17,7 @@
       no_log: "{{ hide_secrets |bool }}"
   when: lin_use_ssh |bool
         and real_ssh_port |int != 22
-  tags: linsys_ssh
+  tags: lin_core_ssh
 
 - name: open actual ssh port in ufw
   ufw:
@@ -26,7 +26,7 @@
     proto: tcp
   no_log: "{{ hide_secrets |bool }}"
   when: lin_use_ssh |bool
-  tags: linsys_ssh
+  tags: lin_core_ssh
 
 
 - name: open ntp port in ufw

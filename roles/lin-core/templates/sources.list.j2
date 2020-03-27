@@ -1,7 +1,7 @@
 {% set mirror = "http://mirror.yandex.ru/ubuntu/" %}
 {% set codename = ansible_lsb.codename %}
-{% set src_ok = linsys_apt_allow_src | bool %}
-{% if linsys_apt_allow_universe | bool %}
+{% set src_ok = lin_core_apt_allow_src |bool %}
+{% if lin_core_apt_allow_universe |bool %}
 {% set channels = "main restricted universe multiverse" %}
 {% else %}
 {% set channels = "main restricted" %}
@@ -15,7 +15,7 @@ deb-src {{mirror}} {{codename}}{{branch}} {{channels}}
 {% endif %}
 
 {% endfor %}
-{% if linsys_apt_allow_backports | bool %}
+{% if lin_core_apt_allow_backports |bool %}
 deb {{mirror}} {{codename}}-backports {{channels}}
 {% if src_ok %}
 deb-src {{mirror}} {{codename}}-backports {{channels}}

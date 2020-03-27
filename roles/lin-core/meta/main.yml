@@ -3,7 +3,7 @@ dependencies:
   - ivansible.lin_base  # for common settings and modules
 
 galaxy_info:
-  role_name: lin_system
+  role_name: lin_core
   author: "Ivan Andreev"
   description: "Perform basic configuration of a linux box"
   company: "IvanSible"
