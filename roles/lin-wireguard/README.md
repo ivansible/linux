@@ -81,7 +81,7 @@ and has the following fields:
 
     - hosts: vagrant-boxes
       roles:
-         - role: lin_wireguard
+         - role: ivansible.lin_wireguard
            lin_wg_port: 9876
 
 
