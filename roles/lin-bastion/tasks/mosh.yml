@@ -1,0 +1,30 @@
+---
+- name: install mosh
+  apt:
+    name: mosh
+
+- name: open mosh ports in ferm
+  ferm_port:
+    port: "{{  lin_mosh_ports }}"
+    proto: udp
+    comment: mosh
+  when: lin_firewall == 'ferm'
+  tags:
+    - skip_ansible_lint
+    - lin_bastion_firewall
+
+- name: open mosh ports in ufw
+  ufw:
+    port: "{{ lin_mosh_ports }}"
+    proto: udp
+    rule: allow
+  when: lin_firewall == 'ufw'
+  tags: lin_bastion_firewall
+
+- name: install mosh helper for mobaxterm
+  copy:
+    src: mosh-server-moba.sh
+    dest: /usr/local/bin/mosh-server-moba
+    mode: 0755
+  tags: lin_bastion_mobaxterm
+...

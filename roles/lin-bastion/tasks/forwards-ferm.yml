@@ -1,0 +1,16 @@
+---
+- name: configure ferm port forwards
+  ferm_rule:
+    name: forwards
+    prio: 77
+    rule: "{{ lookup('template', 'forwards.ferm') }}"
+  tags: skip_ansible_lint
+
+- name: disable ufw port forwarding (please ignore possible failure)
+  systemd:
+    name: ufw-forwards
+    state: stopped
+    enabled: false
+  ignore_errors: true
+  no_log: "{{ hide_secrets |bool }}"
+...

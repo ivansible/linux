@@ -1,3 +1,22 @@
 ---
 # defaults for ivansible.lin_bastion
+
+lin_mosh_ports: '60000:60100'
+
+## target host (undefined by default)
+# lin_bastion_target: target_box
+
+lin_bastion_saddr4: "{{ ansible_default_ipv4.address |default('') }}"
+lin_bastion_saddr6: "{{ ansible_default_ipv6.address |default('') }}"
+lin_bastion_daddr4: '169.254.0.1'
+lin_bastion_daddr6: 'fe80::1'
+
+lin_bastion_forwards: []
+# every forwarding record has the following fields:
+# - name:  forward1       # optional, defaults to source_port
+#   ipv6:  true/false     # optional, defaults to false
+#   sport: source_port    # required
+#   dport: dest_port      # optional, defaults to source_port
+#   saddr: source_address # optional, defaults to lin_bastion_saddr{4,6}
+#   daddr: dest_address   # optional, defaults to lin_bastion_daddr{4,6}
 ...

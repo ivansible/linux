@@ -1,0 +1,20 @@
+# ufw-forwards.service
+# ansible-managed
+
+[Unit]
+Description=ufw-forwards
+After=ufw.service
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/usr/local/sbin/ufw-forwards.sh
+
+[Service]
+Type=simple
+RemainAfterExit=yes
+EnvironmentFile=-/etc/default/ufw-forwards
+ExecStart=/usr/local/sbin/ufw-forwards.sh start
+ExecStop=/usr/local/sbin/ufw-forwards.sh stop
+ExecReload=/usr/local/sbin/ufw-forwards.sh reload
+
+[Install]
+WantedBy=multi-user.target

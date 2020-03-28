@@ -37,7 +37,7 @@ None
 
     - hosts: vagrant-boxes
       roles:
-         - role: lin_bastion
+         - role: ivansible.lin_bastion
            variable1: 1
            variable2: 2
 
@@ -49,4 +49,4 @@ MIT
 
 ## Author Information
 
-Created in 2020 by [IvanSible](https://github.com/ivansible)
+Created in 2019-2020 by [IvanSible](https://github.com/ivansible)

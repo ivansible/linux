@@ -1,0 +1,43 @@
+---
+- name: create settings for ufw forwards
+  copy:
+    dest: /etc/default/ufw-forwards
+    content: |
+      # settings for ufw-forwards
+      # ansible-managed
+      OPENVZ={{ ferm_openvz |default(false) |bool |to_json }}
+    mode: 0644
+    force: true
+  notify: restart ufw forwards
+
+- name: create list of forwards for ufw forwards
+  template:
+    src: ufw-forwards.cfg
+    dest: /etc/network/ufw-forwards
+    mode: 0640
+  notify: restart ufw forwards
+
+- name: upload script for ufw forwards
+  copy:
+    src: ufw-forwards.sh
+    dest: /usr/local/sbin/ufw-forwards.sh
+    mode: 0750
+    force: true
+  notify: restart ufw forwards
+
+- name: configure service for ufw forwards
+  copy:
+    src: ufw-forwards.service
+    dest: /etc/systemd/system/ufw-forwards.service
+    mode: 0644
+    force: true
+  register: ufw_forwards_service_file
+  notify: restart ufw forwards
+
+- name: enable service for ufw forwards
+  systemd:
+    name: ufw-forwards
+    state: started
+    enabled: true
+    daemon_reload: "{{ ufw_forwards_service_file is changed }}"
+...

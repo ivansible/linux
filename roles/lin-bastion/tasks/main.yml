@@ -1,6 +1,52 @@
 ---
-- name: become root and install role
-  import_tasks: root.yml
+- name: refresh target facts before doing forwards
+  setup:
+  delegate_to: "{{ lin_bastion_target }}"
+  delegate_facts: true
+  run_once: true
+  when: lin_bastion_target is defined
+  tags:
+    - lin_bastion_forwards
+    - lin_bastion_target_facts
+    - lin_bastion_all
+
+- name: setup ferm port forwards
+  import_tasks: forwards-ferm.yml
   become: true
-  tags: role_all
+  when: lin_firewall == 'ferm'
+  tags:
+    - lin_bastion_forwards
+    - lin_bastion_all
+
+- name: setup ufw port forwards
+  include_tasks: forwards-ufw.yml
+  args:
+    apply:
+      become: true
+      tags: lin_bastion_forwards
+  when: lin_firewall == 'ufw'
+  tags:
+    - lin_bastion_forwards
+    - lin_bastion_all
+
+- name: install mosh
+  import_tasks: mosh.yml
+  become: true
+  tags:
+    - lin_bastion_mosh
+    - lin_bastion_all
+
+- name: customize tmux (duplicate of role dev-user)
+  lineinfile:
+    path: ~/.tmux.conf
+    line: "{{ item }}"
+    create: true
+  loop:
+    - 'set-option -g history-limit 22000'
+    - 'bind -n C-k clear-history'  # clear scroll buffer on Ctrl-K
+    - 'bind -n C-u copy-mode -u'   # show scroll buffer on Ctrl-U
+    - 'new-session'                # auto-create new sessions
+  tags:
+    - lin_bastion_tmux
+    - lin_bastion_all
 ...
