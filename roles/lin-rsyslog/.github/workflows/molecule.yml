@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  ROLE_NAME: ivansible.lin_syslog
+  ROLE_NAME: ivansible.lin_rsyslog
   ANSIBLE_FORCE_COLOR: true
 
 jobs:

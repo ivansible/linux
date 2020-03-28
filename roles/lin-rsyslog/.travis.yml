@@ -9,7 +9,7 @@ os: linux
 
 env:
   global:
-    - ROLE_NAME=ivansible.lin_syslog
+    - ROLE_NAME=ivansible.lin_rsyslog
     - IVATEST_SSH_SERVER=true
 
 before_install:

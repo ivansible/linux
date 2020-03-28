@@ -5,7 +5,7 @@
       - rsyslog
       - logrotate
     state: present
-  tags: lin_syslog_packages
+  tags: lin_rsyslog_packages
 
 - name: disable kernel logging in docker
   lineinfile:
@@ -18,7 +18,7 @@
     - '^(module\(load=\"imklog\".*)$'
   notify: restart syslog service
   when: ansible_virtualization_type == 'docker'
-  tags: lin_syslog_docker
+  tags: lin_rsyslog_docker
 
 
 - name: adjust mail logging
@@ -31,9 +31,9 @@
       {# noqa 203 (force tabs) #}mail.err	/var/log/mail.err
       {# noqa 203 (force tabs #}mail.*		-/var/log/mail.log
       & stop
-    force: "{{ lin_syslog_force_rules |bool }}"
+    force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
-  tags: lin_syslog_mail
+  tags: lin_rsyslog_mail
 
 
 - name: log ufw messages to separate log
@@ -47,10 +47,10 @@
       # Doing this will stop logging kernel generated UFW log messages to the file
       # normally containing kern.* messages (eg, /var/log/kern.log)
       & stop
-    force: "{{ lin_syslog_force_rules |bool }}"
+    force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
-  when: lin_syslog_separate_ufw |bool
-  tags: lin_syslog_ufw
+  when: lin_rsyslog_separate_ufw |bool
+  tags: lin_rsyslog_ufw
 
 - name: keep ufw messages only in dedicated file, remove from kernel log
   lineinfile:
@@ -59,8 +59,8 @@
     line: '& stop'
     insertbefore: EOF
   notify: restart syslog service
-  when: lin_syslog_separate_ufw |bool
-  tags: lin_syslog_ufw
+  when: lin_rsyslog_separate_ufw |bool
+  tags: lin_rsyslog_ufw
 
 - name: limit size of rotated ufw log
   # besides size, use standard logrotate rules for ufw
@@ -70,8 +70,8 @@
     line: "\tmaxsize 1M"
     insertbefore: '^\s+weekly|^}'
     firstmatch: true
-  when: lin_syslog_separate_ufw |bool
-  tags: lin_syslog_ufw
+  when: lin_rsyslog_separate_ufw |bool
+  tags: lin_rsyslog_ufw
 
 
 - name: log drupal to dedicated log
@@ -80,10 +80,10 @@
     content: |
       :programname,isequal,"drupal" /var/log/drupal.log
       & stop
-    force: "{{ lin_syslog_force_rules |bool }}"
+    force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
-  when: lin_syslog_separate_drupal |bool
-  tags: lin_syslog_drupal
+  when: lin_rsyslog_separate_drupal |bool
+  tags: lin_rsyslog_drupal
 
 - name: rotate drupal log
   copy:
@@ -102,9 +102,9 @@
               invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
           endscript
       }
-    force: "{{ lin_syslog_force_rules |bool }}"
-  when: lin_syslog_separate_drupal |bool
-  tags: lin_syslog_drupal
+    force: "{{ lin_rsyslog_force_rules |bool }}"
+  when: lin_rsyslog_separate_drupal |bool
+  tags: lin_rsyslog_drupal
 
 
 - name: log keenetic to dedicated log
@@ -113,12 +113,12 @@
     content: |
       module(load="imudp")
       input(type="imudp" port="514")
-      {# noqa 203 (force tabs) #}:FROMHOST,isequal,"{{ lin_syslog_keenetic_ip }}"	/var/log/keenetic.log
+      {# noqa 203 (force tabs) #}:FROMHOST,isequal,"{{ lin_rsyslog_keenetic_ip }}"	/var/log/keenetic.log
       & stop
-    force: "{{ lin_syslog_force_rules |bool }}"
+    force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
-  when: lin_syslog_keenetic_ip != '' # noqa 602
-  tags: lin_syslog_keenetic
+  when: lin_rsyslog_keenetic_ip != '' # noqa 602
+  tags: lin_rsyslog_keenetic
 
 - name: rotate keenetic log
   copy:
@@ -137,9 +137,9 @@
               invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
           endscript
       }
-    force: "{{ lin_syslog_force_rules |bool }}"
-  when: lin_syslog_keenetic_ip != '' # noqa 602
-  tags: lin_syslog_keenetic
+    force: "{{ lin_rsyslog_force_rules |bool }}"
+  when: lin_rsyslog_keenetic_ip != '' # noqa 602
+  tags: lin_rsyslog_keenetic
 
 
 - name: log cron to dedicated log
@@ -149,18 +149,18 @@
     content: |
       :programname,isequal,"CRON" /var/log/cron.log
       & stop
-    force: "{{ lin_syslog_force_rules |bool }}"
+    force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
-  when: lin_syslog_separate_cron |bool
-  tags: lin_syslog_cron
+  when: lin_rsyslog_separate_cron |bool
+  tags: lin_rsyslog_cron
 
 
 - name: systemd directory for php cleaner overrides
   file:
     path: /etc/systemd/system/phpsessionclean.timer.d
     state: directory
-  when: lin_syslog_thin_php_cleaner |bool
-  tags: lin_syslog_php
+  when: lin_rsyslog_thin_php_cleaner |bool
+  tags: lin_rsyslog_php
 
 - name: thin out the runs of php session cleaner
   copy:
@@ -170,8 +170,8 @@
       [Timer]
       OnCalendar=
       OnCalendar=*-*-* 01,13:00:00
-    force: "{{ lin_syslog_force_rules |bool }}"
+    force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: reload systemd daemon
-  when: lin_syslog_thin_php_cleaner |bool
-  tags: lin_syslog_php
+  when: lin_rsyslog_thin_php_cleaner |bool
+  tags: lin_rsyslog_php
 ...

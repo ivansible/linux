@@ -1,11 +1,11 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for lin_use_syslog
+  - ivansible.lin_base  # for lin_use_rsyslog
 
 galaxy_info:
-  role_name: lin_syslog
+  role_name: lin_rsyslog
   author: "Ivan Andreev"
-  description: "configure linux syslog"
+  description: "configure (r)syslog on linux"
   company: "IvanSible"
   license: MIT
   min_ansible_version: 2.5

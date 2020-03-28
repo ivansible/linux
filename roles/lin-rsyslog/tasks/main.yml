@@ -2,8 +2,8 @@
 - name: become root and apply syslog settings
   import_tasks: root.yml
   become: true
-  when: lin_use_syslog |bool
-  tags: lin_syslog_all
+  when: lin_use_rsyslog |bool
+  tags: lin_rsyslog_all
 
 - name: flush handlers
   meta: flush_handlers
