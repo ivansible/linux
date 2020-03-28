@@ -1,5 +1,131 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: detect latest yggdrasil release
+  github_release:
+    repository: yggdrasil-network/yggdrasil-go
+    release: "{{ lin_ygg_release }}"
+    creates: /usr/bin/yggdrasil
+    reinstall: "{{ lin_ygg_upgrade |bool }}"
+    template: '{download_url}/yggdrasil-{ver}-amd64.deb'
+    strip_v: true
+  register: ygg_release_result
+  tags:
+    - skip_ansible_lint
+    - lin_ygg_install
+
+- name: install yggdrasil package
+  apt:
+    deb: "{{ ygg_release_result.url }}"
+    only_upgrade: "{{ not lin_ygg_upgrade |bool }}"
+  register: ygg_dpkg_result
+  failed_when:
+    ygg_dpkg_result.failed and
+    ygg_dpkg_result.msg is not search('later version is already installed')
+  when: ygg_release_result is changed
+  notify: restart yggdrasil service
+  tags: lin_ygg_install
+
+- name: directory for yggdrasil configs
+  file:
+    path: /etc/yggdrasil
+    state: directory
+  tags: lin_ygg_install
+
+
+- name: update yggdrasil configuration
+  template:
+    src: yggdrasil.conf
+    dest: /etc/yggdrasil/yggdrasil.conf
+    owner: root
+    group: proxy
+    mode: 0640
+    backup: "{{ lin_ygg_backups |bool }}"
+  vars:
+    local_name: "{{ inventory_hostname }}"
+    local_alias: "{{ lin_ygg_alias |default(local_name, true) }}"
+    local_ipv6: "{{ lin_ygg_ipv6 |default('') }}"
+    local_pub: "{{ lin_ygg_pub }}"
+    local_key: "{{ lin_ygg_key }}"
+    local_sig_pub: "{{ lin_ygg_sig_pub |default('',true) }}"
+    local_sig_key: "{{ lin_ygg_sig_key |default('',true) }}"
+    sig_enable: "{{ lin_ygg_sig_enable |default(true) |bool }}"
+    group_name: "{{ lin_ygg_peer_group }}"
+    peer_group: "{{ groups[group_name] |sort if group_name else none }}"
+    peer_catalog: "{{ lin_ygg_peer_catalog |default(false) |bool }}"
+    allowed_pubs: "{{ lin_ygg_allowed_pubs |default([],true) }}"
+    local_admin_port: "{{ lin_ygg_admin_port |default(9001) |int }}"
+    local_tcp_port: "{{ lin_ygg_tcp_port |default(0,true) |int }}"
+    local_tls_port: "{{ lin_ygg_tls_port |default(0,true) |int }}"
+    local_peers: "{{ lin_ygg_peers |default([],true) }}"
+    local_socks: "{{ lin_ygg_socks |default('',true) }}"
+    local_routing: "{{ lin_ygg_routing |default(false) |bool }}"
+    local_subnets: "{{ lin_ygg_subnets |default([],true) }}"
+    local_ifname: "{{ lin_ygg_ifname |string }}"
+    local_mtu: "{{ lin_ygg_mtu |int }}"
+  notify: restart yggdrasil service
+  tags: lin_ygg_config
+
+- name: make symbolic link to config for yggdrasilctl
+  file:
+    state: link
+    src: yggdrasil/yggdrasil.conf
+    dest: /etc/yggdrasil.conf
+    force: true
+  tags: lin_ygg_config
+
+
+- name: open yggdrasil tls port for all in ufw
+  ufw:
+    rule: allow
+    port: "{{ lin_ygg_tls_port |string }}"
+    proto: tcp
+  no_log: "{{ hide_secrets |bool }}"
+  when: lin_firewall == 'ufw' and lin_ygg_tls_port |int
+  tags: lin_ygg_firewall
+
+- name: open yggdrasil tls port for all in ferm
+  ferm_port:
+    port: "{{ lin_ygg_tls_port }}"
+    proto: tcp
+    domain: external
+    solo: true
+    comment: yggdrasil tls
+  when: lin_firewall == 'ferm' and lin_ygg_tls_port |int
+  tags:
+    - skip_ansible_lint
+    - lin_ygg_firewall
+
+- name: open yggdrasil tcp port for internal hosts in ferm
+  ferm_port:
+    port: "{{ lin_ygg_tcp_port }}"
+    proto: tcp
+    domain: internal
+    solo: true
+    comment: yggdrasil tcp
+  when: lin_firewall == 'ferm' and lin_ygg_tcp_port |int
+  tags:
+    - skip_ansible_lint
+    - lin_ygg_firewall
+
+
+- name: create group for proxy processes
+  group:
+    name: proxy
+    gid: 13
+  tags: lin_ygg_service
+
+- name: setup yggdrasil systemd service
+  template:
+    src: yggdrasil.service
+    dest: /etc/systemd/system/yggdrasil.service
+  register: ygg_service_result
+  notify: restart yggdrasil service
+  tags: lin_ygg_service
+
+- name: enable yggdrasil service
+  systemd:
+    name: yggdrasil
+    state: started
+    enabled: true
+    daemon_reload: "{{ ygg_dpkg_result is changed or ygg_service_result is changed }}"
+  tags: lin_ygg_service
 ...

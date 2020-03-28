@@ -1,3 +1,11 @@
 ---
 # handlers for ivansible.lin_yggdrasil
+
+- name: restart yggdrasil service
+  systemd:
+    name: yggdrasil
+    state: restarted
+    enabled: true
+    daemon_reload: true
+  become: true
 ...

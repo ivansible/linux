@@ -1,6 +1,56 @@
 ---
-- name: become root and install role
+- name: setup yggdrasil on linux as root
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: lin_ygg_enable |bool
+  tags:
+    - lin_ygg_all
+    - lin_yggdrasil_all
+
+- name: restart yggdrasil service if needed
+  meta: flush_handlers
+  tags:
+    - lin_ygg_all
+    - lin_yggdrasil_all
+
+- name: update yggdrasil ipv6 in cloudflare
+  cloudflare_dns:
+    account_email: "{{ lin_ygg_cloudflare_email }}"
+    account_api_token: "{{ lin_ygg_cloudflare_token }}"
+    zone: "{{ lin_ygg_cloudflare_zone }}"
+    record: "{{ alias }}{{ '.' if sub else '' }}{{ sub }}"
+    type: AAAA
+    value: "{{ lin_ygg_ipv6 }}"
+    proxied: false
+    state: present
+    solo: true
+  become: false
+  delegate_to: localhost
+  register: cloudflare_result
+  until: cloudflare_result is successful
+  vars:
+    alias: "{{ lin_ygg_alias |default(inventory_hostname, true) }}"
+    sub: "{{ lin_ygg_cloudflare_subdomain |default('',true) |string }}"
+  when: lin_ygg_ipv6 |default('') and lin_ygg_cloudflare_enable |bool
+  tags:
+    - lin_ygg_cloudflare
+    - lin_ygg_all
+    - lin_yggdrasil_all
+
+- name: make yggdrasil peers internal in ferm (include)
+  ## task is included to fully skip it in most cases as it's slow
+  include_tasks: ferm.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_ygg_internal
+        - lin_ygg_all
+        - lin_yggdrasil_all
+  when: lin_ygg_internal_hosts |bool
+        and lin_firewall == 'ferm'
+  tags:
+    - lin_ygg_internal
+    - lin_ygg_all
+    - lin_yggdrasil_all
 ...
