@@ -18,8 +18,8 @@ before_install:
 
 install:
   - pip3 install -U pip setuptools wheel
-  # molecule pulls: ansible-lint yamllint flake8 pytest testinfra
-  - pip3 install molecule docker
+  - pip3 install docker jmespath boto3 mitogen molecule pytest testinfra
+  # also pulled: ansible-lint yamllint flake8
 
 matrix:
   include:

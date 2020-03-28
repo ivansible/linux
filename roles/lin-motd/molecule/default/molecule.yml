@@ -41,10 +41,6 @@ verifier:
   lint:
     name: ansible-lint
     enabled: false
-lint:
-  name: yamllint
-  options:
-    config-file: .yamllint.yml
 scenario:
   name: default
   converge_sequence:
