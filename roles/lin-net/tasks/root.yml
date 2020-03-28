@@ -1,5 +1,39 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install ifupdown package
+  apt:
+    name: ifupdown
+    state: present
+
+- name: ensure include directory for interfaces
+  file:
+    path: /etc/network/interfaces.d
+    state: directory
+
+- name: ensure includes in interfaces
+  lineinfile:
+    path: "/etc/network/{{ item }}"
+    line: 'source /etc/network/interfaces.d/*'
+    regexp: '^source(-directory)? /etc/network/interfaces\.d'
+    insertbefore: '^auto |^#VAGRANT-|^\s*$'
+    firstmatch: true
+    create: true
+  loop: "{{ lin_net_interfaces_files }}"
+
+- name: setup loopback address for startup
+  template:
+    src: loopback.j2
+    dest: /etc/network/interfaces.d/loopback
+  register: interfaces_loopback_result
+  when: lin_net_lo4 |default('') or lin_net_lo6 |default('')
+
+- name: set loopback address now
+  # noqa 306
+  shell: |
+    {% if lin_net_lo4 |default('') %}
+        /sbin/ip -4 addr replace {{ lin_net_lo4 }} dev lo:0
+    {% endif %}
+    {% if lin_net_lo6 |default('') %}
+        /sbin/ip -6 addr replace {{ lin_net_lo6 }} dev lo:0
+    {% endif %}
+  when: interfaces_loopback_result is changed
 ...

@@ -17,7 +17,7 @@ galaxy_info:
 
   galaxy_tags:
     - linux
-    - ansible
+    - routing
 
   github_branch: master
 ...

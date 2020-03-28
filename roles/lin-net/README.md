@@ -37,7 +37,7 @@ None
 
     - hosts: vagrant-boxes
       roles:
-         - role: lin_net
+         - role: ivansible.lin_net
            variable1: 1
            variable2: 2
 

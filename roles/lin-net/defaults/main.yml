@@ -1,3 +1,9 @@
 ---
 # defaults for ivansible.lin_net
+
+## static address on loopback
+lin_net_lo4: ~
+lin_net_lo6: ~
+
+lin_net_interfaces_files: [interfaces]
 ...
