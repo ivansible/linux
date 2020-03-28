@@ -7,7 +7,7 @@
 This role will perform additional ssh configuration: harden permissions,
 disable interactive ssh passwords etc.
 Please note that since SSH port should be enabled in firewall *early*,
-that task has been performed by the `lin-system` role rather than here.
+that task has been performed by the `lin-core` role rather than here.
 
 
 ## Requirements
