@@ -52,6 +52,7 @@ Force overriding previous rsyslog rules.
 - `lin_rsyslog_drupal` -- rotate drupal log
 - `lin_rsyslog_keenetic` -- rotate keenetic log
 - `lin_rsyslog_cron` -- rotate cron log
+- `lin_rsyslog_files` -- ensure log files do exist
 - `lin_rsyslog_php` -- thin out php cleaner messages
 - `lin_rsyslog_all` -- all actions
 

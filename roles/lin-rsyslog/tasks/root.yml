@@ -63,7 +63,7 @@
   tags: lin_rsyslog_ufw
 
 - name: limit size of rotated ufw log
-  # besides size, use standard logrotate rules for ufw
+  ## besides size, use standard logrotate rules for ufw
   lineinfile:
     path: /etc/logrotate.d/ufw
     regex: '^\s+maxsize'
@@ -143,16 +143,51 @@
 
 
 - name: log cron to dedicated log
-  # use standard logrotate rules for cron
+  ## use standard logrotate rules for cron
   copy:
     dest: /etc/rsyslog.d/33-cron.conf
     content: |
-      :programname,isequal,"CRON" /var/log/cron.log
+      :programname,isequal,"CRON" {{ cron_log }}
+      & stop
+      {% for pat in patterns %}
+      :msg,contains,"{{ pat }}" {{ cron_log }}
+      & stop
+      {% endfor %}
+      cron.* {{ cron_log }}
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+  vars:
+    patterns:
+      - '[Cron]'
+      - 'debian-sa1'
+      - 'cron-hourly.target'
+      - 'systemd-cron hourly target'
+    cron_log: /var/log/cron.log
   notify: restart syslog service
   when: lin_rsyslog_separate_cron |bool
   tags: lin_rsyslog_cron
+
+
+- name: ensure log files do exist
+  copy:
+    content: ""
+    force: false
+    dest: "/var/log/{{ item }}"
+    owner: syslog
+    group: adm
+    mode: 0640
+  loop:
+    - syslog
+    - auth.log
+    - kern.log
+    - mail.log
+    - mail.err
+    - ufw.log
+    - cron.log
+    - drupal.log
+    - keenetic.log
+  notify: restart syslog service
+  tags: lin_rsyslog_files
 
 
 - name: systemd directory for php cleaner overrides
