@@ -10,16 +10,37 @@
 - name: disable kernel logging in docker
   lineinfile:
     path: /etc/rsyslog.conf
-    regex: "{{ item }}"
+    regex: "^({{ item }}.*)$"
     line: '#\1'
     backrefs: true
   loop:
-    - '^(\$?ModLoad imklog.*)$'
-    - '^(module\(load=\"imklog\".*)$'
+    - '\$?ModLoad imklog'
+    - 'module\(load=\"imklog\"'
   notify: restart syslog service
   when: ansible_virtualization_type == 'docker'
   tags: lin_rsyslog_docker
 
+- name: silence warning regarding legacy parameter
+  lineinfile:
+    path: /etc/rsyslog.conf
+    regex: '^(\$KLogPermitNonKernelFacility.*)$'
+    line: '#\1'
+    backrefs: true
+  notify: restart syslog service
+  tags: lin_rsyslog_fixes
+
+- name: fix console device name
+  lineinfile:
+    path: /etc/rsyslog.d/50-default.conf
+    regex: '^(\s+.*?\|\s*)/dev/x?console\s*$'
+    line: "\\1{{ device }}"
+    backrefs: true
+  vars:
+    ## rsyslog has no permission to write to /dev/console
+    # device: /dev/console
+    device: /dev/null
+  notify: restart syslog service
+  tags: lin_rsyslog_fixes
 
 - name: adjust mail logging
   # use standard logrotate rules for mail

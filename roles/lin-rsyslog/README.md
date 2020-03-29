@@ -46,6 +46,7 @@ Force overriding previous rsyslog rules.
 ## Tags
 
 - `lin_rsyslog_packages` -- install rsyslog and logrotate
+- `lin_rsyslog_fixes` -- fix warnings
 - `lin_rsyslog_docker` -- disable kernel logging in docker
 - `lin_rsyslog_mail` -- configure mail logging
 - `lin_rsyslog_ufw` -- configure ufw logging
