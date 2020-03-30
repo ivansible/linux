@@ -22,10 +22,32 @@
     quiet: true
   loop: "{{ lin_restic_jobs }}"
 
-- name: restic backup service
+- name: generate restic backup script
   template:
-    src: restic-backup.service.j2
+    src: restic-backup.sh.j2
+    dest: /etc/systemd/system/restic-backup.sh
+    owner: restic
+    group: rclone
+    mode: 0750
+  vars:
+    verb_opts: "{{ ['--verbose=%s' |format(lin_restic_cron_verbose)]
+                   if lin_restic_cron_verbose |int > 0 else [] }}"
+  notify: reload systemd daemon
+
+- name: setup restic backup service
+  copy:
     dest: /etc/systemd/system/restic-backup.service
+    content: |
+      # ansible-managed
+      [Unit]
+      Description=Restic backup
+      [Service]
+      Type=oneshot
+      User=restic
+      Group=rclone
+      EnvironmentFile=/etc/default/restic
+      ExecStart=/etc/systemd/system/restic-backup.sh
+    force: true
   notify: reload systemd daemon
 
 - name: configure restic backup timer
@@ -42,7 +64,7 @@
     force: true
   notify: reload systemd daemon
 
-- name: activate the daily restic backup job
+- name: activate restic daily backup job
   systemd:
     name: restic-backup.timer
     state: started
@@ -50,11 +72,16 @@
     daemon_reload: true
 
 
-- name: weekly restic prune service
+- name: generate restic weekly prune script
   template:
-    src: restic-prune.service.j2
-    dest: /etc/systemd/system/restic-prune.service
+    src: restic-prune.sh.j2
+    dest: /etc/systemd/system/restic-prune.sh
+    owner: restic
+    group: rclone
+    mode: 0750
   vars:
+    verb_opts: "{{ ('--verbose=%s ' % lin_restic_cron_verbose)
+                   if (lin_restic_cron_verbose |int > 0) else '' }}"
     forget_opts: >-
       --keep-last={{ lin_restic_forget_keep_last }}
       --keep-daily={{ lin_restic_forget_keep_daily }}
@@ -63,7 +90,26 @@
       --keep-yearly={{ lin_restic_forget_keep_yearly }}
   notify: reload systemd daemon
 
-- name: configure restic prune timer
+- name: setup restic weekly prune service
+  copy:
+    dest: /etc/systemd/system/restic-prune.service
+    content: |
+      # ansible-managed
+      [Unit]
+      Description=Restic prune
+      {% if lin_restic_cron_ordering |bool %}
+      After=restic-backup.service
+      {% endif %}
+      [Service]
+      Type=oneshot
+      User=restic
+      Group=rclone
+      EnvironmentFile=/etc/default/restic
+      ExecStart=/etc/systemd/system/restic-prune.sh
+    force: true
+  notify: reload systemd daemon
+
+- name: configure restic weekly prune timer
   copy:
     dest: /etc/systemd/system/restic-prune.timer
     content: |
@@ -77,7 +123,7 @@
     force: true
   notify: reload systemd daemon
 
-- name: activate the weekly restic prune job
+- name: activate restic weekly prune job
   systemd:
     name: restic-prune.timer
     state: started
