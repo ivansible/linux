@@ -102,7 +102,8 @@ Port of peer endpoint, optional, defaults to local wireguard port.
 
 ## Dependencies
 
-`ivansible.lin_base`
+- `ivansible.lin_base`
+- `ivansible.lin_go` (for wireguard-go, imports `lin_go_version`)
 
 
 ## Example Playbook

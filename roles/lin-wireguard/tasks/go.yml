@@ -1,9 +1,8 @@
 ---
 - name: install golang for building wireguard-go
   import_role:
-    name: ivansible.lin_devel
-    tasks_from: golang.yml
-  become: true
+    name: ivansible.lin_go
+    # exports lin_go_version
 
 - name: create temporary directory for building wireguard-go
   tempfile:
@@ -21,7 +20,7 @@
     GOROOT: "{{ go_root }}"
     PATH: "{{ go_root }}/bin:/usr/bin:/bin:/usr/local/bin"
   vars:
-    go_root: /usr/lib/go-{{ lindev_golang_version }}
+    go_root: /usr/lib/go-{{ lin_go_version }}
 
 - name: copy wireguard-go in place
   synchronize:

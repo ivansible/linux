@@ -5,4 +5,7 @@
 - src: https://github.com/ivansible/lin-core
   name: ivansible.lin_core
   scm: git
+- src: https://github.com/ivansible/lin-go
+  name: ivansible.lin_go
+  scm: git
 ...
