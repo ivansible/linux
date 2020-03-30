@@ -29,6 +29,7 @@ lin_wg_nets: []
 #       host: ip         - IP address of endpoint (optional)
 #       port: port       - port of endpoint, optional (default: subnet's port)
 
+lin_wg_install_go: "{{ ansible_kernel is version('3.1', '<') }}"
 lin_wg_go_binary: /usr/bin/wireguard-go
 lin_wg_go_allow_reinstall: false
 ...

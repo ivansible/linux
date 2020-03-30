@@ -25,6 +25,9 @@ Listening address for all wireguard subnets or `~` if not listening.
 List of records, where each record describes one Wireguard subnet/device.
 Names of interface devices for subnets are assigned sequentially: `wg0`, `wg1`...
 
+    lin_wg_install_go: auto
+Enables installing wireguard-go. By default enabled if kernel is older than `3.1`.
+
 ### Subnet Record
 
     name: net1

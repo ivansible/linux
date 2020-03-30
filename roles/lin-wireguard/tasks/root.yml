@@ -49,7 +49,7 @@
             - lin_wg_all
       when: lin_wg_go_allow_reinstall |bool
             or not wireguard_go_binary_stat.stat.exists
-  when: ansible_kernel is version('3.1', '<')
+  when: lin_wg_install_go |bool
   tags: lin_wg_go
 
 - name: configure wireguard
