@@ -92,9 +92,15 @@
 # after installing python apt bindings
 #- meta: reset_connection
 
+- name: disable unattended upgrades
+  apt:
+    name: unattended-upgrades
+    state: absent
+  tags: lin_core_packages
+
 
 - name: synchronize system time
-  # this task requires time packages, which are installed above
+  # this task requires time packages (installed above)
   import_tasks: timesync.yml
   when: lin_core_time_sync |bool
   tags: lin_core_timesync
