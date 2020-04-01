@@ -43,6 +43,9 @@ Thin out messages of the PHP session cleaner.
     lin_rsyslog_force_rules: false
 Force overriding previous rsyslog rules.
 
+    lin_rsyslog_remote_enable: true
+Enable logging from remote (internal) hosts in the ferm firewall.
+
 
 ## Tags
 
@@ -57,6 +60,7 @@ Force overriding previous rsyslog rules.
 - `lin_rsyslog_files` -- ensure log files do exist
 - `lin_rsyslog_php` -- thin out php cleaner messages
 - `lin_rsyslog_journal` -- limit systemd journal size
+- `lin_rsyslog_remote` -- enable logging from internal hosts
 - `lin_rsyslog_all` -- all actions
 
 

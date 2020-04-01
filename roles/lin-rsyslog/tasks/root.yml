@@ -128,6 +128,19 @@
   tags: lin_rsyslog_drupal
 
 
+- name: enable logging from remote (internal) hosts in ferm
+  ferm_port:
+    port: 514
+    proto: udp
+    comment: rsyslog
+    domain: internal
+    state: "{{ lin_rsyslog_remote_enable |bool |ternary('present','absent') }}"
+  when: lin_firewall == 'ferm'
+  tags:
+    - skip_ansible_lint
+    - lin_rsyslog_remote
+    - lin_rsyslog_keenetic
+
 - name: log keenetic to dedicated log
   copy:
     dest: /etc/rsyslog.d/33-keenetic.conf
@@ -138,7 +151,7 @@
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
-  when: lin_rsyslog_keenetic_ip != '' # noqa 602
+  when: lin_rsyslog_keenetic_ip |default('')
   tags: lin_rsyslog_keenetic
 
 - name: rotate keenetic log

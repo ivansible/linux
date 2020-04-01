@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for lin_use_rsyslog, handlers
+  - ivansible.lin_base  # for lin_use_rsyslog, handlers, modules
 
 galaxy_info:
   role_name: lin_rsyslog
