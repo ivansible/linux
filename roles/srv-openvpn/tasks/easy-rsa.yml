@@ -11,8 +11,8 @@
   github_release:
     repository: OpenVPN/easy-rsa
     release: latest
-    template: '{download_url}/EasyRSA-unix-{ver}.tgz'
-    strip_v: false
+    template: '{download_url}/EasyRSA-{ver}.tgz'
+    strip_v: true
     creates: "{{ srv_ovpn_easyrsa_dir }}/easyrsa"
     reinstall: "{{ srv_ovpn_upgrade_easyrsa |bool }}"
   register: easyrsa_github_release
