@@ -1,3 +1,9 @@
 ---
 # handlers for ivansible.lin_rsyslog
+
+- name: restart journald service
+  systemd:
+    name: systemd-journald
+    state: restarted
+  become: true
 ...

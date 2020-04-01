@@ -21,7 +21,8 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
+    lin_rsyslog_max_journal: 200M
+If set, limits maximum size of systemd journal.
 
     lin_rsyslog_keenetic_ip: ""
 IP address of keenetic logger, logs keenetic to dedicated log
@@ -55,6 +56,7 @@ Force overriding previous rsyslog rules.
 - `lin_rsyslog_cron` -- rotate cron log
 - `lin_rsyslog_files` -- ensure log files do exist
 - `lin_rsyslog_php` -- thin out php cleaner messages
+- `lin_rsyslog_journal` -- limit systemd journal size
 - `lin_rsyslog_all` -- all actions
 
 

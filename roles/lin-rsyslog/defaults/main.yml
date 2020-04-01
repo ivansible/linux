@@ -1,6 +1,8 @@
 ---
 # defaults for ivansible.lin_rsyslog
 
+lin_rsyslog_max_journal: 200M
+
 lin_rsyslog_keenetic_ip: ""
 
 lin_rsyslog_separate_ufw: false

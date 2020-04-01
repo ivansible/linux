@@ -230,4 +230,14 @@
   notify: reload systemd daemon
   when: lin_rsyslog_thin_php_cleaner |bool
   tags: lin_rsyslog_php
+
+- name: limit systemd journal size
+  lineinfile:
+    path: /etc/systemd/journald.conf
+    regexp: '^#?SystemMaxUse='
+    line: "SystemMaxUse={{ lin_rsyslog_max_journal }}"
+    backup: true
+  notify: restart journald service
+  when: lin_rsyslog_max_journal |default('')
+  tags: lin_rsyslog_journal
 ...
