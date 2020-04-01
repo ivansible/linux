@@ -1,0 +1,16 @@
+---
+- name: enable or disable compression of rotated logs
+  replace:
+    path: "/etc/logrotate.d/{{ item }}"
+    regexp: "{{ lookbehind }}(compress|delaycompress)"
+    replace: "{{ commentout }}\\1"
+    backup: true
+  vars:
+    lookbehind: "{{ lin_compress_logs |bool |ternary('(?:#\\s*)','(?<!#)') }}"
+    commentout: "{{ lin_compress_logs |bool |ternary('','#') }}"
+  loop: "{{ lin_rsyslog_logrotate_files }}"
+  when: lin_compress_logs |default(none) is not none
+  ignore_errors: true
+  become: true
+  tags: lin_rsyslog_compress
+...

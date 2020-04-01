@@ -61,13 +61,15 @@ Enable logging from remote (internal) hosts in the ferm firewall.
 - `lin_rsyslog_php` -- thin out php cleaner messages
 - `lin_rsyslog_journal` -- limit systemd journal size
 - `lin_rsyslog_remote` -- enable logging from internal hosts
+- `lin_rsyslog_compress` -- enable/disable compression of rotated logs
 - `lin_rsyslog_all` -- all actions
 
 
 ## Dependencies
 
-This role imports global flag `lin_use_rsyslog` from role `lin_base`
-and activates only of it's `true`.
+- [ivansible.lin_base](https://github.com/ivansible/lin-base)
+  - this role activates only if global flag `lin_use_rsyslog` is `true`
+  - global flag `lin_compress_logs` enables compression of rotated logs
 
 
 ## Example Playbook

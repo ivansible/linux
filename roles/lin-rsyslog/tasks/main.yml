@@ -7,4 +7,5 @@
 
 - name: flush handlers
   meta: flush_handlers
+  tags: lin_rsyslog_all
 ...

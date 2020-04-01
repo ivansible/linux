@@ -116,14 +116,16 @@
           weekly
           missingok
           notifempty
-          compress
-          delaycompress
+          {{ commentout }}compress
+          {{ commentout }}delaycompress
           sharedscripts
           postrotate
               invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
           endscript
       }
     force: "{{ lin_rsyslog_force_rules |bool }}"
+  vars:
+    commentout: "{{ '' if lin_compress_logs |bool or lin_compress_logs is none else '#' }}"
   when: lin_rsyslog_separate_drupal |bool
   tags: lin_rsyslog_drupal
 
@@ -164,14 +166,16 @@
           weekly
           missingok
           notifempty
-          compress
-          delaycompress
+          {{ commentout }}compress
+          {{ commentout }}delaycompress
           sharedscripts
           postrotate
               invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
           endscript
       }
     force: "{{ lin_rsyslog_force_rules |bool }}"
+  vars:
+    commentout: "{{ '' if lin_compress_logs |bool or lin_compress_logs is none else '#' }}"
   when: lin_rsyslog_keenetic_ip != '' # noqa 602
   tags: lin_rsyslog_keenetic
 
@@ -253,4 +257,9 @@
   notify: restart journald service
   when: lin_rsyslog_max_journal |default('')
   tags: lin_rsyslog_journal
+
+- name: enable or disable compression of rotated logs
+  import_tasks: compress.yml
+  when: lin_compress_logs |default(none) is not none
+  tags: lin_rsyslog_compress
 ...

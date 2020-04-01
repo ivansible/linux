@@ -14,4 +14,11 @@ lin_rsyslog_thin_php_cleaner: false
 lin_rsyslog_force_rules: false
 
 lin_rsyslog_remote_enable: true
+
+lin_rsyslog_logrotate_files:
+  - rsyslog
+  - ufw
+  - nginx
+  - drupal
+  - keenetic
 ...
