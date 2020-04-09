@@ -200,6 +200,7 @@
       - 'debian-sa1'
       - 'cron-hourly.target'
       - 'systemd-cron hourly target'
+      - 'Clean php session files'
     cron_log: /var/log/cron.log
   notify: restart syslog service
   when: lin_rsyslog_separate_cron |bool
