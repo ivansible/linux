@@ -28,6 +28,9 @@ If set, limits maximum size of systemd journal.
 IP address of keenetic logger, logs keenetic to dedicated log
 (empty value keeps it in common log).
 
+    lin_rsyslog_keenetic_timer: daily
+Rotate keenetic log daily or weekly.
+
     lin_rsyslog_separate_ufw: false
 Logs ufw (firewall) messages to dedicated log.
 

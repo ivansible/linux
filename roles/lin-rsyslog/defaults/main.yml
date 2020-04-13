@@ -4,6 +4,7 @@
 lin_rsyslog_max_journal: 200M
 
 lin_rsyslog_keenetic_ip: ""
+lin_rsyslog_keenetic_timer: daily  # daily/weekly
 
 lin_rsyslog_separate_ufw: false
 lin_rsyslog_separate_drupal: false

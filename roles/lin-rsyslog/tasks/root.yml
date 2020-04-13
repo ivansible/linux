@@ -163,7 +163,7 @@
       /var/log/keenetic.log {
           rotate 4
           maxsize 1M
-          weekly
+          {{ lin_rsyslog_keenetic_timer }}
           missingok
           notifempty
           {{ commentout }}compress
