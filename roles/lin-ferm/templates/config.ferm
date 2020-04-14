@@ -13,7 +13,7 @@
 @def $do_ipv6 = {{ ferm_ipv6 |bool |ternary(1,0) }};
 @def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
 @def $do_docker = {{ ferm_docker |bool |ternary(1,0) }};
-@def $docker0 = {{ ferm_docker_iface }};
+@def $docker0 = {{ ferm_docker_dev }};
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
 # Create Chains

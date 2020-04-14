@@ -20,7 +20,7 @@ ferm_ipv6: true
 ferm_openvz: false
 
 ferm_docker: true
-ferm_docker_iface: docker0
+ferm_docker_dev: docker0
 ferm_docker_subnet4: 172.17.0.0/16
 
 ferm_dir: /etc/ferm
