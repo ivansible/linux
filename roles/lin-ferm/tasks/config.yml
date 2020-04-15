@@ -14,14 +14,14 @@
 
 - name: ensure ferm openvz file exists
   template:
-    src: initial-openvz.ferm
+    src: etc/initial-openvz.ferm
     dest: "{{ ferm_openvz_file }}"
     mode: 0640
     force: false
 
 - name: create ferm configuration
   template:
-    src: config.ferm
+    src: etc/config.ferm
     dest: "{{ ferm_dir }}/config.ferm"
   notify: reload ferm service
 

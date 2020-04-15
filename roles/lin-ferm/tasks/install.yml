@@ -19,19 +19,20 @@
     dest: "{{ ferm_binary }}"
     owner: root
     group: root
-    mode: 0755
+    mode: 0754
     force: "{{ ferm_allow_reinstall |bool }}"
   notify: reload ferm service
 
-- name: upload ferm ipset/openvz scripts
+- name: upload ferm helper scripts
   template:
-    src: "{{ item }}.pl"
-    dest: "{{ ferm_bindir }}/{{ item }}"
+    src: "bin/{{ item }}"
+    dest: "{{ ferm_bindir }}/{{ item |splitext |first }}"
     owner: root
     group: root
     mode: 0754
   loop:
-    - ferm-ipset
-    - ferm-openvz
+    - ferm-ipset.pl
+    - ferm-openvz.pl
+    - ferm-ctl.py
   notify: reload ferm service
 ...

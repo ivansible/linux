@@ -1,7 +1,7 @@
 ---
 - name: setup ferm service
   template:
-    src: ferm.service
+    src: etc/ferm.service
     dest: /etc/systemd/system/ferm.service
   register: ferm_service_result
   notify: reload ferm service
