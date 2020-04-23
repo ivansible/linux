@@ -1,3 +1,10 @@
 ---
 # handlers for ivansible.lin_net
+
+- name: restart systemd-resolved
+  systemd:
+    name: systemd-resolved
+    state: restarted
+    daemon_reload: true
+  become: true
 ...

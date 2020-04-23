@@ -5,5 +5,8 @@
 lin_net_lo4: ~
 lin_net_lo6: ~
 
+lin_net_enable_systemd_resolved: "{{ ansible_lsb.codename != 'xenial' }}"
+lin_net_dns_servers: [1.1.1.1, 8.8.8.8]
+
 lin_net_interfaces_files: [interfaces]
 ...
