@@ -42,6 +42,17 @@
   notify: restart syslog service
   tags: lin_rsyslog_fixes
 
+- name: silence NXDOMAIN warning from systemd-rsyslogd
+  ## see:
+  ## https://askubuntu.com/questions/1058750/new-alert-keeps-showing-up-server-returned-error-nxdomain-mitigating-potential
+  copy:
+    dest: /etc/rsyslog.d/33-resolv.conf
+    content: |
+      :msg, contains, "Server returned error NXDOMAIN, mitigating potential DNS violation DVE-2018-0001" ~
+    force: "{{ lin_rsyslog_force_rules |bool }}"
+  notify: restart syslog service
+  tags: lin_rsyslog_fixes
+
 - name: adjust mail logging
   # use standard logrotate rules for mail
   copy:
