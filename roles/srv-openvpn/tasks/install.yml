@@ -46,8 +46,12 @@
 
 - name: remove unused resolvconf helper
   file:
-    path: "{{ srv_ovpn_dir }}/update-resolv-conf"
+    path: "{{ srv_ovpn_dir }}/{{ item }}"
     state: absent
+  loop:
+    - update-resolv-conf
+    - client
+    - server
 
 - name: query openssl library version
   package_facts:
