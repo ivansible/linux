@@ -38,4 +38,8 @@ lin_restic_forget_keep_yearly: 2
 
 lin_restic_environ_for_restic: true
 lin_restic_environ_for_root: true
+
+lin_restic_sudo_rules:
+  - {user: postgres, command: /usr/bin/pg_dump}
+  - {user: postgres, command: /usr/bin/pg_dumpall}
 ...

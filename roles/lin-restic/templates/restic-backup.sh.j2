@@ -22,6 +22,8 @@ echo '== {{ job.name }} ({{ job.type }}) =='
 {{ pg_run }}pg_dumpall {{ pg_port }} | {{ restic_short }} {{ pg_stdin }}
 {%   elif job.type == 'postgres' and job.database != 'all' %}
 {{ pg_run }}pg_dump {{ pg_port }} {{ job.database }} | {{ restic_short }} {{ pg_stdin }}
+{%   elif job.type == 'command' %}
+{{ job.command }}
 {%   endif %}
 {% endfor %}
 echo '== backup done =='

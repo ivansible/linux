@@ -49,11 +49,13 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: allow user restic to impersonate as postgres for database backups
-  copy:
-    dest: /etc/sudoers.d/99-restic
-    content: |
-      restic ALL=(postgres) NOPASSWD: /usr/bin/pg_dump
-      restic ALL=(postgres) NOPASSWD: /usr/bin/pg_dumpall
+  lineinfile:
+    path: /etc/sudoers.d/99-restic
+    line: "restic ALL=({{ item.user }}) NOPASSWD: {{ item.command }}"
     owner: root
     mode: 0440
+    create: true
+  loop: "{{ lin_restic_sudo_rules }}"
+  loop_control:
+    label: "{{ item.command |basename }}"
 ...
