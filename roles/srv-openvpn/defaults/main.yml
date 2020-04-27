@@ -41,6 +41,7 @@ srv_ovpn_servers: ~
 #        push_routes6: [fd00:2::/64]    - list of pushed ipv6 routes (optional)
 #        self_routes4: [192.168.3.0/24] - list of served ipv4 routes (optional)
 #        self_routes6: [fd00:3::/64]    - list of served ipv6 routes (optional)
+#        redirect_gateway: true|false   - true redirects outgoing traffic over vpn (default: false)
 #        metric: 1024                   - metric to assign for pushed routes (optional)
 #        cert: ~                        - predefined certificate text (default: generate)
 #        key: ~                         - predefined private key text (default: generate)
@@ -48,7 +49,9 @@ srv_ovpn_servers: ~
 srv_ovpn_use_fast_io: true
 srv_ovpn_use_mlock: false
 srv_ovpn_use_crl: false
-srv_ovpn_redirect_gateway: false
+
+srv_ovpn_public_interface: "{{ ansible_default_ipv4.interface }}"
+srv_ovpn_redirect_gateway: false  # FIXME do we need this?
 
 srv_ovpn_dir: /etc/openvpn
 srv_ovpn_run_dir: /run/openvpn

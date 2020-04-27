@@ -95,8 +95,6 @@
     client_config: "{{ client.config |default('') }}"
     has_config: "{{ client.config |default(none) is not none }}"
 
-    client_subnet4: "{{ client.subnet4 |default('') }}"
-    client_subnet6: "{{ client.subnet6 |default('') }}"
     has_subnet4: "{{ true if client_subnet4 else false }}"
     has_subnet6: "{{ true if client_subnet6 else false }}"
     has_subnet: "{{ has_subnet4 or has_subnet6 }}"
@@ -116,4 +114,15 @@
     metric: "{{ client.metric |default(0) |int }}"
     has_metric: "{{ client_metric |int > 0 }}"
   notify: restart openvpn servers
+
+- name: masquerade redirected client traffic in ferm for '{{ full_name }}'
+  ferm_rule:
+    name: "ovpn-gw-{{ server_name }}-{{ client_name }}"
+    prio: 78
+    rule: "{{ lookup('template', 'client/redirect-gateway.ferm.j2') }}"
+    state: "{{ client_redirect_gateway |ternary('present','absent') }}"
+  tags:
+    - skip_ansible_lint
+    - srv_ovpn_firewall
+  when: lin_firewall == 'ferm'
 ...
