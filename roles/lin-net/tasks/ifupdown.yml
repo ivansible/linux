@@ -1,0 +1,21 @@
+---
+- name: install ifupdown package
+  apt:
+    name: ifupdown
+    state: present
+
+- name: ensure include directory for interfaces
+  file:
+    path: /etc/network/interfaces.d
+    state: directory
+
+- name: ensure includes in interfaces
+  lineinfile:
+    path: "/etc/network/{{ item }}"
+    line: 'source /etc/network/interfaces.d/*'
+    regexp: '^source(-directory)? /etc/network/interfaces\.d'
+    insertbefore: '^auto |^#VAGRANT-|^\s*$'
+    firstmatch: true
+    create: true
+  loop: "{{ lin_net_interfaces_files }}"
+...

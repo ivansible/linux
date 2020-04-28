@@ -1,0 +1,33 @@
+---
+- name: upload he6 setup script
+  copy:
+    src: "{{ use_ferm |ternary('he6-up-ferm.sh', 'he6-up-iptables.sh') }}"
+    dest: /etc/network/if-up.d/he6
+    force: true
+    mode: 0755
+  vars:
+    use_ferm: "{{ lin_firewall == 'ferm' }}"
+  register: he6_script_result
+
+- name: configure he6 interface
+  template:
+    src: he6-iface.j2
+    dest: "/etc/network/interfaces.d/{{ lin_he6_device }}"
+  register: he6_iface_result
+
+- name: configure ferm firewall on he6 interface
+  ferm_rule:
+    name: "ipv6-he-{{ lin_he6_device }}"
+    prio: 40
+    rule: "{{ lookup('template', 'he6.ferm.j2') }}"
+  tags: skip_ansible_lint
+  when: lin_firewall == 'ferm'
+
+- name: reset he6 interface
+  shell: |
+    ifdown {{ lin_he6_device }} >/dev/null 2>&1
+    sleep 1
+    ifup {{ lin_he6_device }}
+  when: he6_script_result is changed
+        or he6_iface_result is changed
+...

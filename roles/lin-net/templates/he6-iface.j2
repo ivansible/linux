@@ -1,0 +1,12 @@
+# Hurricane Electric ({{ lin_he6_name |default(lin_he6_endpoint) }})
+auto {{ lin_he6_device }}
+iface {{ lin_he6_device }} inet6 v4tunnel
+  address {{ lin_he6_address6 }}
+  netmask 64
+  endpoint {{ lin_he6_endpoint }}
+  local {{ lin_he6_local }}
+  ttl 255
+  gateway {{ lin_he6_gateway6 }}
+  metric {{ lin_he6_metric }}
+  he6-henet {{ lin_he6_net32 }}
+  he6-net48 {{ lin_he6_net48 }}

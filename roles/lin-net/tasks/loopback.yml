@@ -1,0 +1,18 @@
+---
+- name: setup loopback address for startup
+  template:
+    src: loopback.j2
+    dest: /etc/network/interfaces.d/loopback
+  register: loopback_result
+
+- name: set loopback address now
+  # noqa 306
+  shell: |
+    {% if lin_net_lo4 |default('') %}
+        /sbin/ip -4 addr replace {{ lin_net_lo4 }} dev lo:0
+    {% endif %}
+    {% if lin_net_lo6 |default('') %}
+        /sbin/ip -6 addr replace {{ lin_net_lo6 }} dev lo:0
+    {% endif %}
+  when: loopback_result is changed
+...

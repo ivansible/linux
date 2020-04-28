@@ -1,53 +1,26 @@
 ---
-- name: install ifupdown package
-  apt:
-    name: ifupdown
-    state: present
+- name: prepare ifupdown interfaces file
+  import_tasks: ifupdown.yml
+  tags: lin_net_ifupdown
 
-- name: ensure include directory for interfaces
-  file:
-    path: /etc/network/interfaces.d
-    state: directory
+- name: setup loopback address
+  import_tasks: loopback.yml
+  when: lin_net_lo4 |default('')
+        or lin_net_lo6 |default('')
+  tags: lin_net_loopback
 
-- name: ensure includes in interfaces
-  lineinfile:
-    path: "/etc/network/{{ item }}"
-    line: 'source /etc/network/interfaces.d/*'
-    regexp: '^source(-directory)? /etc/network/interfaces\.d'
-    insertbefore: '^auto |^#VAGRANT-|^\s*$'
-    firstmatch: true
-    create: true
-  loop: "{{ lin_net_interfaces_files }}"
+- name: setup dns
+  import_tasks: dns.yml
+  tags: lin_net_dns
 
-- name: setup loopback address for startup
-  template:
-    src: loopback.j2
-    dest: /etc/network/interfaces.d/loopback
-  register: interfaces_loopback_result
-  when: lin_net_lo4 |default('') or lin_net_lo6 |default('')
-
-- name: set loopback address now
-  # noqa 306
-  shell: |
-    {% if lin_net_lo4 |default('') %}
-        /sbin/ip -4 addr replace {{ lin_net_lo4 }} dev lo:0
-    {% endif %}
-    {% if lin_net_lo6 |default('') %}
-        /sbin/ip -6 addr replace {{ lin_net_lo6 }} dev lo:0
-    {% endif %}
-  when: interfaces_loopback_result is changed
-
-- name: configure dns servers in systemd-resolved
-  lineinfile:
-    path: /etc/systemd/resolved.conf
-    line: "{{ item.param }}={{ item.value }}"
-    regexp: "^\\s*#*\\s*{{ item.param }}\\s*="
-  loop:
-    - {param: DNS, value: "{{ lin_net_dns_servers |join(' ') }}"}
-    - {param: Cache, value: 'yes'}
-    - {param: DNSStubListener, value: 'yes'}
-  loop_control:
-    label: "{{ item.param }}"
-  notify: restart systemd-resolved
-  when: lin_net_enable_systemd_resolved |bool
+- name: setup ipv6 from hurricane electric
+  include_tasks: he6.yml
+  when: lin_he6_enable |bool
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_net_he6
+        - lin_net_all
+  tags: lin_net_he6
 ...
