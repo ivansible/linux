@@ -1,0 +1,33 @@
+---
+- name: remove requiretty from sudoers
+  lineinfile:
+    path: /etc/sudoers
+    regexp: '^(Defaults\s+requiretty.*)'
+    state: absent
+    backup: true
+
+- name: fix localectl problem in minimal xenial docker
+  # systemd-localed service cannot start without /etc/default/keyboard on xenial
+  # see: https://github.com/systemd/systemd/issues/911
+  copy:
+    dest: /etc/default/keyboard
+    content: ""
+    force: false
+    mode: 0644
+  when: ansible_lsb.codename == 'xenial'
+
+- name: set system locale
+  command: >
+    localectl set-locale
+      LANG={{ lin_core_system_locale }}
+      LANGUAGE={{ lin_core_system_locale }}
+  changed_when: not lin_core_hide_changes |bool
+  when: lin_core_system_locale != '' # noqa 602
+
+- name: set timezone
+  timezone:
+    name: "{{ lin_core_timezone }}"
+  notify: reload systemd daemon
+  when: lin_core_timezone |default('')
+  tags: lin_core_timezone
+...

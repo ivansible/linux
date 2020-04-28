@@ -11,10 +11,18 @@ lin_core_time_sync: true
 lin_core_resync: false  # enable step-syncing system time
 lin_core_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 
+lin_cron_adjust: false
+lin_cron_timers:
+  hourly: hourly
+  daily: daily
+  weekly: weekly
+  monthly: monthly
+
 lin_core_swap_enable: false
 lin_core_swap_mb: 0
 lin_core_swap_file: /swap
 
+lin_core_apt_disable_32bit: false
 lin_core_apt_fast_mirrors: false
 
 lin_core_apt_allow_universe: true

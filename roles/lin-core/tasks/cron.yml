@@ -1,0 +1,16 @@
+---
+- name: prepare systemd drop-in directory for {{ item.0 }} timer
+  file:
+    path: /etc/systemd/system/cron-{{ item.0 }}.timer.d
+    state: directory
+
+- name: adjust systemd calendar for {{ item.0 }} timer
+  copy:
+    dest: /etc/systemd/system/cron-{{ item.0 }}.timer.d/calendar.conf
+    content: |
+      [Timer]
+      OnCalendar=
+      OnCalendar={{ item.1 }}
+    force: true
+  notify: reload systemd daemon
+...

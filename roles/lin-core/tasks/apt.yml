@@ -1,0 +1,24 @@
+---
+- name: use local apt mirrors
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+    backup: true
+  register: apt_switch_mirrors
+  when: lin_core_apt_fast_mirrors |bool
+
+- name: disable 32-bit apt repositories
+  replace:
+    path: /etc/apt/sources.list
+    regexp: '^\s*deb\s+http'
+    replace: 'deb [arch=amd64] http'
+    backup: true
+  register: apt_disable_32bit
+  when: lin_core_apt_disable_32bit |bool
+
+- name: update apt caches
+  apt:
+    update_cache: true
+  when: apt_switch_mirrors is changed
+        or apt_disable_32bit is changed
+...

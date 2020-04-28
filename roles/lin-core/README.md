@@ -9,6 +9,7 @@ Perform basic configuration of a linux box:
  - enable ntp and step-sync system time;
  - install common software;
  - adjust system locale and time zone;
+ - adjust cron timers;
  - tune kernel parameters (sysctl);
  - enable firewall, including ssh port fix (if allowed);
  - disable telemetry on bionic (see https://askubuntu.com/a/1030168);
@@ -28,18 +29,28 @@ Allows step-syncing hosts time.
 This step may take long, disabled by default.
 
     lin_core_apt_fast_mirrors: false
-
 If this setting is `true` (usually in the `vagrant` host group),
 the role will replace package sources in `/etc/apt/sources.list`
-with links to presumably faster `mirror.yandex.ru`.
+with links to local repository mirrors.
+
+    lin_core_apt_disable_32bit: false
+This flag disable 32-bit apt repositories.
 
     lin_core_system_locale: ''
-
 Preferred system locale, e.g. `en_US.UTF-8`
 
     lin_core_timezone: ''
+Preferred time zone, e.g. `Europe/Berlin`.
 
-Preferred time zone, e.g. `Europe/Moscow`.
+    lin_cron_adjust: false
+    lin_cron_timers:
+      hourly: hourly
+      daily: daily
+      weekly: weekly
+      monthly: monthly
+
+This flag and map allows to adjust calendar of systemd cron timers,
+e.g. make ubuntu 16.04 cron timers compatible with ubuntu 18.04.
 
     lin_core_sysctl:
       name: value
@@ -81,11 +92,12 @@ Enables rsyslog.
 
 ## Tags
 
-- `lin_core_mirrors` -- switch to fast apt mirrors
+- `lin_core_apt` -- adjust apt settings
 - `lin_core_packages` -- install common software
 - `lin_core_telemetry` -- disable telemetry on bionic
 - `lin_core_timesync` -- synchronize system time
 - `lin_core_resync` -- step-syncing system time
+- `lin_core_cron` -- adjust systemd cron timers
 - `lin_core_sysctl` -- adjust kernel parameters
 - `lin_core_swap` -- setup swap space
 - `lin_core_ssh` -- configure ssh port

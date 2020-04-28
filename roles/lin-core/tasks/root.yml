@@ -1,57 +1,15 @@
 ---
-- name: remove requiretty from sudoers
-  lineinfile:
-    path: /etc/sudoers
-    regexp: '^(Defaults\s+requiretty.*)'
-    state: absent
-    backup: true
+- name: adjust system settings
+  import_tasks: settings.yml
   tags: lin_core_settings
 
-
-- name: switch to fast apt mirrors
-  template:
-    src: sources.list.j2
-    dest: /etc/apt/sources.list
-    backup: true
-  register: apt_switch_mirrors
-  when: lin_core_apt_fast_mirrors |bool
-  tags: lin_core_mirrors
-
-- name: update apt caches
-  apt:
-    update_cache: true
-  when: apt_switch_mirrors is changed
-  tags: lin_core_mirrors
-
-
-- name: fix localectl problem in minimal xenial docker
-  # systemd-localed service cannot start without /etc/default/keyboard on xenial
-  # see: https://github.com/systemd/systemd/issues/911
-  copy:
-    dest: /etc/default/keyboard
-    content: ""
-    force: false
-  when: ansible_lsb.codename == 'xenial'
-  tags: lin_core_settings
-
-- name: set system locale
-  command: >
-    localectl set-locale
-      LANG={{ lin_core_system_locale }}
-      LANGUAGE={{ lin_core_system_locale }}
-  changed_when: not lin_core_hide_changes |bool
-  when: lin_core_system_locale != '' # noqa 602
-  tags: lin_core_settings
-
-- name: set timezone
-  timezone:
-    name: "{{ lin_core_timezone }}"
-  when: lin_core_timezone != '' # noqa 602
-  tags: lin_core_settings
+- name: adjust apt settings
+  import_tasks: apt.yml
+  tags: lin_core_apt
 
 
 - block:
-    - name: install core packages (ok to fail once, output hidden)
+    - name: install core packages (ok to fail once, log hidden)
       apt:
         name: "{{ lin_core_packages_core }}"
         state: present
@@ -104,6 +62,18 @@
   import_tasks: timesync.yml
   when: lin_core_time_sync |bool
   tags: lin_core_timesync
+
+- name: adjust cron timers
+  include_tasks: cron.yml
+  args:
+    apply:
+      tags: lin_core_cron
+      become: true
+  loop: "{{ lin_cron_timers |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+  when: lin_cron_adjust |bool
+  tags: lin_core_cron
 
 
 - name: disable telemetry on ubuntu bionic
