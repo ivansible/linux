@@ -97,6 +97,7 @@ sub parse_ports {
 
 sub parse_hosts {
     my ($domain, $filename) = @_;
+    my $opt_timeout = ($domain eq 'block') ? 'timeout 0' : '';
     my %hosts;
 
     open(HOSTS, $filename)
@@ -163,7 +164,8 @@ sub parse_hosts {
         my $hash = $hosts{$type};
         my $family = ($type eq 'ipv4') ? 'inet' : 'inet6';
         my $name = "ferm-hosts-${domain}-${type}";
-        my $opts = "hash:net family $family comment";
+        my $opts = "hash:net family $family comment $opt_timeout";
+        $opts =~ s/^\s+|\s+$//g;
         my @cmd = (
             "create -exist $name $opts",
             "destroy $tempset",
