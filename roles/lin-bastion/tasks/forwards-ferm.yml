@@ -6,11 +6,13 @@
     rule: "{{ lookup('template', 'forwards.ferm') }}"
   tags: skip_ansible_lint
 
-- name: disable ufw port forwarding (please ignore possible failure)
+- name: disable ufw port forwarding (skip in check mode; please ignore possible failure)
   systemd:
     name: ufw-forwards
     state: stopped
     enabled: false
   ignore_errors: true
   no_log: "{{ hide_secrets |bool }}"
+  ## this task always reports as changed in check mode
+  when: not ansible_check_mode
 ...
