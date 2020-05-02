@@ -14,6 +14,12 @@ ferm_hosts_internal:
   - 10.0.0.0/8
 ferm_hosts_block: []
 
+## comma-separated strings, can be used as CLI arguments like follows:
+## ansible-playbook ... -e ferm_cli_hosts_internal='"1.1.1.1 ; rule 1 , 2.2.2.2 ; rule 2"'
+## (please notice double quotes inside single quotes, this is required!)
+ferm_cli_hosts_internal: ""
+ferm_cli_hosts_block: ""
+
 ferm_ipv4: true
 ferm_ipv6: true
 

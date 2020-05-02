@@ -25,20 +25,26 @@
 
 - name: add internal hosts in ferm
   ferm_host:
-    host: "{{ ferm_hosts_internal }}"
+    host: "{{ var_hosts_internal + cli_hosts_internal }}"
     comment: ferm core
     domain: internal
     ferm_dir: "{{ ferm_dir }}"
+  vars:
+    var_hosts_internal: "{{ ferm_hosts_internal |default([],true) |flatten }}"
+    cli_hosts_internal: "{{ ferm_cli_hosts_internal |default('',true) |regex_findall('([^,]+)') }}"
   tags:
     - skip_ansible_lint
     - lin_ferm_hosts
 
 - name: block hosts in ferm
   ferm_host:
-    host: "{{ ferm_hosts_block }}"
+    host: "{{ var_hosts_block + cli_hosts_block }}"
     comment: ferm core
     domain: blocked
     ferm_dir: "{{ ferm_dir }}"
+  vars:
+    var_hosts_block: "{{ ferm_hosts_block |default([],true) |flatten }}"
+    cli_hosts_block: "{{ ferm_cli_hosts_block |default('',true) |regex_findall('([^,]+)') }}"
   tags:
     - skip_ansible_lint
     - lin_ferm_hosts
