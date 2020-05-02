@@ -13,7 +13,7 @@
       - iptables
     state: present
 
-- name: download ferm script
+- name: download ferm script (skip in check mode)
   get_url:
     url: "{{ ferm_script_url }}"
     dest: "{{ ferm_binary }}"
@@ -22,6 +22,8 @@
     mode: 0754
     force: "{{ ferm_allow_reinstall |bool }}"
   notify: reload ferm service
+  ## this task always reports as changed in check mode
+  when: not ansible_check_mode
 
 - name: upload ferm helper scripts
   template:
