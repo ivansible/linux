@@ -146,7 +146,7 @@
     port: 514
     proto: udp
     comment: rsyslog
-    domain: internal
+    zone: internal
     state: "{{ lin_rsyslog_remote_enable |bool |ternary('present','absent') }}"
   when: lin_firewall == 'ferm'
   tags:
