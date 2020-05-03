@@ -159,8 +159,8 @@
   ferm_port:
     port: "{{ server_port |int }}"
     proto: "{{ server_proto }}"
-    domain: "{{ internal |ternary('internal','external') }}"
-    solo: true
+    zone: "{{ internal |ternary('internal','external') }}"
+    solo_zone: true
     comment: openvpn
   tags:
     - skip_ansible_lint
