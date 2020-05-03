@@ -86,8 +86,8 @@
   ferm_port:
     port: "{{ lin_ygg_tls_port }}"
     proto: tcp
-    domain: external
-    solo: true
+    zone: external
+    solo_zone: true
     comment: yggdrasil tls
   when: lin_firewall == 'ferm' and lin_ygg_tls_port |int
   tags:
@@ -98,8 +98,8 @@
   ferm_port:
     port: "{{ lin_ygg_tcp_port }}"
     proto: tcp
-    domain: internal
-    solo: true
+    zone: internal
+    solo_zone: true
     comment: yggdrasil tcp
   when: lin_firewall == 'ferm' and lin_ygg_tcp_port |int
   tags:

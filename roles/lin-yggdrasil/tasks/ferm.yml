@@ -3,7 +3,7 @@
   ferm_host:
     host: "{{ ipv6 }}"
     comment: "yggdrasil ({{ name }})"
-    domain: internal
+    zone: internal
   tags: skip_ansible_lint
   vars:
     peer_names: "{{ groups[lin_ygg_peer_group] |default([]) |sort }}"
