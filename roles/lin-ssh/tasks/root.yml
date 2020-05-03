@@ -28,8 +28,8 @@
   ferm_port:
     port: "{{ real_ssh_port |string }}"
     proto: tcp
-    domain: external
-    # usually this comment is set by ferm core
+    zone: external
+    ## Usually this comment is set by ferm core
     # comment: ssh
   when: lin_firewall == 'ferm'
   tags:
@@ -61,7 +61,7 @@
 - name: enable public key authentication
   lineinfile:
     path: /etc/ssh/sshd_config
-    ## this case is separate because key casing is different on some systems
+    ## This case is distinct because key casing is different on some systems
     regexp: '^#*\s*(Pub[kK]eyAuthentication)\b'
     line: 'PubkeyAuthentication yes'
     backrefs: false
