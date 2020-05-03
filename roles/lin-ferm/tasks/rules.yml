@@ -3,7 +3,7 @@
   ferm_port:
     port: "{{ ferm_ports_external }}"
     comment: ferm core
-    domain: external
+    zone: external
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
 
@@ -11,7 +11,7 @@
   ferm_port:
     port: "{{ ferm_ports_internal }}"
     comment: ferm core
-    domain: internal
+    zone: internal
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
 
@@ -19,7 +19,7 @@
   ferm_port:
     port: "{{ ferm_ports_block }}"
     comment: ferm core
-    domain: blocked
+    zone: blocked
     ferm_dir: "{{ ferm_dir }}"
   tags: skip_ansible_lint
 
@@ -27,7 +27,7 @@
   ferm_host:
     host: "{{ var_hosts_internal + cli_hosts_internal }}"
     comment: ferm core
-    domain: internal
+    zone: internal
     ferm_dir: "{{ ferm_dir }}"
   vars:
     var_hosts_internal: "{{ ferm_hosts_internal |default([],true) |flatten }}"
@@ -40,7 +40,7 @@
   ferm_host:
     host: "{{ var_hosts_block + cli_hosts_block }}"
     comment: ferm core
-    domain: blocked
+    zone: blocked
     ferm_dir: "{{ ferm_dir }}"
   vars:
     var_hosts_block: "{{ ferm_hosts_block |default([],true) |flatten }}"

@@ -43,7 +43,7 @@ sub dump_lists {
 }
 
 sub parse_ports {
-    my ($domain, $filename) = @_;
+    my ($zone, $filename) = @_;
     my %ports;
 
     open(PORTS, $filename)
@@ -71,12 +71,12 @@ sub parse_ports {
     close(PORTS);
 
     for my $type ('tcp', 'udp') {
-        fill_list("ferm_ports_${domain}_${type}", $ports{$type}, 1);
+        fill_list("ferm_ports_${zone}_${type}", $ports{$type}, 1);
     }
 }
 
 sub parse_hosts {
-    my ($domain, $filename) = @_;
+    my ($zone, $filename) = @_;
     my %hosts;
 
     open(HOSTS, $filename)
@@ -140,7 +140,7 @@ sub parse_hosts {
     close(HOSTS);
 
     for my $type ('ipv4', 'ipv6') {
-        fill_list("ferm_hosts_${domain}_${type}", $hosts{$type}, 0);
+        fill_list("ferm_hosts_${zone}_${type}", $hosts{$type}, 0);
     }
 }
 
@@ -150,9 +150,9 @@ sub main {
         my $path = "${ferm_dir}/${file}";
         $file =~ /^(ports|hosts)\.(ext|int|block)$/
             or die "invalid input: ${file}\n";
-        my ($kind, $domain) = ($1, $2);
-        parse_ports($domain, $path) if $kind eq 'ports';
-        parse_hosts($domain, $path) if $kind eq 'hosts';
+        my ($kind, $zone) = ($1, $2);
+        parse_ports($zone, $path) if $kind eq 'ports';
+        parse_hosts($zone, $path) if $kind eq 'hosts';
     }
     dump_lists;
 }

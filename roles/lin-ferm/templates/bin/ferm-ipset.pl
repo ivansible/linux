@@ -52,7 +52,7 @@ sub make_tempset {
 }
 
 sub parse_ports {
-    my ($domain, $filename) = @_;
+    my ($zone, $filename) = @_;
     my %ports;
 
     open(PORTS, $filename)
@@ -81,7 +81,7 @@ sub parse_ports {
 
     for my $type ('tcp', 'udp') {
         my $hash = $ports{$type};
-        my $name = "ferm-ports-${domain}-${type}";
+        my $name = "ferm-ports-${zone}-${type}";
         my $opts = "bitmap:port range 0-65535";
         my @cmd = (
             "create -exist $name $opts",
@@ -96,8 +96,8 @@ sub parse_ports {
 }
 
 sub parse_hosts {
-    my ($domain, $filename) = @_;
-    my $opt_timeout = ($domain eq 'block') ? 'timeout 0' : '';
+    my ($zone, $filename) = @_;
+    my $opt_timeout = ($zone eq 'block') ? 'timeout 0' : '';
     my %hosts;
 
     open(HOSTS, $filename)
@@ -163,7 +163,7 @@ sub parse_hosts {
     for my $type ('ipv4', 'ipv6') {
         my $hash = $hosts{$type};
         my $family = ($type eq 'ipv4') ? 'inet' : 'inet6';
-        my $name = "ferm-hosts-${domain}-${type}";
+        my $name = "ferm-hosts-${zone}-${type}";
         my $opts = "hash:net family $family comment $opt_timeout";
         $opts =~ s/^\s+|\s+$//g;
         my @cmd = (
@@ -190,9 +190,9 @@ sub main {
         my $path = "${ferm_dir}/${file}";
         $file =~ /^(ports|hosts)\.(ext|int|block)$/
             or die "invalid input: ${file}\n";
-        my ($kind, $domain) = ($1, $2);
-        parse_ports($domain, $path) if $kind eq 'ports';
-        parse_hosts($domain, $path) if $kind eq 'hosts';
+        my ($kind, $zone) = ($1, $2);
+        parse_ports($zone, $path) if $kind eq 'ports';
+        parse_hosts($zone, $path) if $kind eq 'hosts';
     }
 }
 

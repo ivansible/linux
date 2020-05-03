@@ -12,7 +12,7 @@ import subprocess
 
 FERM_DIR = '/etc/ferm'
 
-DOMAINS = {
+ZONES = {
     'internal': 'int',
     'int': 'int',
     'external': 'ext',
@@ -120,8 +120,8 @@ def reload_ferm(args):
         fail('Failed to reload ferm: %s' % err)
 
 
-def handle_hosts(items, state, domain, exclude, counts, args):
-    path = ferm_config('hosts.%s' % DOMAINS[domain])
+def handle_hosts(items, state, zone, exclude, counts, args):
+    path = ferm_config('hosts.%s' % ZONES[zone])
     with open(path, 'rb') as f:
         b_lines = f.readlines()
 
@@ -243,8 +243,8 @@ def handle_hosts(items, state, domain, exclude, counts, args):
     return changed
 
 
-def handle_ports(items, state, domain, exclude, counts, args):
-    path = ferm_config('ports.%s' % DOMAINS[domain])
+def handle_ports(items, state, zone, exclude, counts, args):
+    path = ferm_config('ports.%s' % ZONES[zone])
     with open(path, 'rb') as f:
         b_lines = f.readlines()
 
@@ -386,7 +386,7 @@ def main():
     parser.add_argument('--comment', '-c')
     parser.add_argument('--proto', '-p', choices=PROTO_CHOICES, default='any',
                         help='protocol: IPv4/v6 for hosts, tcp/udp for ports')
-    parser.add_argument('--solo-domain', '-S', action='store_true',
+    parser.add_argument('--solo-zone', '-Z', action='store_true',
                         help='keep item(s) added in one list only')
     parser.add_argument('--solo-comment', '-C', action='store_true',
                         help='remove other items with the same comment')
@@ -402,19 +402,19 @@ def main():
         fail(None)
 
     subject = args.list.split('.')[0]
-    domain = args.list.split('.')[1]
+    zone = args.list.split('.')[1]
     if subject == 'hosts':
         handle = handle_hosts
     elif subject == 'ports':
         handle = handle_ports
     else:
-        domain = None
+        zone = None
 
-    domain = DOMAINS.get(domain, None)
-    if not domain:
+    zone = ZONES.get(zone, None)
+    if not zone:
         fail("Invalid list '%s'" % args.list)
 
-    path = ferm_config('%s.%s' % (subject, domain))
+    path = ferm_config('%s.%s' % (subject, zone))
     b_path = to_bytes(path)
     if not (os.access(b_path, os.R_OK) and os.access(b_path, os.W_OK)):
         fail("%s: access denied" % path)
@@ -427,10 +427,10 @@ def main():
     items = ','.join(args.item).split(',')
     counts = dict(added=0, removed=0, updated=0, deduped=0)
 
-    changed = handle(items, state, domain, False, counts, args)
-    for dom in DOMAINS.keys():
-        if args.solo_domain and dom != domain:
-            excluded = handle(items, state, dom, True, counts, args)
+    changed = handle(items, state, zone, False, counts, args)
+    for other_zone in ZONES.keys():
+        if args.solo_zone and other_zone != zone:
+            excluded = handle(items, state, other_zone, True, counts, args)
             changed = changed or excluded
 
     if changed:

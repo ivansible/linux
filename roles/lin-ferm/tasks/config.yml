@@ -58,7 +58,7 @@
 - name: open external ports in ferm before start
   ferm_port:
     port: "{{ ferm_ports_external }}"
-    domain: external
+    zone: external
     comment: ferm core
     reload: false
     ferm_dir: "{{ ferm_dir }}"
