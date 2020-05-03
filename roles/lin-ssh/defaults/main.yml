@@ -37,7 +37,7 @@ lin_ssh_settings:
 
 lin_ssh_idle_timeout_minutes: 10
 
-# up to 10 connections per second
-lin_ssh_conn_limit: 1/sec
-lin_ssh_conn_burst: 9
+# up to 10 connections per minute per ip
+lin_ssh_conn_limit: 10/min
+lin_ssh_conn_burst: 5
 ...
