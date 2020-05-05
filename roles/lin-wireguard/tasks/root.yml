@@ -131,4 +131,37 @@
   until: enable_service_result is successful
   retries: 2  # workaround for pluto
   tags: lin_wg_service
+
+
+- name: create wireguard client configs directory
+  file:
+    path: /etc/wireguard/clients
+    state: directory
+    mode: 0750
+  tags: lin_wg_clients
+
+- name: create wireguard client config files
+  template:
+    src: client.conf
+    dest: /etc/wireguard/clients/{{ filename }}.conf
+    mode: 0600
+  when: net.name |default('') and peer.name |default('') and active and client_config
+  loop: "{{ lin_wg_nets |default([],true) |flatten |subelements('peers', skip_missing=true) }}"
+  loop_control:
+    label: "{{ peer.name |default('none') }}/{{ net.name |default('none') }}"
+  vars:
+    net: "{{ item.0 }}"
+    peer: "{{ item.1 }}"
+    server: "{{ inventory_hostname }}"
+    host: "{{ net_host4 |default(lin_wg_host) |default('',true) }}"
+    active: "{{ peer.active |default(true) |bool }}"
+    client_config: "{{ peer.client_config |default(false) |bool }}"
+    filename: "{{ peer.name |default('peer') }}-{{ server }}-{{ net.name |default('net') }}"
+    addr: "{{ peer.client_ips |default(peer.ips ,true) |default([],true) }}"
+    ips: "{{ peer.server_ips |default(net.addr, true) |default([],true) }}"
+    mtu: "{{ peer.mtu |default(net.mtu, true) |default(0) |int }}"
+    keepalive: "{{ peer.keepalive |default(0) |int }}"
+    redirect_gateway: "{{ peer.redirect_gateway |default(false) |bool }}"
+    public_iface: "{{ lin_wg_public_interface |default('') }}"
+  tags: lin_wg_clients
 ...

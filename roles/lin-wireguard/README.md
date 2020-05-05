@@ -94,6 +94,13 @@ Port of peer endpoint, optional, defaults to local wireguard port.
     redirect_gateway
 Redirect outgoing client traffic over vpn (default: false).
 
+    client_config
+Produce example client config (default: false)
+
+    client_ips: [ip/mask]
+    server_ips: [ip/mask]
+Override client/server IP list in client config (optional)
+
 
 ## Tags
 
@@ -102,6 +109,7 @@ Redirect outgoing client traffic over vpn (default: false).
 - `lin_wg_config` -- configure wireguard
 - `lin_wg_firewall` -- open wireguard port and enable forwarding
 - `lin_wg_service` -- enable wireguard service
+- `lin_wg_clients` -- produce client configs
 - `lin_wg_all` -- all tasks
 
 

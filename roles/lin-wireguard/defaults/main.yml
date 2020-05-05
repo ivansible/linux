@@ -29,7 +29,11 @@ lin_wg_nets: []
 #       ips: [ip/mask]   - allowed IPs, list of ip/mask pairs (optional)
 #       host: ip         - IP address of endpoint (optional)
 #       port: port       - port of endpoint, optional (default: subnet's port)
-#       redirect_gateway: true|false   - true redirects outgoing traffic over vpn (default: false)
+#       keepalive: 0     - keepalive interval in seconds (default: no keepalive)
+#       redirect_gateway: true|false  - true redirects outgoing traffic over vpn (default: false)
+#       client_config: true|false     - produce example client config (default: false)
+#       client_ips: [ip/mask]         - override client ip list in client config (optional)
+#       server_ips: [ip/mask]         - override server ip list in client config (optional)
 
 lin_wg_install_go: "{{ ansible_kernel is version('3.1', '<') }}"
 lin_wg_go_binary: /usr/bin/wireguard-go
