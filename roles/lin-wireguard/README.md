@@ -15,8 +15,10 @@ None
 ## Variables
 
     lin_wg_forward: true
-If this one is true, the role will enable packet forwarding
-between Wireguard interfaces.
+This flag enables packet forwarding between Wireguard interfaces.
+
+    lin_wg_public_interface: "{{ ansible_default_ipv4.interface }}"
+Default destination for client `redirect_gateway` traffic.
 
     lin_wg_host: "{{ ansible_default_ipv4.address }}"
 Listening address for all wireguard subnets or `~` if not listening.
@@ -88,6 +90,9 @@ IP address of peer endpoint, optional.
 
     port
 Port of peer endpoint, optional, defaults to local wireguard port.
+
+    redirect_gateway
+Redirect outgoing client traffic over vpn (default: false).
 
 
 ## Tags

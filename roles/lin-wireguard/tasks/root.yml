@@ -66,7 +66,7 @@
     metric: "{{ net.metric |default(none) }}"
     peers: "{{ net.peers |default([],true) |flatten }}"
     keepalive: "{{ net.keepalive |default(0) |int }}"
-  loop: "{{ lin_wg_nets }}"
+  loop: "{{ lin_wg_nets |default([],true) |flatten }}"
   loop_control:
     loop_var: net
     index_var: idx
@@ -110,6 +110,9 @@
     hook: custom
     rule: "{{ lookup('template', 'wg-forward.ferm') }}"
     state: "{{ lin_wg_forward |bool |ternary('present','absent') }}"
+  vars:
+    wg_nets: "{{ lin_wg_nets |default([],true) |flatten }}"
+    public_iface: "{{ lin_wg_public_interface |default('') }}"
   when: lin_firewall == 'ferm'
   tags:
     - skip_ansible_lint

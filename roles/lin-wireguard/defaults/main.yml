@@ -8,6 +8,7 @@
 
 lin_wg_host: "{{ ansible_default_ipv4.address }}"
 lin_wg_forward: true
+lin_wg_public_interface: "{{ ansible_default_ipv4.interface }}"
 
 lin_wg_nets: []
 # - name: net1         - name of subnet, informational (optional)
@@ -28,6 +29,7 @@ lin_wg_nets: []
 #       ips: [ip/mask]   - allowed IPs, list of ip/mask pairs (optional)
 #       host: ip         - IP address of endpoint (optional)
 #       port: port       - port of endpoint, optional (default: subnet's port)
+#       redirect_gateway: true|false   - true redirects outgoing traffic over vpn (default: false)
 
 lin_wg_install_go: "{{ ansible_kernel is version('3.1', '<') }}"
 lin_wg_go_binary: /usr/bin/wireguard-go

@@ -1,6 +1,20 @@
-domain ($ip_all) table filter {
-{% for idx in range(lin_wg_nets |count) %}
-{%   set iface = 'wg%d' % idx %}
-    chain FORWARD interface {{ iface }} outerface {{ iface }} ACCEPT;
+{% for net in wg_nets %}
+{%   set iface = 'wg%d' % loop.index0 %}
+domain ($ip_all) table filter chain FORWARD interface {{ iface }} outerface {{ iface }} ACCEPT;
+{%   for peer in net.peers |default([],true) |flatten %}
+{%     set active = peer.active |default(true) |bool %}
+{%     set redirect_gateway = peer.redirect_gateway |default(false) |bool %}
+{%     set peer_ips = peer.ips |default([],true) |flatten %}
+{%     if active and redirect_gateway and public_iface and peer_ips %}
+
+## {{ peer.name |default('peer %d' % loop.index, true) }}
+{%       for ip in peer_ips %}
+{%         set addr = ip |ipaddr('address') or ip %}
+{%         set domain = 'ip6' if ':' in ip else 'ip' %}
+{%         set openvz_cond = '@if @not($openvz) ' if domain == 'ip6' else '' %}
+domain {{ domain }} table filter chain FORWARD saddr {{ addr }} outerface {{ public_iface }} ACCEPT;
+{{ openvz_cond }}domain {{ domain }} table nat chain POSTROUTING saddr {{ addr }} outerface {{ public_iface }} MASQUERADE;
+{%       endfor %}
+{%     endif %}
+{%   endfor %}
 {% endfor %}
-}
