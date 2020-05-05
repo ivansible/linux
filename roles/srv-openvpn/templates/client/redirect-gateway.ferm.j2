@@ -1,11 +1,13 @@
 {% if client_subnet4 %}
-domain ip table nat chain POSTROUTING saddr {{ client_subnet4 }} outerface {{ public_interface }} MASQUERADE;
-domain ip table filter chain FORWARD saddr {{ client_subnet4 }} outerface {{ public_interface }} ACCEPT;
+{%   set redirect_addr4 = client_subnet4 |ipaddr('address') or client_subnet4 %}
+domain ip table nat chain POSTROUTING saddr {{ redirect_addr4 }} outerface {{ public_interface }} MASQUERADE;
+domain ip table filter chain FORWARD saddr {{ redirect_addr4 }} outerface {{ public_interface }} ACCEPT;
 {% endif %}
 {% if client_subnet6 %}
 {# forwarding requires IPv6 table NAT, which is absent on OpenVZ #}
 @if @not($openvz) {
-    domain ip6 table nat chain POSTROUTING saddr {{ client_subnet6 }} outerface {{ public_interface }} MASQUERADE;
-    domain ip6 table filter chain FORWARD saddr {{ client_subnet6 }} outerface {{ public_interface }} ACCEPT;
+{%  set redirect_addr6 = client_subnet6 |ipaddr('address') or client_subnet6 %}
+    domain ip6 table nat chain POSTROUTING saddr {{ redirect_addr6 }} outerface {{ public_interface }} MASQUERADE;
+    domain ip6 table filter chain FORWARD saddr {{ redirect_addr6 }} outerface {{ public_interface }} ACCEPT;
 }
 {% endif %}
