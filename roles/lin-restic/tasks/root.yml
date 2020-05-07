@@ -14,8 +14,8 @@
     owner: root
     group: rclone
     mode: 0750
-  when: lin_restic_mount_dir != ''  # noqa 602
-  tags: lin_restic_user
+  when: lin_restic_mount_dir |default('')
+  tags: lin_restic_rclone
 
 - name: setup rclone remote for restic
   include_role:
@@ -32,13 +32,13 @@
       token: "{{ lin_restic_rclone_token }}"
       reuse_token: "{{ lin_restic_rclone_reuse_token }}"
       fstab_default: false
-  when: lin_restic_rclone_config != '' # noqa 602
+  when: lin_restic_rclone_config |default('')
   tags: lin_restic_rclone
 
 - name: verify that restic repository is already created
   command: rclone ls "{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}/config"
   register: restic_repo_check
-  changed_when: restic_repo_check.stderr |default('') |regex_search('directory not found') is not none
+  changed_when: restic_repo_check.stderr |default('') is search('directory not found')
   failed_when: false
   environment:
     RCLONE_CONFIG: "{{ lin_rclone_config }}"

@@ -17,6 +17,7 @@ lin_restic_reponame: "{{ inventory_hostname }}"
 lin_restic_password: supersecret
 
 lin_restic_mount_dir: /mnt/restic
+lin_restic_job_dirs: []
 
 lin_restic_repository: rclone:{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
 
@@ -27,7 +28,7 @@ lin_restic_cron_time_prune: '5:00'
 lin_restic_cron_ordering: true
 lin_restic_cron_verbose: 0
 
-lin_restic_cron_day_prune: Sun
+lin_restic_cron_day_prune: Mon
 #lin_restic_cron_day_prune: Mon-Sun
 
 lin_restic_forget_keep_last: 2
@@ -39,7 +40,26 @@ lin_restic_forget_keep_yearly: 2
 lin_restic_environ_for_restic: true
 lin_restic_environ_for_root: true
 
-lin_restic_sudo_rules:
+lin_restic_sudo_rules: "{{ lin_restic_default_sudo_rules }}"
+lin_restic_default_sudo_rules:
   - {user: postgres, command: /usr/bin/pg_dump}
   - {user: postgres, command: /usr/bin/pg_dumpall}
+
+lin_restic_jobs: []
+# - name: JOB_NAME
+#   type: postgres|filesystem|command
+#   database: DATABASE_NAME|all
+#   path: /
+#   excludes: [/path/to/exclude...]
+#   options: [--option1, --option2...]
+#   command: SHELL_COMMAND...
+
+lin_restic_ssh_configs: []
+# - section: host1      -- SSH config section (optional, default: alias)
+#   owner: root         -- owner of ssh config file to add the record, eg. root (default: restic user)
+#   alias: host1        -- SSH host alias (default: host)
+#   host: host1.com     -- actual host name or ip address (REQUIRED)
+#   port:     22        -- remote ssh port (default: 22)
+#   user:     root      -- remote ssh user name (default: owner)
+#   keyfile:  ssh.key   -- ssh key file (optional, will be installed on host)
 ...

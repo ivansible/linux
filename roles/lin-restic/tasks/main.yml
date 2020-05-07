@@ -2,5 +2,6 @@
 - name: become root and install restic
   import_tasks: root.yml
   become: true
+  when: lin_restic_jobs |default([])
   tags: lin_restic_all
 ...

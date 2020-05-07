@@ -27,6 +27,7 @@
     owner: root
     group: rclone
     mode: 0750
+  ignore_errors: "{{ ansible_check_mode |bool }}"
   register: restic_binary_mode_result
 
 - name: add full backup capabilities to restic binary
@@ -35,6 +36,7 @@
     path: "{{ lin_restic_binary }}"
     capability: cap_dac_read_search=+ep
     state: present
+  ignore_errors: "{{ ansible_check_mode |bool }}"
   # workaround for buggy setcap, which is always "changed"
   when: latest_restic_release is changed
         or restic_binary_mode_result is changed

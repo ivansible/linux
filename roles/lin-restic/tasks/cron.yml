@@ -29,6 +29,7 @@
     owner: restic
     group: rclone
     mode: 0750
+  register: restic_backup_script_result
   vars:
     verb_opts: "{{ ['--verbose=%s' |format(lin_restic_cron_verbose)]
                    if lin_restic_cron_verbose |int > 0 else [] }}"
@@ -48,6 +49,7 @@
       EnvironmentFile=/etc/default/restic
       ExecStart=/etc/systemd/system/restic-backup.sh
     force: true
+  register: restic_backup_service_result
   notify: reload systemd daemon
 
 - name: configure restic backup timer
@@ -62,6 +64,7 @@
       [Install]
       WantedBy=timers.target
     force: true
+  register: restic_backup_timer_result
   notify: reload systemd daemon
 
 - name: activate restic daily backup job
@@ -69,7 +72,9 @@
     name: restic-backup.timer
     state: started
     enabled: true
-    daemon_reload: true
+    daemon_reload: "{{ restic_backup_script_result is changed
+                    or restic_backup_service_result is changed
+                    or restic_backup_timer_result is changed }}"
 
 
 - name: generate restic weekly prune script
@@ -88,6 +93,7 @@
       --keep-weekly={{ lin_restic_forget_keep_weekly }}
       --keep-monthly={{ lin_restic_forget_keep_monthly }}
       --keep-yearly={{ lin_restic_forget_keep_yearly }}
+  register: restic_prune_script_result
   notify: reload systemd daemon
 
 - name: setup restic weekly prune service
@@ -107,6 +113,7 @@
       EnvironmentFile=/etc/default/restic
       ExecStart=/etc/systemd/system/restic-prune.sh
     force: true
+  register: restic_prune_service_result
   notify: reload systemd daemon
 
 - name: configure restic weekly prune timer
@@ -117,16 +124,26 @@
       [Unit]
       Description=Restic prune
       [Timer]
-      OnCalendar={{ lin_restic_cron_day_prune }} {{ lin_restic_cron_time_prune }}
+      OnCalendar={{ day }} {{ time }}
       [Install]
       WantedBy=timers.target
     force: true
+  register: restic_prune_timer_result
   notify: reload systemd daemon
+  vars:
+    day: "{{ lin_restic_cron_day_prune |default('Mon', true) }}"
+    time: "{{ lin_restic_cron_time_prune |default('5:00', true) }}"
 
-- name: activate restic weekly prune job
+- name: (de)activate restic weekly prune job
   systemd:
     name: restic-prune.timer
-    state: started
-    enabled: true
-    daemon_reload: true
+    state: "{{ active |ternary('started', 'stopped') }}"
+    enabled: "{{ active }}"
+    daemon_reload: "{{ restic_prune_script_result is changed
+                    or restic_prune_service_result is changed
+                    or restic_prune_timer_result is changed }}"
+  vars:
+    day: "{{ lin_restic_cron_day_prune |default('',true) }}"
+    time: "{{ lin_restic_cron_time_prune |default('',true) }}"
+    active: "{{ true if day and time else false }}"
 ...

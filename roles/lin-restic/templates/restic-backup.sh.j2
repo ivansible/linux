@@ -16,14 +16,17 @@ set -o pipefail
 {%   set pg_port = '-p %s' |format(lin_restic_postgres_port) %}
 {%   set pg_stdin = '--stdin --stdin-filename=/pg_%s.sql' |format(job.database |default('')) %}
 echo '== {{ job.name }} ({{ job.type }}) =='
-{%   if job.type == 'filesystem' %}
+{%   set disable = job.disable |default(false) |bool %}
+{%   if not disable %}
+{%     if job.type == 'filesystem' %}
 {{ restic_cmd }} {{ job.path }}
-{%   elif job.type == 'postgres' and job.database == 'all' %}
+{%     elif job.type == 'postgres' and job.database == 'all' %}
 {{ pg_run }}pg_dumpall {{ pg_port }} | {{ restic_short }} {{ pg_stdin }}
-{%   elif job.type == 'postgres' and job.database != 'all' %}
+{%     elif job.type == 'postgres' and job.database != 'all' %}
 {{ pg_run }}pg_dump {{ pg_port }} {{ job.database }} | {{ restic_short }} {{ pg_stdin }}
-{%   elif job.type == 'command' %}
+{%     elif job.type == 'command' %}
 {{ job.command }}
+{%     endif %}
 {%   endif %}
 {% endfor %}
 echo '== backup done =='

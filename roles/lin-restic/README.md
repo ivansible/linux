@@ -40,6 +40,7 @@ Fine-tune restic cron jobs (start daily at specified time).
     lin_restic_cron_day_prune: sun
 Fine-tune when cron should start the prune job:
 "sat" - on Saturday, "sun" - on Sunday, "mon-sun" - daily.
+If these settings are empty, the prune job will be disabled.
 
     lin_restic_cron_verbose: 0
 A positive value 1-3 will increase verbosity of timed restic runs.
@@ -54,11 +55,41 @@ Fine-tune restic forget parameters (belongs with prune job).
     lin_restic_postgres_port: 5432
 Default postgres server port for database backups.
 
+    lin_restic_mount_dir: /mnt/restic
+    lin_restic_job_dirs: []
+Directories for rclone mount and command jobs.
+
+    lin_restic_sudo_rules: [{user: postgres, command: /usr/bin/pg_dump}]...
+Allow user restic to impersonate via `sudo` for backup jobs.
+
+    lin_restic_ssh_configs: []
+Optional array of records. Each record must contain the following fields:
+  - `section`  -- SSH config section (optional, default: SSH host alias)
+  - `owner`    -- owner of ssh config file to add the record, eg. root (default: restic user)
+  - `alias`    -- SSH host alias (default: host)
+  - `host`     -- actual host name or ip address (REQUIRED)
+  - `port`     -- ssh port (default: 22)
+  - `user`     -- remote ssh user name (default: owner)
+  - `keyfile`  -- ssh key file (optional, will be installed on host)
+
+```
+    lin_restic_jobs: []
+```
+Optional array of records. Each record must contain the following fields:
+  - `name`     -- job name (REQUIRED)
+  - `type`     -- keyword: `postgres` or `filesystem` or `command`
+  - `database` -- database name or keyword `all`
+  - `path`     -- filesystem path
+  - `excludes` -- list of paths to exclude
+  - `options`  -- list of options
+  - `command`  -- freeform shell command
+  - `disable`  -- optional flag to disable this job
+
 
 ## Tags
 
 - `lin_restic_install` -- install restic binary
-- `lin_restic_user` -- create dedicated restic user
+- `lin_restic_user` -- create dedicated restic user and job helpers
 - `lin_restic_rclone` -- setup rclone remote
 - `lin_restic_repo` -- setup restic repository
 - `lin_restic_cron` -- activate restic cron jobs
