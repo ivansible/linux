@@ -84,6 +84,19 @@
   notify: restart ssh service
   tags: lin_ssh_settings
 
+- name: permit root login from certain hosts only
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      Match Address {{ addresses }}
+          PermitRootLogin yes
+    marker: "# {mark} PermitRootLogin"
+    insertafter: EOF
+  vars:
+    addresses: "{{ lin_ssh_root_login_from |d([],true) |join(',') }}"
+  when: lin_ssh_root_login_from is not none
+  notify: restart ssh service
+  tags: lin_ssh_settings
 
 - name: update known hosts
   import_tasks: known_hosts.yml

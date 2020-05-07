@@ -34,6 +34,7 @@ lin_ssh_settings:
   ## http://manpages.ubuntu.com/manpages/bionic/man5/sshd_config.5.html#time%20formats
   RekeyLimit: '1G 2h'
 
+lin_ssh_root_login_from: ~
 
 lin_ssh_idle_timeout_minutes: 10
 
