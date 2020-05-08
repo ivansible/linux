@@ -80,16 +80,9 @@ lin_core_packages_devel:
   # development
   - python
   - python3
-  - python-pip
+  - "{{ lin_use_python2 |bool |ternary('python-pip', 'python2') }}"
   - python3-pip
   - virtualenv
   - build-essential
   - bash-completion
-  # obsolete
-  #- python-apt
-  #- python-passlib   # for ansible htpasswd module
-  #- python-virtualenv
-  #- python-psycopg2
-  #- python-pymongo
-  #- python-keyczar   # for ansible accelerated mode (??)
 ...

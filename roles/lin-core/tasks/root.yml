@@ -76,9 +76,9 @@
   tags: lin_core_cron
 
 
-- name: disable telemetry on ubuntu bionic
+- name: disable telemetry on ubuntu bionic+
   import_tasks: telemetry.yml
-  when: ansible_lsb.codename == 'bionic'
+  when: ansible_lsb.release is version('18.04','>=')
   tags: lin_core_telemetry
 
 
