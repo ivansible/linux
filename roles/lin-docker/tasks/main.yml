@@ -8,26 +8,27 @@
 
 - name: install ansible docker bindings
   apt:
-    name:
-      - python-docker
-      - python3-docker
+    name: "{{ lin_use_python2 |bool |ternary(packages_pythons, packages_python3) }}"
   become: true
+  vars:
+    packages_pythons: python3-docker,python-docker
+    packages_python3: python3-docker
   tags:
     - lin_docker_ansible
     - lin_docker_all
 
-- name: install docker-compose
+- name: install docker-compose from github
   import_tasks: docker-compose.yml
-  when: docker_compose_enable |bool
+  when: docker_compose_github_enable |bool
   become: true
   tags:
     - lin_docker_compose
     - lin_docker_all
     - ip4only
 
-- name: install docker machine
+- name: install docker machine from github
   import_tasks: docker-machine.yml
-  when: docker_machine_enable |bool
+  when: docker_machine_github_enable |bool
         and docker_extras |bool
   become: true
   tags:

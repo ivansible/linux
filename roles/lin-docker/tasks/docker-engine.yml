@@ -2,35 +2,41 @@
 - name: add docker signing key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
+  when: docker_from_docker_io |bool
 
 - name: add docker repository
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ codename }} stable"
     filename: docker-ce
   register: add_docker_repo_result
   until: add_docker_repo_result is successful
+  when: docker_from_docker_io |bool
+  vars:
+    ## workaround for docker repo not yet ready on focal
+    codename: "{{ 'eoan' if _codename == 'focal' and docker_focal_fix |bool else _codename }}"
+    _codename: "{{ ansible_lsb.codename }}"
 
 - block:
     - name: install docker and friends
       apt:
-        name:
-          - docker-ce
-          - jq  # jq helps to parse docker output
-          - bash-completion
+        name: "{{ packages_docker }},{{ packages_helpers }}"
         state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
         autoremove: true
         install_recommends: false
   rescue:
-    - name: install docker and friends, update apt cache
+    - name: install docker and friends (update apt cache)
       apt:
-        name:
-          - docker-ce
-          - jq
-          - bash-completion
+        name: "{{ packages_docker }},{{ packages_helpers }}"
         state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
         autoremove: true
         install_recommends: false
         update_cache: true
+  vars:
+    packages_docker: "{{ docker_from_docker_io |bool |ternary(pkgs_dockerio, pkgs_ubuntu) }}"
+    pkgs_ubuntu: docker.io,docker-compose
+    pkgs_dockerio: docker-ce
+    ## note: jq helps to parse docker output
+    packages_helpers: jq,bash-completion
 
 - name: bash completion script for docker
   file:

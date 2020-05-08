@@ -25,7 +25,7 @@
       # - dbus-x11
     state: present
   become: true
-  when: ansible_lsb.codename == 'bionic'
+  when: ansible_lsb.release is version('16.04','>')
 
 
 - name: login target user into docker hub
