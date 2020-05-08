@@ -59,7 +59,7 @@
 
 - name: give target user permissions for docker group/hub
   import_tasks: docker-user.yml
-  when: docker_permit_user |bool and is_permitted |bool
+  when: docker_permit_user |bool
   tags:
     - lin_docker_user
     - lin_docker_all
