@@ -54,6 +54,8 @@
   tags: skip_ansible_lint
   notify: reload ferm service
   loop: "{{ ferm_core_rules }}"
+  loop_control:
+    label: "{{ item.name }}"
 
 - name: open external ports in ferm before start
   ferm_port:
