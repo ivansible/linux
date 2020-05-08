@@ -7,12 +7,12 @@
       tags:
         - lin_motd_xenial
         - lin_motd_all
-  when: ansible_lsb.codename == 'xenial'
+  when: ansible_lsb.codename in ['xenial']
   tags:
     - lin_motd_xenial
     - lin_motd_all
 
-- name: disable motd banners on ubuntu bionic
+- name: disable motd banners on ubuntu bionic+
   include_tasks: motd-bionic.yml
   args:
     apply:
@@ -20,7 +20,7 @@
       tags:
         - lin_motd_bionic
         - lin_motd_all
-  when: ansible_lsb.codename == 'bionic'
+  when: ansible_lsb.codename not in ['xenial']
   tags:
     - lin_motd_bionic
     - lin_motd_all

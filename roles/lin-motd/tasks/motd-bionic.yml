@@ -1,5 +1,5 @@
 ---
-- name: disable bionic motd banners by disabling execution (ok to fail)
+- name: disable bionic+ motd banners by disabling execution (ok to fail)
   file:
     path: /etc/update-motd.d/{{ item }}
     mode: 0644
@@ -18,7 +18,7 @@
   ignore_errors: true
   no_log: "{{ hide_secrets |bool }}"
 
-- name: disable bionic motd banners by renaming (ok to fail)
+- name: disable bionic+ motd banners by renaming (ok to fail)
   command: mv /etc/update-motd.d/{{ item }} /etc/update-motd.d/{{ item }}.off
   args:
     removes: /etc/update-motd.d/{{ item }}
