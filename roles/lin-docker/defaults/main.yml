@@ -3,6 +3,9 @@
 is_permitted: false
 docker_extras: false
 
+docker_machine_enable: true
+docker_compose_enable: true
+
 docker_machine_release: latest
 docker_compose_release: latest
 

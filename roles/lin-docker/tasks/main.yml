@@ -20,6 +20,7 @@
 
 - name: install docker-compose
   import_tasks: docker-compose.yml
+  when: docker_compose_enable |bool
   become: true
   tags:
     - lin_docker_compose
@@ -28,7 +29,7 @@
 
 - name: install docker machine
   import_tasks: docker-machine.yml
-  when: docker_extras |bool
+  when: docker_extras |bool and docker_machine_enable |bool
   become: true
   tags:
     - lin_docker_machine
