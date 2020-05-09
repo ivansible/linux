@@ -30,7 +30,7 @@ lin_wg_nets: []
 #       host: ip         - IP address of endpoint (optional)
 #       port: port       - port of endpoint, optional (default: subnet's port)
 #       keepalive: 0     - keepalive interval in seconds (default: no keepalive)
-#       redirect_gateway: true|false  - true redirects outgoing traffic over vpn (default: false)
+#       redirect_gateway: true|false|ipv4|ipv6 - redirects outgoing traffic over vpn (default: false)
 #       client_config: true|false     - produce example client config (default: false)
 #       client_ips: [ip/mask]         - override client ip list in client config (optional)
 #       server_ips: [ip/mask]         - override server ip list in client config (optional)
