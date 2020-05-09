@@ -8,7 +8,7 @@
 
 lin_wg_host: "{{ ansible_default_ipv4.address }}"
 lin_wg_forward: true
-lin_wg_public_interface: "{{ ansible_default_ipv4.interface }}"
+lin_wg_public_interface: "{{ ansible_default_ipv4.interface |default(ansible_default_ipv6.interface) }}"
 
 lin_wg_nets: []
 # - name: net1         - name of subnet, informational (optional)

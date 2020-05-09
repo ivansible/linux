@@ -1,14 +1,30 @@
 ---
+- block:
+    - name: add wireguard signing key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: "{{ key_id }}"
+  rescue:
+    - name: add wireguard signing key (ip6-only hosts)
+      apt_key:
+        keyserver: p80.pool.sks-keyservers.net
+        id: "{{ key_id }}"
+  vars:
+    key_id: E1B39B6EF6DDB96564797591AE33835F504A1A25
+  tags: lin_wg_install
+
 - name: add wireguard ppa repository
   apt_repository:
-    repo: ppa:wireguard/wireguard
+    repo: "deb [arch=amd64] http://ppa.launchpad.net/{{ ppa }}/ubuntu {{ codename }} main"
     ## if lsb_release executable is not installed on target,
     ## the python aptsource module defaults to the codename "sid"
     ## and fails. as a workaround, set codename here explicitly.
-    codename: "{{ ansible_lsb.codename }}"
     filename: wireguard
     mode: 0644
     update_cache: true
+  vars:
+    ppa: wireguard/wireguard
+    codename: "{{ ansible_lsb.codename }}"
   tags: lin_wg_install
 
 - name: install wireguard from ppa
@@ -112,7 +128,7 @@
     state: "{{ lin_wg_forward |bool |ternary('present','absent') }}"
   vars:
     wg_nets: "{{ lin_wg_nets |default([],true) |flatten }}"
-    public_iface: "{{ lin_wg_public_interface |default('') }}"
+    public_iface: "{{ lin_wg_public_interface |default('',true) }}"
   when: lin_firewall == 'ferm'
   tags:
     - skip_ansible_lint
@@ -133,11 +149,12 @@
   tags: lin_wg_service
 
 
-- name: create wireguard client configs directory
+- name: create directory for wireguard client configs
   file:
     path: /etc/wireguard/clients
     state: directory
     mode: 0750
+  when: lin_wg_nets |default([],true) |json_query('[].peers[]|[?client_config]') |length >0
   tags: lin_wg_clients
 
 - name: create wireguard client config files
