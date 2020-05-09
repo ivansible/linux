@@ -16,8 +16,8 @@ push "route {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}{% if
 {% for route6 in push_routes6 %}
 push "route-ipv6 {{ route6 }}"
 {% endfor %}
-{% if client_redirect_gateway %}
-push "redirect-gateway def1{{ ' ipv6' if has_subnet6 else '' }}"
+{% if redirect_ipv4 or redirect_ipv6 %}
+push "redirect-gateway def1{{ ' ipv6' if redirect_ipv6 else '' }}"
 {% endif %}
 {% if has_config %}
 {{ config.strip() }}

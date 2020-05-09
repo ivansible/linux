@@ -140,10 +140,10 @@
 
     client_subnet4: "{{ client.subnet4 |default('') }}"
     client_subnet6: "{{ client.subnet6 |default('') }}"
-    client_redirect_gateway: "{{ _client_has_subnet and public_interface and _client_redirect_gateway }}"
-    _client_has_subnet: "{{ client_subnet4 or client_subnet6 }}"
-    _client_redirect_gateway: "{{ client.redirect_gateway |default(false) |bool }}"
-    public_interface: "{{ srv_ovpn_public_interface |default('') }}"
+    _redirect_val: "{{ client.redirect_gateway |default(false,true) |string |lower }}"
+    redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' and client_subnet4 and public_iface }}"
+    redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' and client_subnet4 and public_iface }}"
+    public_iface: "{{ srv_ovpn_public_interface |default('') }}"
   tags: srv_ovpn_clients
 
 - name: start openvpn server '{{ server_name }}'

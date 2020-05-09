@@ -120,7 +120,7 @@
     name: "ovpn-gw-{{ server_name }}-{{ client_name }}"
     prio: 78
     rule: "{{ lookup('template', 'client/redirect-gateway.ferm.j2') }}"
-    state: "{{ client_redirect_gateway |ternary('present','absent') }}"
+    state: "{{ (redirect_ipv4 or redirect_ipv6) |ternary('present', 'absent') }}"
   tags:
     - skip_ansible_lint
     - srv_ovpn_firewall

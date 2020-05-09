@@ -41,7 +41,7 @@ srv_ovpn_servers: ~
 #        push_routes6: [fd00:2::/64]    - list of pushed ipv6 routes (optional)
 #        self_routes4: [192.168.3.0/24] - list of served ipv4 routes (optional)
 #        self_routes6: [fd00:3::/64]    - list of served ipv6 routes (optional)
-#        redirect_gateway: true|false   - true redirects outgoing traffic over vpn (default: false)
+#        redirect_gateway: true|false|ipv4|ipv6 - redirect outgoing traffic over vpn (default: false)
 #        metric: 1024                   - metric to assign for pushed routes (optional)
 #        cert: ~                        - predefined certificate text (default: generate)
 #        key: ~                         - predefined private key text (default: generate)
