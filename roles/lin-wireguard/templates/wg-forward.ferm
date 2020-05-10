@@ -18,6 +18,7 @@ domain ($ip_all) table filter chain FORWARD interface {{ iface }} outerface {{ i
 {%         if (redirect_ipv4 and not ipv6) or (redirect_ipv6 and ipv6) %}
 domain {{ domain }} table filter chain FORWARD saddr {{ addr }} outerface {{ public_iface }} ACCEPT;
 {{ openvz_cond }}domain {{ domain }} table nat chain POSTROUTING saddr {{ addr }} outerface {{ public_iface }} MASQUERADE;
+domain {{ domain }} table mangle chain FORWARD saddr {{ addr }} proto tcp syn interface {{ iface }} TCPMSS clamp-mss-to-pmtu;
 {%         endif %}
 {%       endfor %}
 {%     endif %}
