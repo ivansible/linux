@@ -2,6 +2,7 @@
 # defaults for ivansible.srv_openvpn
 
 srv_ovpn_enable: true  # the role is skipped if this flag is false
+srv_ovpn_focal_fix: true
 
 srv_ovpn_host: "{{ ansible_host }}"  # visible host name/address for client configs
 srv_ovpn_port: ~   # default port for servers (default: 1194)

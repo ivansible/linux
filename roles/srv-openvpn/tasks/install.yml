@@ -16,11 +16,14 @@
 
 - name: add openvpn repository
   apt_repository:
-    repo: "deb [arch=amd64] {{ repo_url }} {{ ansible_lsb.codename }} main"
+    repo: "deb [arch=amd64] {{ repo_url }} {{ codename }} main"
     filename: openvpn
     mode: 0644
   vars:
     repo_url: http://build.openvpn.net/debian/openvpn/stable
+    ## workaround for openvpn repo not yet ready on focal
+    codename: "{{ 'bionic' if _codename == 'focal' and srv_ovpn_focal_fix |bool else _codename }}"
+    _codename: "{{ ansible_lsb.codename }}"
   register: ovpn_repo_result
   until: ovpn_repo_result is successful
 
