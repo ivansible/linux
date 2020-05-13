@@ -9,14 +9,15 @@
 - name: include the "reset ssh connection" task
   include_tasks: reset-connection.yml
 
-- name: install docker login dependencies on bionic
-  # Docker login on Bionic defaults to use the secretservice executable
-  # which seems to have some sort of X11 dependency for some reason.
-  # This results in error "Cannot autolaunch D-Bus without X11 $DISPLAY"
-  # If you install and configure `pass`, docker will use that instead,
-  # which seems to solve the problem.
-  # Note: there is no need to configure `gpg2` and `pass`, just install it.
-  # See: https://stackoverflow.com/a/52251706
+- name: install docker login dependencies on bionic+
+  ## Docker login on Bionic defaults to use the secretservice executable
+  ## which seems to have some sort of X11 dependency for some reason.
+  ## This results in error "Cannot autolaunch D-Bus without X11 $DISPLAY"
+  ## If you install and configure `pass`, docker will use that instead,
+  ## which seems to solve the problem.
+  ##
+  ## Note: there is no need to configure `gpg2` and `pass`, just install it.
+  ## See: https://stackoverflow.com/a/52251706
   apt:
     name:
       - gnupg2
@@ -65,16 +66,16 @@
             stdin: "{{ docker_hub_password }}"
 
         - name: move docker hub token from root to login user
-          # using recursive chown because file module can't recurse
-          # noqa 302
+          ## using recursive chown because file module can't recurse
+          ## noqa 302
           shell: >
             chown -R {{ ansible_user_uid }}:{{ ansible_user_gid }} ~/.docker &&
             rm -rf "{{ ansible_user_dir }}/.docker" &&
             mv ~/.docker "{{ ansible_user_dir }}/"
-      # end of rescue block
+      ## end of rescue block
       become: true
 
-  # end of login block
+  ## end of login block
   tags:
     - ip4only
 ...

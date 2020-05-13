@@ -17,7 +17,9 @@
           - docker-ce
           - jq  # jq helps to parse docker output
           - bash-completion
-        state: present
+        state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
+        autoremove: true
+        install_recommends: false
   rescue:
     - name: install docker and friends, update apt cache
       apt:
@@ -25,7 +27,9 @@
           - docker-ce
           - jq
           - bash-completion
-        state: present
+        state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
+        autoremove: true
+        install_recommends: false
         update_cache: true
 
 - name: bash completion script for docker
@@ -54,7 +58,7 @@
     pretty: true
   loop: "{{ docker_daemon_settings |default({}) |dictsort }}"
   notify: restart docker daemon
-  # ansible lint raises error because json_patch module belongs with custom collection
+  ## ansible lint raises error because json_patch module belongs with custom collection
   tags: skip_ansible_lint
 
 - name: enable docker service

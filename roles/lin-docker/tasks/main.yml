@@ -1,8 +1,6 @@
 ---
-# tasks for ivansible.lin_docker
-
-- name: install docker core
-  import_tasks: docker-core.yml
+- name: install docker engine
+  import_tasks: docker-engine.yml
   become: true
   tags:
     - lin_docker_core
@@ -29,7 +27,8 @@
 
 - name: install docker machine
   import_tasks: docker-machine.yml
-  when: docker_extras |bool and docker_machine_enable |bool
+  when: docker_machine_enable |bool
+        and docker_extras |bool
   become: true
   tags:
     - lin_docker_machine
@@ -49,10 +48,11 @@
     dest: "{{ docker_files_dir }}"
     repo: "{{ docker_files_repo }}"
     version: "{{ docker_files_branch }}"
-    # only clone, don't choke on pending modifications
+    ## only clone, don't choke on pending modifications
     update: false
     accept_hostkey: true
-  when: is_permitted |bool and docker_files_repo != ''  # noqa 602
+  when: docker_files_repo |default('')
+        and is_permitted |bool
   tags:
     - lin_docker_files
     - lin_docker_all

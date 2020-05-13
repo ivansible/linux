@@ -1,20 +1,21 @@
 ---
-# defaults for ivansible.lin_docker
+## defaults for ivansible.lin_docker
+
 is_permitted: false
+docker_permit_user: false
+
+docker_upgrade: false
 docker_extras: false
+## bash completion scripts for docker-compose and docker-machine
+docker_bash_completion_extras: false
 
-docker_machine_enable: true
 docker_compose_enable: true
-
-docker_machine_release: latest
 docker_compose_release: latest
-
-docker_allow_reinstall: false
-
-docker_machine_binary_file: /usr/local/bin/docker-machine
 docker_compose_binary_file: /usr/local/bin/docker-compose
 
-docker_permit_user: false
+docker_machine_enable: true
+docker_machine_release: latest
+docker_machine_binary_file: /usr/local/bin/docker-machine
 
 docker_hub_username: ""
 docker_hub_password: ""
@@ -23,9 +24,6 @@ docker_files_repo: ""
 docker_files_branch: master
 docker_files_dir: ~/devel/docker
 
-# bash completion scripts for docker-compose and docker-machine
-docker_bash_completion_extras: false
-
-# dictionary of custom docker daemon settings
+## dictionary of custom docker daemon settings
 docker_daemon_settings: {}
 ...

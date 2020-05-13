@@ -1,6 +1,6 @@
 ---
-# reset_connection is wrapped in an included task to avoid ansible warning
-# "reset_connection task does not support when conditional"
+## reset_connection is wrapped in an included task to avoid ansible warning
+## "reset_connection task does not support when conditional"
 - name: connection reset will apply new group to the ansible session
   meta: reset_connection
 ...

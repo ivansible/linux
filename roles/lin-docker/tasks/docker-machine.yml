@@ -5,7 +5,7 @@
     release: "{{ docker_machine_release }}"
     template: "{download_url}/docker-machine-Linux-x86_64"
     creates: "{{ docker_machine_binary_file }}"
-    reinstall: "{{ docker_allow_reinstall |bool }}"
+    reinstall: "{{ docker_upgrade |bool }}"
   tags: skip_ansible_lint
   register: latest_dman_release
 
@@ -14,9 +14,9 @@
     url: "{{ latest_dman_release.url }}"
     dest: "{{ docker_machine_binary_file }}"
     mode: 0755
-    force: "{{ docker_allow_reinstall |bool }}"
+    force: "{{ docker_upgrade |bool }}"
   when: latest_dman_release is changed
-  # fix intermittent network failures
+  ## fix intermittent network failures
   register: download_result
   until: "'timed out' not in download_result.msg |default('')"
 
@@ -25,12 +25,12 @@
     url: https://raw.githubusercontent.com/docker/machine/master/contrib/completion/bash/{{ item }}.bash
     dest: /etc/bash_completion.d/{{ item }}
     mode: 0644
-    force: "{{ docker_allow_reinstall | bool }}"
+    force: "{{ docker_upgrade | bool }}"
   loop:
     - docker-machine
     - docker-machine-prompt
     - docker-machine-wrapper
-  # stuff of low importance, so ok to fail
+  ## stuff of low importance, so ok to fail
   ignore_errors: true
   when: docker_bash_completion_extras |bool
 ...

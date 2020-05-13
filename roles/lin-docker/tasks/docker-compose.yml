@@ -4,7 +4,7 @@
     name:
       - docker-compose
       - docker_compose
-      # stock pyopenssl on xenial is incompatible with docker-compose
+      ## stock pyopenssl on xenial is incompatible with docker-compose
       # - python-openssl
     state: absent
 
@@ -14,7 +14,7 @@
     release: "{{ docker_compose_release }}"
     template: '{download_url}/docker-compose-Linux-x86_64'
     creates: "{{ docker_compose_binary_file }}"
-    reinstall: "{{ docker_allow_reinstall |bool }}"
+    reinstall: "{{ docker_upgrade |bool }}"
   tags: skip_ansible_lint
   register: latest_dcomp_release
 
@@ -23,7 +23,7 @@
     url: "{{ latest_dcomp_release.url }}"
     dest: "{{ docker_compose_binary_file }}"
     mode: 0755
-    force: "{{ docker_allow_reinstall |bool }}"
+    force: "{{ docker_upgrade |bool }}"
   when: latest_dcomp_release is changed
 
 - name: bash completion script for docker-compose (optional)
@@ -33,14 +33,14 @@
         url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644
-        force: "{{ docker_allow_reinstall |bool }}"
+        force: "{{ docker_upgrade |bool }}"
   rescue:
     - name: bash completion script for docker-compose (workaround, get master)
       get_url:
         url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644
-        force: "{{ docker_allow_reinstall |bool }}"
+        force: "{{ docker_upgrade |bool }}"
+  ## end of block
   when: docker_bash_completion_extras |bool
-  # end of block
 ...

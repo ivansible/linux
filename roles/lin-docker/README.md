@@ -16,16 +16,19 @@ None
 
 Available variables are listed below, along with default values.
 
-    docker_machine_release: latest
-Docker-machine release to install. See new releases at
-https://github.com/docker/machine/releases
-
+    docker_compose_enable: true
     docker_compose_release: latest
-Docker-compose release to install. See new releases at
-https://github.com/docker/compose/releases
+Install given `docker compose` release from github if the flag is `true`.
+See new releases at https://github.com/docker/compose/releases
 
-    docker_allow_reinstall: false
-Allows to refresh already downloaded docker redistributables.
+    docker_extras: false
+    docker_machine_enable: true
+    docker_machine_release: latest
+Install given `docker machine` release from github if both flags are `true`.
+See new releases at https://github.com/docker/machine/releases
+
+    docker_upgrade: false
+Allows to upgrade already installed docker packages.
 
     docker_permit_user: false
 True allows to add target user in the docker group.
