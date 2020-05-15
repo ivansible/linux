@@ -1,9 +1,13 @@
 ---
-# defaults for ivansible.lin_yggdrasil
+## defaults for ivansible.lin_yggdrasil
 
 lin_ygg_enable: true
 lin_ygg_ifname: ygg0
 lin_ygg_mtu: 65535
+
+## socks HOST:PORT for peer connections, optional
+lin_ygg_socks: ~
+lin_ygg_peer_catalog: false
 
 ## public address is used by other peers to construct connection string
 ## local peer always listens on all interfaces
@@ -31,11 +35,6 @@ lin_ygg_peers: []
 #    socks: false   - optional flag, enable socks
 #    tls: true      - optional flag, select tls
 #    ipv6: false    - optional flag, select host6 address
-
-## socks HOST:PORT for peer connections, optional
-lin_ygg_socks: ~
-
-lin_ygg_peer_catalog: false
 
 ## either list of public keys as strings
 ## or list of objects {pub: PUBLIC_KEY, comment: COMMENT}

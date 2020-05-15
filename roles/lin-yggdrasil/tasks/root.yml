@@ -12,16 +12,30 @@
     - skip_ansible_lint
     - lin_ygg_install
 
-- name: install yggdrasil package
-  apt:
-    deb: "{{ ygg_release_result.url }}"
-    only_upgrade: "{{ not lin_ygg_upgrade |bool }}"
-  register: ygg_dpkg_result
-  failed_when:
-    ygg_dpkg_result.failed and
-    ygg_dpkg_result.msg is not search('later version is already installed')
-  when: ygg_release_result is changed
-  notify: restart yggdrasil service
+- block:
+    - name: install yggdrasil package (can be rescued if it fails)
+      apt:
+        deb: "{{ ygg_release_result.url }}"
+        only_upgrade: "{{ not lin_ygg_upgrade |bool }}"
+      register: ygg_dpkg_result
+      failed_when:
+        ygg_dpkg_result.failed and
+        ygg_dpkg_result.msg is not search('later version is already installed')
+      notify: restart yggdrasil service
+      when: ygg_release_result is changed
+  rescue:
+    ## fix error "Breaks existing package 'yggdrasil' conflict: yggdrasil"
+    - name: remove old yggdrasil package (rescue)
+      apt:
+        name: yggdrasil
+        state: absent
+
+    - name: install yggdrasil package (rescue)
+      apt:
+        deb: "{{ ygg_release_result.url }}"
+      register: ygg_dpkg_result
+      notify: restart yggdrasil service
+      when: ygg_release_result is changed
   tags: lin_ygg_install
 
 - name: directory for yggdrasil configs
