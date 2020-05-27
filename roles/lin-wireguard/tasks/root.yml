@@ -63,7 +63,7 @@
           tags:
             - lin_wg_go
             - lin_wg_all
-      when: lin_wg_go_allow_reinstall |bool
+      when: lin_wg_go_upgrade |bool
             or not wireguard_go_binary_stat.stat.exists
   when: lin_wg_install_go |bool
   tags: lin_wg_go
@@ -100,8 +100,9 @@
   loop_control:
     index_var: idx
     label: "{{ item.name |default('wg%d' % idx) }}"
-  when: lin_firewall == 'ufw'
-        and item.port |default(0) |int
+  when:
+    - lin_firewall == 'ufw'
+    - item.port |default(0) |int
   tags: lin_wg_firewall
 
 - name: open wireguard port in ferm
@@ -113,8 +114,9 @@
   loop_control:
     index_var: idx
     label: "{{ item.name |default('wg%d' % idx) }}"
-  when: lin_firewall == 'ferm'
-        and item.port |default(0) |int
+  when:
+    - lin_firewall == 'ferm'
+    - item.port |default(0) |int
   tags:
     - skip_ansible_lint
     - lin_wg_firewall
@@ -162,7 +164,11 @@
     src: client.conf
     dest: /etc/wireguard/clients/{{ filename }}.conf
     mode: 0600
-  when: net.name |default('') and peer.name |default('') and active and client_config
+  when:
+    - net.name |default('')
+    - peer.name |default('')
+    - active |bool
+    - client_config |bool
   loop: "{{ lin_wg_nets |default([],true) |flatten |subelements('peers', skip_missing=true) }}"
   loop_control:
     label: "{{ peer.name |default('none') }}/{{ net.name |default('none') }}"
