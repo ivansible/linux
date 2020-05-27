@@ -35,7 +35,7 @@ ferm_binary: "{{ ferm_bindir }}/ferm"
 ferm_openvz_file: /var/lib/ferm/openvz.ferm
 
 ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
-ferm_allow_reinstall: true
+ferm_upgrade: true
 
 ferm_ipset_files:
   - ports.ext

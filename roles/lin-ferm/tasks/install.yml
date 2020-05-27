@@ -20,7 +20,7 @@
     owner: root
     group: root
     mode: 0754
-    force: "{{ ferm_allow_reinstall |bool }}"
+    force: "{{ ferm_upgrade |bool }}"
   notify: reload ferm service
   ## this task always reports as changed in check mode
   when: not ansible_check_mode
