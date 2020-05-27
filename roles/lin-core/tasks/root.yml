@@ -3,6 +3,12 @@
   import_tasks: settings.yml
   tags: lin_core_settings
 
+- name: fix error "storage.googleapis.com/bazel-apt key expired"
+  apt_key:
+    url: https://bazel.build/bazel-release.pub.gpg
+  when: ansible_virtualization_type != 'docker'
+  tags: lin_core_apt
+
 - name: adjust apt settings
   import_tasks: apt.yml
   tags: lin_core_apt
