@@ -1,6 +1,10 @@
 #!/bin/bash
 set -o pipefail
 {{ lin_restic_binary }} version
+{% if lin_restic_prune_pre_command %}
+echo '== pre-actions =='
+{{ lin_restic_prune_pre_command }}
+{% endif %}
 echo '== unlock =='
 {{ lin_restic_binary }} unlock
 echo '== check =='
@@ -17,4 +21,8 @@ echo '== size =='
 {{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
 echo '== cache cleanup =='
 {{ lin_restic_binary }} cache --cleanup
+{% if lin_restic_prune_post_command %}
+echo '== post-actions =='
+{{ lin_restic_prune_post_command }}
+{% endif %}
 echo '== prune done =='

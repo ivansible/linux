@@ -42,6 +42,10 @@ Fine-tune when cron should start the prune job:
 "sat" - on Saturday, "sun" - on Sunday, "mon-sun" - daily.
 If these settings are empty, the prune job will be disabled.
 
+    lin_restic_prune_pre_command: ~
+    lin_restic_prune_post_command: ~
+Optional shell commands to run before/after prune job.
+
     lin_restic_cron_verbose: 0
 A positive value 1-3 will increase verbosity of timed restic runs.
 

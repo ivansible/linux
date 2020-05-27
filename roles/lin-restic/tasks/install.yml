@@ -7,19 +7,19 @@
     template: '{download_url}/restic_{ver}_linux_amd64.bz2'
     strip_v: true
     creates: "{{ lin_restic_binary }}"
-    reinstall: "{{ lin_restic_allow_reinstall |bool }}"
-  register: latest_restic_release
+    reinstall: "{{ lin_restic_upgrade |bool }}"
+  register: _restic_release
 
 - name: download compressed restic binary
   get_url:
-    url: "{{ latest_restic_release.url }}"
+    url: "{{ _restic_release.url }}"
     dest: "{{ lin_restic_binary }}.bz2"
     force: true
-  when: latest_restic_release is changed
+  when: _restic_release is changed
 
 - name: uncompress restic binary
   command: bunzip2 -f "{{ lin_restic_binary }}.bz2"
-  when: latest_restic_release is changed
+  when: _restic_release is changed
 
 - name: ensure permissions of restic binary
   file:
@@ -28,18 +28,18 @@
     group: rclone
     mode: 0750
   ignore_errors: "{{ ansible_check_mode |bool }}"
-  register: restic_binary_mode_result
+  register: _restic_binary_mode
 
 - name: add full backup capabilities to restic binary
-  # https://restic.readthedocs.io/en/stable/080_examples.html#full-backup-without-root
+  ## https://restic.readthedocs.io/en/stable/080_examples.html#full-backup-without-root
   capabilities:
     path: "{{ lin_restic_binary }}"
     capability: cap_dac_read_search=+ep
     state: present
   ignore_errors: "{{ ansible_check_mode |bool }}"
-  # workaround for buggy setcap, which is always "changed"
-  when: latest_restic_release is changed
-        or restic_binary_mode_result is changed
+  ## workaround for buggy setcap, which is always "changed"
+  when: _restic_release is changed
+        or _restic_binary_mode is changed
 
 - name: generate restic bash completion
   command: >

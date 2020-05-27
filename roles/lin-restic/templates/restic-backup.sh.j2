@@ -15,9 +15,11 @@ set -o pipefail
 {%   set pg_run = 'sudo -u postgres ' %}
 {%   set pg_port = '-p %s' |format(lin_restic_postgres_port) %}
 {%   set pg_stdin = '--stdin --stdin-filename=/pg_%s.sql' |format(job.database |default('')) %}
-echo '== {{ job.name }} ({{ job.type }}) =='
 {%   set disable = job.disable |default(false) |bool %}
-{%   if not disable %}
+{%   if disable %}
+echo '== {{ job.name }} ({{ job.type }}, disabled) =='
+{%   else %}
+echo '== {{ job.name }} ({{ job.type }}) =='
 {%     if job.type == 'filesystem' %}
 {{ restic_cmd }} {{ job.path }}
 {%     elif job.type == 'postgres' and job.database == 'all' %}

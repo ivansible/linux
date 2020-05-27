@@ -6,7 +6,7 @@
       - rclone
     append: true
     shell: /bin/bash
-    # no password, login with ssh keys only
+    ## no password, login with ssh keys only
     password: '!'
   register: restic_user_result
 
@@ -16,10 +16,11 @@
     key: "{{ lookup('pipe', keygen_cmd) }}"
     comment: "{{ item |basename |regex_replace('[.]key$') }}"
   vars:
-    # use '&&' in the pipe to fail on chmod errors
+    ## use '&&' in the pipe to fail on chmod errors
     keygen_cmd: 'chmod 600 "{{ item }}" && ssh-keygen -y -f "{{ item }}"'
-  when: not ansible_check_mode
-        and item |default('')
+  when:
+    - not ansible_check_mode
+    - item |default('')
   loop: "{{ lin_restic_authorized_keys }}"
   loop_control:
     label: "{{ item |basename }}"
@@ -37,8 +38,9 @@
     group: "{{ item.group }}"
     mode: 0600
     create: true
-  when: not ansible_check_mode
-        and item.enable |bool
+  when:
+    - not ansible_check_mode
+    - item.enable |bool
   loop:
     - user: restic
       group: rclone
