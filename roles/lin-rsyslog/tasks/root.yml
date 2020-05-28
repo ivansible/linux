@@ -48,7 +48,7 @@
   copy:
     dest: /etc/rsyslog.d/33-resolv.conf
     content: |
-      :msg, contains, "Server returned error NXDOMAIN, mitigating potential DNS violation DVE-2018-0001" ~
+      :msg, contains, "Server returned error NXDOMAIN, mitigating potential DNS violation DVE-2018-0001" stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
   tags: lin_rsyslog_fixes
