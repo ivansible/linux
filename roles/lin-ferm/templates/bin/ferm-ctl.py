@@ -42,7 +42,7 @@ ENCODING_ERRORS = 'strict'
 try:
     if codecs.lookup_error('surrogateescape'):
         ENCODING_ERRORS = 'surrogateescape'
-except LookupError:
+except (LookupError, NameError):
     pass
 
 VALID_HOST = r'^(([0-9]{1,3}[.]){3}[0-9]{1,3}' \
@@ -55,7 +55,7 @@ B_SEP = b'\r\n'
 B_EOL = os.linesep.encode()
 
 
-def fail(msg):
+def fail(msg, rc=1):
     if msg:
         print(msg, file=sys.stderr)
     sys.exit(1)
@@ -89,13 +89,13 @@ def run_command(args):
         stdout, stderr = cmd.communicate()
         return cmd.returncode, to_text(stdout), to_text(stderr)
     except (OSError, IOError) as e:
-        fail("CMD:'%s' Exception:'%s'" % (' '.join(args), e))
+        fail(msg="CMD:'%s' Exception:'%s'" % (' '.join(args), e), rc=256)
 
 
 def ferm_config(filename):
     dest = os.path.join(FERM_DIR, filename)
     if not os.path.exists(to_bytes(dest)):
-        fail("Config file '%s' does not exist!" % dest)
+        fail(msg="Config file '%s' does not exist!" % dest, rc=257)
     return to_text(os.path.realpath(to_bytes(dest)))
 
 
@@ -117,7 +117,7 @@ def reload_ferm(args):
         cmd = 'ferm-ipset'
     ret, _, err = run_command(cmd)
     if ret:
-        fail('Failed to reload ferm: %s' % err)
+        fail(msg='Failed to reload ferm: %s' % err, rc=256)
 
 
 def handle_hosts(items, state, zone, exclude, counts, args):
@@ -149,10 +149,12 @@ def handle_hosts(items, state, zone, exclude, counts, args):
         split = re.match(r'^([^#;~]*)[#;~](.*)$', host)
         if split:
             host, comment = split.group(1).strip(), split.group(2).strip()
+            if not host:
+                continue
         comment = comment.rstrip(T_SEP).replace('~', ' ')
         b_comment = to_bytes(comment)
 
-        split = re.match(r'^(.+)/(ipv4|ipv6|any)$', host)
+        split = re.match(r'^(.+)/(any|ipv4|ipv6)$', host)
         if split:
             host, proto = split.group(1), split.group(2)
         split = re.match(r'^(.+)/([0-9]+)$', host)
@@ -160,9 +162,9 @@ def handle_hosts(items, state, zone, exclude, counts, args):
             host, prefixlen = split.group(1), int(split.group(2))
 
         if not re.match(VALID_HOST, host):
-            fail("Invalid host '%s'" % host)
+            fail(msg="Invalid host '%s'" % host, rc=256)
         if prefixlen is not None and (prefixlen < 0 or prefixlen > 128):
-            fail("Invalid prefixlen %d" % prefixlen)
+            fail(msg="Invalid prefixlen %d" % prefixlen, rc=256)
 
         line = host
         if prefixlen is not None:
@@ -221,7 +223,7 @@ def handle_hosts(items, state, zone, exclude, counts, args):
                 else:
                     b_lines.append(b_cur_line)
 
-            if not found and not comm_found:
+            if not (found or comm_found):
                 # add to the end of file ensuring there's a newline before it
                 if b_lines and not b_lines[-1][-1:] in B_SEP:
                     b_lines.append(B_EOL)
@@ -253,6 +255,7 @@ def handle_ports(items, state, zone, exclude, counts, args):
     for port in items:
         port = str(port).strip() if port else ''
         proto = args.proto
+
         comment = args.comment or ''
         add = state == 'present'
 
@@ -271,6 +274,8 @@ def handle_ports(items, state, zone, exclude, counts, args):
         split = re.match(r'^([^#;~]*)[#;~](.*)$', port)
         if split:
             port, comment = split.group(1).strip(), split.group(2).strip()
+            if not port:
+                continue
         comment = comment.rstrip(T_SEP).replace('~', ' ')
         b_comment = to_bytes(comment)
 
@@ -279,7 +284,7 @@ def handle_ports(items, state, zone, exclude, counts, args):
             port, proto = split.group(1), split.group(2)
 
         if not re.match(VALID_PORT, port):
-            fail("Invalid port '%s'" % port)
+            fail(msg="Invalid port '%s'" % port, rc=256)
 
         port = port.replace('-', ':')
         line = port if proto == 'any' else '%s/%s' % (port, proto)
@@ -335,7 +340,7 @@ def handle_ports(items, state, zone, exclude, counts, args):
                 else:
                     b_lines.append(b_cur_line)
 
-            if not found and not comm_found:
+            if not (found or comm_found):
                 # add to the end of file ensuring there's a newline before it
                 if b_lines and not b_lines[-1][-1:] in B_SEP:
                     b_lines.append(B_EOL)
@@ -399,7 +404,7 @@ def main():
     args = parser.parse_args()
     if not args.command:
         parser.print_usage()
-        fail(None)
+        fail(msg=None)
 
     subject = args.list.split('.')[0]
     zone = args.list.split('.')[1]
@@ -408,24 +413,24 @@ def main():
     elif subject == 'ports':
         handle = handle_ports
     else:
-        zone = None
+        zone = args.list
 
-    zone = ZONES.get(zone, None)
-    if not zone:
-        fail("Invalid list '%s'" % args.list)
+    if zone not in ZONES:
+        fail(msg="Invalid zone '%s'" % zone, rc=256)
+    zone = ZONES[zone]
 
     path = ferm_config('%s.%s' % (subject, zone))
     b_path = to_bytes(path)
     if not (os.access(b_path, os.R_OK) and os.access(b_path, os.W_OK)):
-        fail("%s: access denied" % path)
+        fail(msg="%s: access denied" % path)
 
     state = args.state
     if state == 'cat':
         rc, stdout, _ = run_command(['cat', path])
         exit(False, stdout.rstrip(T_SEP), 3)
 
-    items = ','.join(args.item).split(',')
     counts = dict(added=0, removed=0, updated=0, deduped=0)
+    items = ','.join(args.item).split(',')
 
     changed = handle(items, state, zone, False, counts, args)
     for other_zone in ZONES.keys():
