@@ -433,7 +433,7 @@ def main():
     items = ','.join(args.item).split(',')
 
     changed = handle(items, state, zone, False, counts, args)
-    for other_zone in ZONES.keys():
+    for other_zone in set(ZONES.values()):
         if args.solo_zone and other_zone != zone:
             excluded = handle(items, state, other_zone, True, counts, args)
             changed = changed or excluded
