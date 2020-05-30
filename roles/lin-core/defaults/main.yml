@@ -61,6 +61,7 @@ lin_core_packages_core:
   - ufw
   - rsync
   # utilities
+  - at
   - git
   - vim
   - gzip
