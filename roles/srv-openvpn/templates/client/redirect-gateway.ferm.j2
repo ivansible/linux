@@ -1,13 +1,13 @@
 {% if redirect_ipv4 %}
 {%   set redirect_addr4 = client_subnet4 |ipaddr('address') or client_subnet4 %}
-domain ip table nat chain POSTROUTING saddr {{ redirect_addr4 }} outerface {{ public_iface }} MASQUERADE;
-domain ip table filter chain FORWARD saddr {{ redirect_addr4 }} outerface {{ public_iface }} ACCEPT;
-domain ip table mangle chain FORWARD saddr {{ redirect_addr4 }} proto tcp syn interface {{ device }} TCPMSS clamp-mss-to-pmtu;
+domain ip table nat chain POSTROUTING
+  saddr {{ redirect_addr4 }} outerface {{ public_iface }}
+  MASQUERADE;
 {% endif %}
 {% if redirect_ipv6 %}
 {# forwarding requires IPv6 table NAT, which is absent on OpenVZ #}
 {%  set redirect_addr6 = client_subnet6 |ipaddr('address') or client_subnet6 %}
-@if @not($openvz) domain ip6 table nat chain POSTROUTING saddr {{ redirect_addr6 }} outerface {{ public_iface }} MASQUERADE;
-@if @not($openvz) domain ip6 table filter chain FORWARD saddr {{ redirect_addr6 }} outerface {{ public_iface }} ACCEPT;
-domain ip6 table mangle chain FORWARD saddr {{ redirect_addr6 }} proto tcp syn interface {{ device }} TCPMSS clamp-mss-to-pmtu;
+@if @not($openvz) domain ip6 table nat chain POSTROUTING
+  saddr {{ redirect_addr6 }} outerface {{ public_iface }}
+  MASQUERADE;
 {% endif %}

@@ -125,4 +125,12 @@
     - skip_ansible_lint
     - srv_ovpn_firewall
   when: lin_firewall == 'ferm'
+
+- name: collect redirected client addresses for '{{ full_name }}'
+  ferm_host:
+    host:
+      - "{{ (client_subnet4 |ipaddr('address') or client_subnet4) if redirect_ipv4 else '' }}"
+      - "{{ (client_subnet6 |ipaddr('address') or client_subnet6) if redirect_ipv6 else '' }}"
+    comment: "openvpn {{ client_name }}"
+    zone: nat
 ...
