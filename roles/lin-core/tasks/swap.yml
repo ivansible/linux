@@ -1,8 +1,6 @@
 ---
 - name: create swap file
-  command: >
-    dd if=/dev/zero "of={{ lin_core_swap_file }}"
-       bs=1M "count={{ lin_core_swap_mb }}"
+  command: fallocate -l "{{ lin_core_swap_mb }}M" "{{ lin_core_swap_file }}"
   args:
     creates: "{{ lin_core_swap_file }}"
   register: swap_status_result
@@ -16,13 +14,13 @@
   command: mkswap "{{ lin_core_swap_file }}"
   when: swap_status_result is changed
 
-- name: add swap to fstab
+- name: add swap file to fstab
   lineinfile:
     path: /etc/fstab
     line: "{{ lin_core_swap_file }} none swap sw 0 0"
     regexp: "{{ lin_core_swap_file }}"
 
-- name: activate swap
+- name: activate swap file
   command: swapon -a
   when: swap_status_result is changed
 ...
