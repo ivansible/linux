@@ -43,6 +43,7 @@ ferm_ipset_files:
   - ports.block
   - hosts.int
   - hosts.block
+  - hosts.nat
 
 ferm_rule_hooks:
   - custom
@@ -59,6 +60,7 @@ ferm_core_rules:
   - {name: blockhost, prio: 22}
   - {name: includes, prio: 55}
   - {name: openport, prio: 70}
+  - {name: natmss, prio: 75}
   - {name: icmp, prio: 80}
   - {name: ufwpost, prio: 90}
 ...

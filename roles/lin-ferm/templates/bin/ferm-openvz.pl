@@ -148,9 +148,7 @@ sub parse_hosts {
 sub main {
     for my $file (@list_files) {
         my $path = "${ferm_dir}/${file}";
-        $file =~ /^(ports|hosts)\.(ext|int|block)$/
-            or die "invalid input: ${file}\n";
-        my ($kind, $zone) = ($1, $2);
+        my ($kind, $zone) = split /\./, $file;
         parse_ports($zone, $path) if $kind eq 'ports';
         parse_hosts($zone, $path) if $kind eq 'hosts';
     }

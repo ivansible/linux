@@ -12,6 +12,12 @@ import subprocess
 
 FERM_DIR = '/etc/ferm'
 
+LIST_FILES = [
+{% for file in ferm_ipset_files %}
+    '{{ file }}',
+{% endfor %}
+]
+
 ZONES = {
     'internal': 'int',
     'int': 'int',
@@ -19,15 +25,8 @@ ZONES = {
     'ext': 'ext',
     'blocked': 'block',
     'block': 'block',
+    'nat': 'nat',
 }
-
-LIST_CHOICES = [
-    'hosts.int',
-    'hosts.block',
-    'ports.ext',
-    'ports.int',
-    'ports.block',
-]
 
 PROTO_CHOICES = [
     'any',
@@ -373,8 +372,8 @@ def exit(changed, msg, verbose):
 def main():
     def subcommand(cmds, names, state, help):
         cmd = cmds.add_parser(names[0], aliases=names[1:], help=help)
-        cmd.add_argument('list', choices=LIST_CHOICES,
-                         help='list to print or modify')
+        cmd.add_argument('list', choices=LIST_FILES,
+                         help='zone to print or modify')
         cmd.set_defaults(state=state)
         if state != 'cat':
             cmd.add_argument('item', nargs='+',
@@ -406,8 +405,7 @@ def main():
         parser.print_usage()
         fail(msg=None)
 
-    subject = args.list.split('.')[0]
-    zone = args.list.split('.')[1]
+    subject, zone = args.list.split('.')
     if subject == 'hosts':
         handle = handle_hosts
     elif subject == 'ports':
