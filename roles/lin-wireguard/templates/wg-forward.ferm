@@ -1,12 +1,15 @@
+{% if wg_nets %}
+domain ($ip_all) table filter chain FORWARD
+  interface ({% for net in wg_nets %}wg{{ loop.index0 }}{{ loop.last |ternary('',' ') }}{% endfor %}) ACCEPT;
+{% endif %}
 {% for net in wg_nets %}
 {%   set iface = 'wg%d' % loop.index0 %}
-domain ($ip_all) table filter chain FORWARD interface {{ iface }} outerface {{ iface }} ACCEPT;
 {%   for peer in net.peers |default([],true) |flatten %}
 {%     set active = peer.active |default(true) |bool %}
 {%     set _redirect_val = peer.redirect_gateway |default(false,true) |string |lower %}
 {%     set redirect_ipv4 = _redirect_val in 'ipv4 true yes on 1' %}
 {%     set redirect_ipv6 = _redirect_val in 'ipv6 true yes on 1' %}
-{%     set peer_ips = peer.ips |default([],true) |flatten %}
+{%     set peer_ips = peer.client_ips |default(peer.ips) |default([],true) |flatten %}
 {%     if active and (redirect_ipv4 or redirect_ipv6) and public_iface and peer_ips %}
 
 ## {{ peer.name |default('peer %d' % loop.index, true) }}
@@ -16,9 +19,9 @@ domain ($ip_all) table filter chain FORWARD interface {{ iface }} outerface {{ i
 {%         set domain = ipv6 |ternary('ip6', 'ip') %}
 {%         set openvz_cond = ipv6 |ternary('@if @not($openvz) ', '') %}
 {%         if (redirect_ipv4 and not ipv6) or (redirect_ipv6 and ipv6) %}
-domain {{ domain }} table filter chain FORWARD saddr {{ addr }} outerface {{ public_iface }} ACCEPT;
-{{ openvz_cond }}domain {{ domain }} table nat chain POSTROUTING saddr {{ addr }} outerface {{ public_iface }} MASQUERADE;
-domain {{ domain }} table mangle chain FORWARD saddr {{ addr }} proto tcp syn interface {{ iface }} TCPMSS clamp-mss-to-pmtu;
+{{ openvz_cond }}domain {{ domain }} table nat chain POSTROUTING
+  saddr {{ addr }} outerface !{{ iface }}
+  MASQUERADE;
 {%         endif %}
 {%       endfor %}
 {%     endif %}

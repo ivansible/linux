@@ -1,0 +1,44 @@
+---
+- name: open wireguard port in ferm
+  ferm_port:
+    port: "{{ item.port |default(0) }}"
+    proto: udp
+    comment: wireguard
+  loop: "{{ lin_wg_nets }}"
+  loop_control:
+    index_var: idx
+    label: "{{ item.name |default('wg%d' % idx) }}"
+  when: item.port |default(0) |int
+
+- name: enable wireguard forwarding
+  ferm_rule:
+    name: wireguard
+    prio: 77
+    hook: custom
+    rule: "{{ lookup('template', 'wg-forward.ferm') }}"
+    state: "{{ lin_wg_forward |bool |ternary('present','absent') }}"
+  vars:
+    wg_nets: "{{ lin_wg_nets |default([],true) |flatten }}"
+    public_iface: "{{ lin_wg_public_interface |default('',true) }}"
+
+- name: collect client addresses for forwarding
+  ferm_host:
+    host: "{% for ip in peer_ips %}{{ ip |ipaddr('address') or ip }}{{ loop.last |ternary('',',') }}{% endfor %}"
+    comment: "wireguard {{ peer.name |default('peer') }}"
+    zone: nat
+  when:
+    - net.name |default('')
+    - peer.name |default('')
+    - peer.active |default(true) |bool
+    - redirect_ipv4 or redirect_ipv6
+  loop: "{{ lin_wg_nets |default([],true) |flatten |subelements('peers', skip_missing=true) }}"
+  loop_control:
+    label: "{{ peer.name |default('none') }}/{{ net.name |default('none') }}"
+  vars:
+    net: "{{ item.0 }}"
+    peer: "{{ item.1 }}"
+    peer_ips: "{{ peer.client_ips |default(peer.ips) |default([],true) }}"
+    _redirect_val: "{{ peer.redirect_gateway |default(false,true) |string |lower }}"
+    redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' }}"
+    redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' }}"
+...

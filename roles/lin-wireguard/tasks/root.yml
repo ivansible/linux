@@ -91,6 +91,7 @@
   notify: restart wireguard service
   tags: lin_wg_config
 
+
 - name: open wireguard port in ufw
   ufw:
     port: "{{ item.port |default(0) |string }}"
@@ -105,36 +106,13 @@
     - item.port |default(0) |int
   tags: lin_wg_firewall
 
-- name: open wireguard port in ferm
-  ferm_port:
-    port: "{{ item.port |default(0) }}"
-    proto: udp
-    comment: wireguard
-  loop: "{{ lin_wg_nets }}"
-  loop_control:
-    index_var: idx
-    label: "{{ item.name |default('wg%d' % idx) }}"
-  when:
-    - lin_firewall == 'ferm'
-    - item.port |default(0) |int
-  tags:
-    - skip_ansible_lint
-    - lin_wg_firewall
-
-- name: enable wireguard forwarding
-  ferm_rule:
-    name: wireguard
-    prio: 77
-    hook: custom
-    rule: "{{ lookup('template', 'wg-forward.ferm') }}"
-    state: "{{ lin_wg_forward |bool |ternary('present','absent') }}"
-  vars:
-    wg_nets: "{{ lin_wg_nets |default([],true) |flatten }}"
-    public_iface: "{{ lin_wg_public_interface |default('',true) }}"
+- name: configure ferm firewall for wireguard
+  import_tasks: ferm.yml
   when: lin_firewall == 'ferm'
   tags:
     - skip_ansible_lint
     - lin_wg_firewall
+
 
 - name: enable wireguard service
   systemd:
@@ -180,8 +158,8 @@
     active: "{{ peer.active |default(true) |bool }}"
     client_config: "{{ peer.client_config |default(false) |bool }}"
     filename: "{{ peer.name |default('peer') }}-{{ server }}-{{ net.name |default('net') }}"
-    addr: "{{ peer.client_ips |default(peer.ips ,true) |default([],true) }}"
-    ips: "{{ peer.server_ips |default(net.addr, true) |default([],true) }}"
+    addr: "{{ peer.client_ips |default(peer.ips) |default([],true) }}"
+    ips: "{{ peer.server_ips |default(net.addr) |default([],true) }}"
     mtu: "{{ peer.mtu |default(net.mtu, true) |default(0) |int }}"
     keepalive: "{{ peer.keepalive |default(0) |int }}"
     _redirect_val: "{{ peer.redirect_gateway |default(false,true) |string |lower }}"
