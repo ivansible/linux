@@ -98,7 +98,7 @@ Enables rsyslog.
 - `lin_core_timesync` -- synchronize system time
 - `lin_core_resync` -- step-syncing system time
 - `lin_core_cron` -- adjust systemd cron timers
-- `lin_core_sysctl` -- adjust kernel parameters
+- `lin_core_sysctl` -- adjust kernel parameters (alias `lin_core_kernel`)
 - `lin_core_swap` -- setup swap space
 - `lin_core_ssh` -- configure ssh port
 - `lin_core_firewall` -- adjust ubuntu firewall

@@ -1,0 +1,33 @@
+---
+- name: create unix group for proxy processes
+  group:
+    name: proxy
+    gid: 13
+
+- name: assert that firewall selector is valid
+  assert:
+    that: lin_firewall in ['ufw', 'ferm', 'none']
+
+- name: setup ufw firewall
+  include_tasks: firewall-ufw.yml
+  args:
+    apply:
+      become: true
+      tags: lin_core_firewall
+  when: lin_firewall == 'ufw'
+
+- name: setup ferm firewall
+  include_tasks: firewall-ferm.yml
+  args:
+    apply:
+      become: true
+      tags: lin_core_firewall
+  when: lin_firewall == 'ferm'
+  tags:
+    - lin_ferm_config
+    - lin_ferm_install
+    - lin_ferm_rules
+    - lin_ferm_hosts
+    - lin_ferm_service
+    - lin_ferm_all
+...

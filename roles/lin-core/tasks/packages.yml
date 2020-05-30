@@ -1,0 +1,40 @@
+---
+- block:
+    - name: install core packages (ok to fail once, log hidden)
+      apt:
+        name: "{{ lin_core_packages_core }}"
+        state: present
+      # failure message is too verbose, silence by default
+      no_log: "{{ hide_secrets |bool }}"
+  rescue:
+    - name: update apt cache and install core packages
+      apt:
+        name: "{{ lin_core_packages_core }}"
+        state: present
+        update_cache: true
+
+- name: install system logger
+  apt:
+    name:
+      - rsyslog
+      - logrotate
+    state: present
+  when: lin_use_rsyslog |bool
+
+- block:
+    - name: install core development packages (ok to fail once, log hidden)
+      apt:
+        name: "{{ lin_core_packages_devel }}"
+        state: present
+      no_log: "{{ hide_secrets |bool }}"
+  rescue:
+    - name: update apt lists and install core development packages
+      apt:
+        name: "{{ lin_core_packages_devel }}"
+        state: present
+        update_cache: true
+
+# it may be a good idea to restart mitogen runner
+# after installing python apt bindings
+#- meta: reset_connection
+...
