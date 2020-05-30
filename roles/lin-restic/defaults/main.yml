@@ -64,4 +64,9 @@ lin_restic_ssh_configs: []
 #   port:     22        -- remote ssh port (default: 22)
 #   user:     root      -- remote ssh user name (default: owner)
 #   keyfile:  ssh.key   -- ssh key file (optional, will be installed on host)
+
+lin_restic_packages:
+  - systemd-cron
+  - at
+  - rsync
 ...

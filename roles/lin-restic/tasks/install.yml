@@ -1,4 +1,9 @@
 ---
+- name: install system packages for backup
+  apt:
+    name: "{{ lin_restic_packages }}"
+    state: present
+
 - name: detect latest restic release
   github_release:
     repository: restic
