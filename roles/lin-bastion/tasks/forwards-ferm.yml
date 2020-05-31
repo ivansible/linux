@@ -2,7 +2,7 @@
 - name: configure ferm port forwards
   ferm_rule:
     name: forwards
-    prio: 77
+    prio: 76
     rule: "{{ lookup('template', 'forwards.ferm') }}"
   tags: skip_ansible_lint
 
