@@ -26,4 +26,9 @@
     update_cache: true
   when: apt_switch_mirrors is changed
         or apt_disable_32bit is changed
+  ## retry on error occurring when a fresh server is warming up from snapshot:
+  ## "Failed to lock apt for exclusive operation"
+  register: _first_apt_update
+  until: _first_apt_update.msg |default('') is not search('Failed to lock apt')
+  retries: 29
 ...
