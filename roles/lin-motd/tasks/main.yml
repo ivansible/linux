@@ -20,7 +20,7 @@
       tags:
         - lin_motd_bionic
         - lin_motd_all
-  when: ansible_lsb.codename not in ['xenial']
+  when: ansible_lsb.release is version('18.04','>=')
   tags:
     - lin_motd_bionic
     - lin_motd_all
