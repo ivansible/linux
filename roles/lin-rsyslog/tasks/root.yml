@@ -61,7 +61,7 @@
       #mail.info	-/var/log/mail.info
       #mail.warn	-/var/log/mail.warn
       {# noqa 203 (force tabs) #}mail.err	/var/log/mail.err
-      {# noqa 203 (force tabs #}mail.*		-/var/log/mail.log
+      {# noqa 203 (force tabs) #}mail.*		-/var/log/mail.log
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
   notify: restart syslog service
