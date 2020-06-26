@@ -30,7 +30,7 @@ Install given `docker compose` release from github if the flag is `true`.
 See new releases at https://github.com/docker/compose/releases
 
     docker_extras: false
-    docker_machine_github_enable: true
+    docker_machine_github_enable: false
     docker_machine_release: latest
 Install given `docker machine` release from github if both flags are `true`.
 See new releases at https://github.com/docker/machine/releases
