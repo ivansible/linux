@@ -36,7 +36,7 @@
     pkgs_ubuntu: docker.io,docker-compose
     pkgs_dockerio: docker-ce
     ## note: jq helps to parse docker output
-    packages_helpers: jq,bash-completion
+    packages_helpers: jq,bash-completion,pigz
 
 - name: bash completion script for docker
   file:
