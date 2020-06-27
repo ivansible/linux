@@ -12,59 +12,85 @@
 @def $do_ipv4 = {{ ferm_ipv4 |bool |ternary(1,0) }};
 @def $do_ipv6 = {{ ferm_ipv6 |bool |ternary(1,0) }};
 @def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
+
 @def $do_docker = {{ ferm_docker |bool |ternary(1,0) }};
 @def $docker0 = {{ ferm_docker_dev }};
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
-# Create Chains
+# aliases for hooked chains
+@def $PREROUTING = _PREROUTING;
+@def $POSTROUTING = _POSTROUTING;
+@def $INPUT = _INPUT;
+@def $OUTPUT = _OUTPUT;
+@def $FORWARD = _FORWARD;
+
+# $first_run is non-zero if hook isn't found in the forward chain
+# use 'export FERM_FORCE_HOOKS=1' to force inserting the hooks
+@def $first_run = `iptables -C FORWARD -j _FORWARD 2>/dev/null; echo "${FERM_FORCE_HOOKS}$?"`;
+
+@def &CHAIN_HOOK($chain, $policy) = {
+    @def $hook = @cat('_', $chain);
+    @if $first_run {
+        # create standard chain and embed the hook
+        chain $chain policy $policy;
+        chain $hook;
+        chain $chain jump $hook;
+    } @else {
+        # build hooked chain, preserve original chain
+        chain $chain @preserve;
+        chain $hook;
+    }
+}
+
+# Setup chains
 
 @if $do_ipv4 domain ip {
     table raw {
-        chain PREROUTING policy ACCEPT;
-        chain OUTPUT policy ACCEPT;
+        &CHAIN_HOOK(PREROUTING, ACCEPT);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
     }
     table mangle {
-        chain PREROUTING policy ACCEPT;
-        chain INPUT policy ACCEPT;
-        chain FORWARD policy ACCEPT;
-        chain OUTPUT policy ACCEPT;
-        chain POSTROUTING policy ACCEPT;
+        &CHAIN_HOOK(PREROUTING, ACCEPT);
+        &CHAIN_HOOK(INPUT, ACCEPT);
+        &CHAIN_HOOK(FORWARD, ACCEPT);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
+        &CHAIN_HOOK(POSTROUTING, ACCEPT);
     }
     table nat {
-        chain PREROUTING policy ACCEPT;
-        @if @not($openvz) chain INPUT policy ACCEPT;
-        chain OUTPUT policy ACCEPT;
-        chain POSTROUTING policy ACCEPT;
+        &CHAIN_HOOK(PREROUTING, ACCEPT);
+        @if @not($openvz) &CHAIN_HOOK(INPUT, ACCEPT);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
+        &CHAIN_HOOK(POSTROUTING, ACCEPT);
     }
     table filter {
-        chain INPUT policy DROP;
-        chain FORWARD policy DROP;
-        chain OUTPUT policy ACCEPT;
+        &CHAIN_HOOK(INPUT, DROP);
+        &CHAIN_HOOK(FORWARD, DROP);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
     }
 }
 
 @if $do_ipv6 domain ip6 {
     @if @not($openvz) table raw {
-        chain PREROUTING policy ACCEPT;
-        chain OUTPUT policy ACCEPT;
+        &CHAIN_HOOK(PREROUTING, ACCEPT);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
     }
     table mangle {
-        chain PREROUTING policy ACCEPT;
-        chain INPUT policy ACCEPT;
-        chain FORWARD policy ACCEPT;
-        chain OUTPUT policy ACCEPT;
-        chain POSTROUTING policy ACCEPT;
+        &CHAIN_HOOK(PREROUTING, ACCEPT);
+        &CHAIN_HOOK(INPUT, ACCEPT);
+        &CHAIN_HOOK(FORWARD, ACCEPT);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
+        &CHAIN_HOOK(POSTROUTING, ACCEPT);
     }
     @if @not($openvz) table nat {
-        chain PREROUTING policy ACCEPT;
-        chain INPUT policy ACCEPT;
-        chain OUTPUT policy ACCEPT;
-        chain POSTROUTING policy ACCEPT;
+        &CHAIN_HOOK(PREROUTING, ACCEPT);
+        &CHAIN_HOOK(INPUT, ACCEPT);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
+        &CHAIN_HOOK(POSTROUTING, ACCEPT);
     }
     table filter {
-        chain INPUT policy DROP;
-        chain FORWARD policy DROP;
-        chain OUTPUT policy ACCEPT;
+        &CHAIN_HOOK(INPUT, DROP);
+        &CHAIN_HOOK(FORWARD, DROP);
+        &CHAIN_HOOK(OUTPUT, ACCEPT);
     }
 }
 
@@ -74,8 +100,7 @@
     @include "{{ ferm_bindir }}/ferm-openvz -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }} -o {{ ferm_openvz_file }} -O |";
 
     @include @glob('custom/*.ferm');
-}
-@else {
+} @else {
     # setup host/port ipsets
     @hook pre "{{ ferm_bindir }}/ferm-ipset -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }}";
 

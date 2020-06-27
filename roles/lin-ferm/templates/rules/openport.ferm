@@ -1,7 +1,7 @@
 # Open Ports
 # core rule
 
-domain $ip_all table filter chain INPUT {
+domain $ip_all table filter chain $INPUT {
     @if $openvz {
         @if $ferm_ports_ext_tcp
             proto tcp  mod multiport destination-ports $ferm_ports_ext_tcp  ACCEPT;

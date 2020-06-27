@@ -3,14 +3,14 @@
 
 @if $do_ipv4
 domain ip table filter {
-    chain (INPUT FORWARD) proto icmp icmp-type (3 11 12 8) ACCEPT;
+    chain ($INPUT $FORWARD) proto icmp icmp-type (3 11 12 8) ACCEPT;
 }
 
 @if $do_ipv6
 domain ip6 table filter {
-    chain (OUTPUT) proto icmp ACCEPT;
-    chain (FORWARD) proto icmp icmp-type (1 2 3 4 128 129) ACCEPT;
-    chain (INPUT) proto icmp {
+    chain ($OUTPUT) proto icmp ACCEPT;
+    chain ($FORWARD) proto icmp icmp-type (1 2 3 4 128 129) ACCEPT;
+    chain ($INPUT) proto icmp {
         icmp-type (1 2 3 4 128 129 144 145 146 147) ACCEPT;
         icmp-type (133 134 135 136 141 142) mod hl hl-eq 255 ACCEPT;
         icmp-type (148 149) mod hl hl-eq 255 ACCEPT;

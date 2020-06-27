@@ -2,13 +2,13 @@
 # core rule
 
 domain $ip_all table filter {
-    chain INPUT interface lo ACCEPT;
-    chain OUTPUT outerface lo ACCEPT;
-    chain (INPUT FORWARD OUTPUT) {
+    chain $INPUT interface lo ACCEPT;
+    chain $OUTPUT outerface lo ACCEPT;
+    chain ($INPUT $FORWARD $OUTPUT) {
         @if @eq($DOMAIN,ip6) mod rt rt-type 0 DROP;
         mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
     }
-    chain INPUT mod conntrack ctstate INVALID DROP;
+    chain $INPUT mod conntrack ctstate INVALID DROP;
 }
 
 @if $do_ipv4
@@ -18,5 +18,5 @@ domain ip table filter {
         mod addrtype dst-type (BROADCAST) RETURN;
         DROP;
     }
-    chain INPUT jump ferm-nonlocal;
+    chain $INPUT jump ferm-nonlocal;
 }

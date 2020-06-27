@@ -6,16 +6,14 @@ DefaultDependencies=no
 Conflicts=ufw.service
 Before=network.target
 Before=netfilter-persistent.service
-{% if ferm_docker |bool %}
 Before=docker.service
-PropagateReloadTo=docker.service
-{% endif %}
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart={{ ferm_binary }} {{ ferm_dir }}/config.ferm
+ExecStart={{ force_cleanup }} {{ ferm_binary }} {{ ferm_dir }}/config.ferm
 ExecReload={{ ferm_binary }} {{ ferm_dir }}/config.ferm
+ExecStop={{ force_cleanup }} {{ ferm_binary }} --flush {{ ferm_dir }}/config.ferm
 ExecStop={{ ferm_binary }} --flush {{ ferm_dir }}/config.ferm
 
 [Install]

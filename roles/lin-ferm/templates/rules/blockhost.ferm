@@ -2,7 +2,7 @@
 # core rule
 
 domain $ip_all table filter {
-    chain (INPUT FORWARD) proto (tcp udp) {
+    chain ($INPUT $FORWARD) proto (tcp udp) {
         @if $openvz {
             @if @eq($DOMAIN,ip)
             @if $ferm_hosts_block_ipv4

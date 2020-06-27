@@ -2,6 +2,7 @@
 # core rule
 
 @if $do_docker
+@if $first_run
 domain ip table nat {
     chain DOCKER;
     chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
@@ -11,6 +12,7 @@ domain ip table nat {
 }
 
 @if $do_docker
+@if $first_run
 domain ip table filter {
     chain DOCKER;
     chain DOCKER-ISOLATION-STAGE-1;
@@ -45,4 +47,17 @@ domain ip table filter {
     chain DOCKER-USER {
         RETURN;
     }
+}
+
+@if @not($first_run)
+domain ip table nat {
+    chain DOCKER @preserve;
+}
+
+@if @not($first_run)
+domain ip table filter {
+    chain DOCKER @preserve;
+    chain DOCKER-ISOLATION-STAGE-1 @preserve;
+    chain DOCKER-ISOLATION-STAGE-2 @preserve;
+    chain DOCKER-USER @preserve;
 }

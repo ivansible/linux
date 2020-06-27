@@ -1,7 +1,7 @@
 # Accept NAT and Clamp MSS
 # core rule
 
-domain $ip_all table filter chain FORWARD {
+domain $ip_all table filter chain $FORWARD {
     @if $openvz {
         @if @eq($DOMAIN,ip)
         @if $ferm_hosts_nat_ipv4
@@ -22,7 +22,7 @@ domain $ip_all table filter chain FORWARD {
     }
 }
 
-domain $ip_all table mangle chain FORWARD {
+domain $ip_all table mangle chain $FORWARD {
     @if $openvz {
         @if @eq($DOMAIN,ip)
         @if $ferm_hosts_nat_ipv4

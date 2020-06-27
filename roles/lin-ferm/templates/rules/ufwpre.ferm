@@ -4,7 +4,7 @@
 @if $do_ufw
 @if $do_ipv4
 domain ip table filter {
-    chain INPUT {
+    chain $INPUT {
         proto udp sport 67 dport 68 ACCEPT;
         daddr 224.0.0.251/32 protocol udp dport 5353 ACCEPT;
         daddr 239.255.255.250/32 protocol udp dport 1900 ACCEPT;
@@ -13,7 +13,7 @@ domain ip table filter {
 
 @if $do_ufw
 @if $do_ipv6
-domain ip6 table filter chain INPUT {
+domain ip6 table filter chain $INPUT {
     proto udp saddr fe80::/10 daddr fe80::/10 sport 547 dport 546 ACCEPT;
     proto udp daddr ff02::fb/128 dport 5353 ACCEPT;
     proto udp daddr ff02::f/128 dport 1900 ACCEPT;
