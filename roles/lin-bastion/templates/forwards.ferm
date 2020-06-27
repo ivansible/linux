@@ -15,14 +15,14 @@
         #@def $mark = @cat(0xf0,@substr(@cat(0000,$sport),-5,5));
         @def &isFwdMark() = proto tcp mod connmark mark $mark;
 
-        table mangle chain PREROUTING
+        table mangle chain $PREROUTING
             proto tcp syn
             daddr $saddr dport $sport
             CONNMARK set-xmark $mark;
 
-        table filter chain FORWARD     &isFwdMark() ACCEPT;
-        table nat    chain PREROUTING  &isFwdMark() DNAT to-destination "$daddr_to:$dport";
-        table nat    chain POSTROUTING &isFwdMark() MASQUERADE;
+        table filter chain $FORWARD     &isFwdMark() ACCEPT;
+        table nat    chain $PREROUTING  &isFwdMark() DNAT to-destination "$daddr_to:$dport";
+        table nat    chain $POSTROUTING &isFwdMark() MASQUERADE;
     }
 }
 
