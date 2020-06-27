@@ -1,8 +1,8 @@
 domain ip table filter {
-    chain INPUT   proto 41  saddr {{ lin_he6_endpoint }}    ACCEPT;
-    chain FORWARD proto udp dport {{ lin_net_port_trace6 }} ACCEPT;
+    chain $INPUT   proto 41  saddr {{ lin_he6_endpoint }}    ACCEPT;
+    chain $FORWARD proto udp dport {{ lin_net_port_trace6 }} ACCEPT;
 }
-domain ip6 table filter chain FORWARD {
+domain ip6 table filter chain $FORWARD {
     interface {{ lin_he6_device }}
     mod conntrack ctstate (NEW)
     mod set  set ferm-hosts-int-ipv6 src
