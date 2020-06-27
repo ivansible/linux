@@ -91,7 +91,9 @@ def run_command(args):
         fail(msg="CMD:'%s' Exception:'%s'" % (' '.join(args), e), rc=256)
 
 
-def ferm_config(filename):
+def ferm_config(filename, weak_check=False):
+    if weak_check and filename not in LIST_FILES:
+        return None
     dest = os.path.join(FERM_DIR, filename)
     if not os.path.exists(to_bytes(dest)):
         fail(msg="Config file '%s' does not exist!" % dest, rc=257)
@@ -119,8 +121,10 @@ def reload_ferm(args):
         fail(msg='Failed to reload ferm: %s' % err, rc=256)
 
 
-def handle_hosts(items, state, zone, exclude, counts, args):
-    path = ferm_config('hosts.%s' % ZONES[zone])
+def handle_hosts(items, state, zone, exclude, counts, args, weak_check=False):
+    path = ferm_config('hosts.%s' % ZONES[zone], weak_check)
+    if not path:
+        return False
     with open(path, 'rb') as f:
         b_lines = f.readlines()
 
@@ -244,8 +248,10 @@ def handle_hosts(items, state, zone, exclude, counts, args):
     return changed
 
 
-def handle_ports(items, state, zone, exclude, counts, args):
-    path = ferm_config('ports.%s' % ZONES[zone])
+def handle_ports(items, state, zone, exclude, counts, args, weak_check=False):
+    path = ferm_config('ports.%s' % ZONES[zone], weak_check)
+    if not path:
+        return False
     with open(path, 'rb') as f:
         b_lines = f.readlines()
 
@@ -433,7 +439,8 @@ def main():
     changed = handle(items, state, zone, False, counts, args)
     for other_zone in set(ZONES.values()):
         if args.solo_zone and other_zone != zone:
-            excluded = handle(items, state, other_zone, True, counts, args)
+            excluded = handle(items, state, other_zone, True, counts, args,
+                              weak_check=True)
             changed = changed or excluded
 
     if changed:
