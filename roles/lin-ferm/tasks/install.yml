@@ -11,6 +11,8 @@
       - libnet-dns-perl
       - ipset
       - iptables
+      ## install gcc to build 'no-lock' library
+      - build-essential
     state: present
 
 - name: download ferm script (skip in check mode)
@@ -37,4 +39,10 @@
     - ferm-openvz.pl
     - ferm-ctl.py
   notify: reload ferm service
+
+- name: build ferm helper library
+  command:
+    cmd: gcc -shared "-Wl,-soname,{{ ferm_lib_nolock |basename }}.so" -o "{{ ferm_lib_nolock }}" -fPIC -lc -xc -
+    stdin: "int flock(int fd, int op) { return 0; }"
+    creates: "{{ ferm_lib_nolock }}"
 ...

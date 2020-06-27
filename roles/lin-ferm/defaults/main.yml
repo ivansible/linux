@@ -33,9 +33,17 @@ ferm_dir: /etc/ferm
 ferm_bindir: /usr/local/sbin
 ferm_binary: "{{ ferm_bindir }}/ferm"
 ferm_openvz_file: /var/lib/ferm/openvz.ferm
+ferm_lib_nolock: /usr/local/lib/ferm-nolock.so
 
 ferm_script_url: https://raw.githubusercontent.com/ivandeex/ferm/master/src/ferm
 ferm_upgrade: true
+
+ferm_dependent_services:
+  - netfilter-persistent
+  - docker
+  - kubelet
+  - kube-proxy
+  - flannel
 
 ferm_ipset_files:
   - ports.ext

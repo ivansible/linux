@@ -26,7 +26,13 @@
 
 # $first_run is non-zero if hook isn't found in the forward chain
 # use 'export FERM_FORCE_HOOKS=1' to force inserting the hooks
-@def $first_run = `iptables -C FORWARD -j _FORWARD 2>/dev/null; echo "${FERM_FORCE_HOOKS}$?"`;
+# note: skip xtables lock here since we lock the whole process
+{#
+ # we could use strace instead of helper shared library, like this:
+ # `strace -o /dev/null -e flock -e inject=flock:retval=0 iptables`
+ # but `inject` is not supported on ubuntu 16.04
+ #}
+@def $first_run = `LD_PRELOAD="{{ ferm_lib_nolock }}" iptables -C FORWARD -j _FORWARD 2>/dev/null; echo "${FERM_FORCE_HOOKS}$?"`;
 
 @def &CHAIN_HOOK($chain, $policy) = {
     @def $hook = @cat('_', $chain);

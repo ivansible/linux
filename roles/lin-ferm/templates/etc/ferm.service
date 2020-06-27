@@ -5,16 +5,17 @@ Description=Ferm frontend for iptables with ipset
 DefaultDependencies=no
 Conflicts=ufw.service
 Before=network.target
-Before=netfilter-persistent.service
-Before=docker.service
+{% for service in ferm_dependent_services %}
+Before={{ service }}.service
+{% endfor %}
 
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart={{ force_cleanup }} {{ ferm_binary }} {{ ferm_dir }}/config.ferm
-ExecReload={{ ferm_binary }} {{ ferm_dir }}/config.ferm
-ExecStop={{ force_cleanup }} {{ ferm_binary }} --flush {{ ferm_dir }}/config.ferm
-ExecStop={{ ferm_binary }} --flush {{ ferm_dir }}/config.ferm
+ExecStart={{ force_cleanup }} {{ ferm_binary }} {{ ferm_config }}
+ExecReload={{ lock_xtables }} {{ ferm_binary }} {{ ferm_config }}
+ExecStop={{ force_cleanup }} {{ ferm_binary }} --flush {{ ferm_config }}
+ExecStop={{ ferm_binary }} --flush {{ ferm_config }}
 
 [Install]
 WantedBy=multi-user.target
