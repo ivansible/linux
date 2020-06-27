@@ -1,5 +1,5 @@
 {% if wg_nets %}
-domain ($ip_all) table filter chain FORWARD
+domain ($ip_all) table filter chain $FORWARD
   interface ({% for net in wg_nets %}wg{{ loop.index0 }}{{ loop.last |ternary('',' ') }}{% endfor %}) ACCEPT;
 {% endif %}
 {% for net in wg_nets %}
@@ -19,7 +19,7 @@ domain ($ip_all) table filter chain FORWARD
 {%         set domain = ipv6 |ternary('ip6', 'ip') %}
 {%         set openvz_cond = ipv6 |ternary('@if @not($openvz) ', '') %}
 {%         if (redirect_ipv4 and not ipv6) or (redirect_ipv6 and ipv6) %}
-{{ openvz_cond }}domain {{ domain }} table nat chain POSTROUTING
+{{ openvz_cond }}domain {{ domain }} table nat chain $POSTROUTING
   saddr {{ addr }} outerface !{{ iface }}
   MASQUERADE;
 {%         endif %}
