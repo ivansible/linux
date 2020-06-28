@@ -14,7 +14,7 @@ None
 
 ## Variables
 
-None
+    lin_motd_banner: true
 
 
 ## Tags

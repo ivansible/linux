@@ -24,4 +24,17 @@
   tags:
     - lin_motd_bionic
     - lin_motd_all
+
+- name: switch motd login header on/off
+  file:
+    path: /etc/update-motd.d/00-header
+    mode: "{{ lin_motd_banner |bool |ternary(0755, 0644) }}"
+  become: true
+  # ignore missing banners and supress error messages
+  ignore_errors: true
+  no_log: "{{ hide_secrets |bool }}"
+  tags:
+    - lin_motd_xenial
+    - lin_motd_bionic
+    - lin_motd_all
 ...
