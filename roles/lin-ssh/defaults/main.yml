@@ -1,5 +1,6 @@
 ---
-# defaults for ivansible.lin_ssh
+lin_ssh_pam: true
+lin_motd_banner: true
 
 lin_ssh_known_hosts:
   - github.com
@@ -17,12 +18,12 @@ lin_ssh_settings:
   PasswordAuthentication: 'no'
   PermitEmptyPasswords: 'no'
   PermitRootLogin: 'no'
-  UsePAM: 'no'
+  UsePAM: "{{ lin_ssh_pam |bool |ternary('yes','no') }}"
   ## don't delay logins by banners
   ## https://linuxquestions.org/questions/linux-security-4/how-to-disable-ssh-version-banner-909540
-  DebianBanner: 'no'
-  PrintMotd: 'no'
-  PrintLastLog: 'no'
+  DebianBanner: "{{ lin_motd_banner |bool |ternary('yes','no') }}"
+  PrintMotd: "{{ lin_motd_banner |bool |ternary('yes','no') }}"
+  PrintLastLog: "{{ lin_motd_banner |bool |ternary('yes','no') }}"
   ## don't delay logins by incoming host checks
   UseDNS: 'no'
   ## keepalive every minute

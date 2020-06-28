@@ -19,6 +19,12 @@ None
 
 Available variables are listed below, along with default values.
 
+    lin_ssh_pam: true
+Enables PAM.
+
+    lin_motd_banner: true
+Enables message-of-the-day banner.
+
     lin_ssh_known_hosts: [github.com, ...]
 
 If this list is not empty, add its items to the global list of known hosts
