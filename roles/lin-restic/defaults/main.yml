@@ -65,8 +65,13 @@ lin_restic_ssh_configs: []
 #   user:     root      -- remote ssh user name (default: owner)
 #   keyfile:  ssh.key   -- ssh key file (optional, will be installed on host)
 
+lin_restic_cmd_vars: {}
+# name1: value1
+# name2: value2
+
 lin_restic_packages:
   - systemd-cron
   - at
   - rsync
+  - expect
 ...

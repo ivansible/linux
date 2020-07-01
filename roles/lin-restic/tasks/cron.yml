@@ -6,6 +6,9 @@
       RESTIC_REPOSITORY={{ lin_restic_repository }}
       RESTIC_PASSWORD={{ lin_restic_password }}
       RCLONE_CONFIG={{ lin_rclone_config }}
+      {% for key, val in lin_restic_cmd_vars |dictsort %}
+      {{ key }}={{ val }}
+      {% endfor %}
     marker: '# RESTIC {mark}'
     owner: root
     group: rclone
