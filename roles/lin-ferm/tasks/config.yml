@@ -1,7 +1,7 @@
 ---
 - name: directories for ferm rules
   file:
-    path: "{{ ferm_dir }}/{{ item }}"
+    path: "{{ ferm_dir }}/{{ item }}.d"
     state: directory
     mode: 0755
   loop: "{{ ferm_rule_hooks }}"

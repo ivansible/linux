@@ -2,17 +2,17 @@
 # core rule
 
 domain $ip_all table filter chain $INPUT {
-    @include @glob('../input/*.ferm');
+    @include @glob('../input.d/*.ferm');
 }
 
 domain $ip_all table filter chain $FORWARD {
-    @include @glob('../forward/*.ferm');
+    @include @glob('../forward.d/*.ferm');
 }
 
 domain $ip_all table filter chain FERM-HOSTS-INTERNAL {
-    @include @glob('../internal/*.ferm');
+    @include @glob('../internal.d/*.ferm');
 }
 
 domain $ip_all table filter chain FERM-HOSTS-EXTERNAL {
-    @include @glob('../external/*.ferm');
+    @include @glob('../external.d/*.ferm');
 }

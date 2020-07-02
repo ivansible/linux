@@ -105,10 +105,10 @@
     # setup host/port multi-lists
     @include "{{ ferm_bindir }}/ferm-openvz -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }} -o {{ ferm_openvz_file }} -O |";
 
-    @include @glob('custom/*.ferm');
+    @include @glob('custom.d/*.ferm');
 } @else {
     # setup host/port ipsets
     @hook pre "{{ ferm_bindir }}/ferm-ipset -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }}";
 
-    @include @glob('custom/*.ferm');
+    @include @glob('custom.d/*.ferm');
 }
