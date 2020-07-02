@@ -1,17 +1,17 @@
 # Docker
 # core rule
 
-@if $do_docker
+@if $docker_make_chains
 @if $first_run
 domain ip table nat {
     chain DOCKER;
     chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
     chain OUTPUT daddr ! 127.0.0.0/8 mod addrtype dst-type LOCAL jump DOCKER;
-    chain POSTROUTING saddr $docker_subnet4 outerface ! $docker0 MASQUERADE;
-    chain DOCKER interface $docker0 RETURN;
+    chain POSTROUTING saddr $docker_subnet4 outerface ! $docker_bridge MASQUERADE;
+    chain DOCKER interface $docker_bridge RETURN;
 }
 
-@if $do_docker
+@if $docker_make_chains
 @if $first_run
 domain ip table filter {
     chain DOCKER;
@@ -22,25 +22,25 @@ domain ip table filter {
     chain FORWARD {
         jump DOCKER-USER;
         jump DOCKER-ISOLATION-STAGE-1;
-        outerface $docker0 {
+        outerface $docker_bridge {
             mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
             jump DOCKER;
         }
-        interface $docker0 {
-            outerface ! $docker0 ACCEPT;
-            outerface $docker0 ACCEPT;
+        interface $docker_bridge {
+            outerface ! $docker_bridge ACCEPT;
+            outerface $docker_bridge ACCEPT;
         }
     }
 
     chain DOCKER-ISOLATION-STAGE-1 {
-        interface $docker0 outerface ! $docker0 {
+        interface $docker_bridge outerface ! $docker_bridge {
             jump DOCKER-ISOLATION-STAGE-2;
         }
         RETURN;
     }
 
     chain DOCKER-ISOLATION-STAGE-2 {
-        outerface $docker0 DROP;
+        outerface $docker_bridge DROP;
         RETURN;
     }
 

@@ -14,7 +14,7 @@ domain $ip_all table filter chain $INPUT {
     }
 }
 
-domain $ip_all table filter chain ferm-int-hosts {
+domain $ip_all table filter chain FERM-HOSTS-INTERNAL {
     @if $openvz {
         @if $ferm_ports_int_tcp
             proto tcp  dports $ferm_ports_int_tcp  ACCEPT;

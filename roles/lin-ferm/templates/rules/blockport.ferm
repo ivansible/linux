@@ -2,23 +2,23 @@
 # core rule
 
 domain $ip_all table filter {
-    chain ferm-int-hosts;
+    chain FERM-HOSTS-INTERNAL;
 
-    chain ferm-ext-hosts {
+    chain FERM-HOSTS-EXTERNAL {
         # goto outta here if host is internal
         @if $openvz {
             @if @eq($DOMAIN,ip)
             @if $ferm_hosts_int_ipv4
-                saddr $ferm_hosts_int_ipv4  goto ferm-int-hosts;
+                saddr $ferm_hosts_int_ipv4  goto FERM-HOSTS-INTERNAL;
             @if @eq($DOMAIN,ip6)
             @if $ferm_hosts_int_ipv6
-                saddr $ferm_hosts_int_ipv6  goto ferm-int-hosts;
+                saddr $ferm_hosts_int_ipv6  goto FERM-HOSTS-INTERNAL;
         }
         @else {
             @if @eq($DOMAIN,ip)
-                mod set  set ferm-hosts-int-ipv4 src  goto ferm-int-hosts;
+                mod set  set ferm-hosts-int-ipv4 src  goto FERM-HOSTS-INTERNAL;
             @if @eq($DOMAIN,ip6)
-                mod set  set ferm-hosts-int-ipv6 src  goto ferm-int-hosts;
+                mod set  set ferm-hosts-int-ipv6 src  goto FERM-HOSTS-INTERNAL;
         }
 
         # rules for external hosts below

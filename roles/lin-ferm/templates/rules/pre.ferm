@@ -13,10 +13,10 @@ domain $ip_all table filter {
 
 @if $do_ipv4
 domain ip table filter {
-    chain ferm-nonlocal {
+    chain FERM-TRIAGE-NONLOCAL {
         mod addrtype dst-type (LOCAL MULTICAST) RETURN;
         mod addrtype dst-type (BROADCAST) RETURN;
         DROP;
     }
-    chain $INPUT jump ferm-nonlocal;
+    chain $INPUT jump FERM-TRIAGE-NONLOCAL;
 }

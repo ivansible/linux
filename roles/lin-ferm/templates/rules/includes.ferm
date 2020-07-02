@@ -9,10 +9,10 @@ domain $ip_all table filter chain $FORWARD {
     @include @glob('../forward/*.ferm');
 }
 
-domain $ip_all table filter chain ferm-int-hosts {
+domain $ip_all table filter chain FERM-HOSTS-INTERNAL {
     @include @glob('../internal/*.ferm');
 }
 
-domain $ip_all table filter chain ferm-ext-hosts {
+domain $ip_all table filter chain FERM-HOSTS-EXTERNAL {
     @include @glob('../external/*.ferm');
 }
