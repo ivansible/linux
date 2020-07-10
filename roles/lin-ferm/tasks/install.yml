@@ -29,15 +29,17 @@
 
 - name: upload ferm helper scripts
   template:
-    src: "bin/{{ item }}"
-    dest: "{{ ferm_bindir }}/{{ item |splitext |first }}"
+    src: "bin/{{ item.name }}"
+    dest: "{{ ferm_bindir }}/{{ item.name |splitext |first }}"
     owner: root
     group: root
-    mode: 0754
+    mode: "{{ item.mode }}"
   loop:
-    - ferm-ipset.pl
-    - ferm-openvz.pl
-    - ferm-ctl.py
+    - {name: ferm-ipset.pl, mode: '754'}
+    - {name: ferm-openvz.pl, mode: '754'}
+    - {name: ferm-ctl.py, mode: '755'}
+  loop_control:
+    label: "{{ item.name }}"
   notify: reload ferm service
 
 - name: build ferm helper library

@@ -464,4 +464,7 @@ def main():
 
 
 if __name__ == '__main__':
+    if os.geteuid() != 0:
+        cmd = ['sudo', '-n', sys.executable]
+        os.execvp(cmd[0], cmd + sys.argv)
     main()
