@@ -45,6 +45,14 @@
     - lin_docker_all
     - ip4only
 
+- name: configure docker swarm
+  import_tasks: docker-swarm.yml
+  become: true
+  when: docker_swarm_role |default('none',true) != 'none'
+  tags:
+    - lin_docker_swarm
+    - lin_docker_all
+
 - name: create docker-enabled group
   group:
     name: docker

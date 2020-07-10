@@ -1,0 +1,63 @@
+---
+- name: open internal ports in ferm for docker swarm
+  ferm_port:
+    port: "{{ docker_swarm_ports }}"
+    comment: docker swarm
+    zone: internal
+  when: lin_firewall == 'ferm'
+  tags: skip_ansible_lint
+
+
+- name: set docker swarm facts
+  set_fact:
+    _swarm_role: "{{ docker_swarm_role |default('none',true) }}"
+    _swarm_addr: "{{ docker_swarm_manager_ip }}:{{ docker_swarm_manager_port }}"
+
+- name: verify swarm role
+  assert:
+    that: _swarm_role in ['worker', 'manager-worker', 'manager-master', 'manager-only', 'none']
+
+
+- name: derive swarm master hostname
+  set_fact:
+    _swarm_master: "{{ inventory_hostname }}"
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  loop: "{{ play_hosts |sort }}"
+  when: _swarm_role == 'manager-master'
+
+- name: setup swarm master
+  docker_swarm:
+    state: present
+    advertise_addr: "{{ _swarm_addr }}"
+  register: _swarm_init
+  when: _swarm_role == 'manager-master'
+
+
+- name: join nodes into swarm
+  docker_swarm:
+    state: join
+    advertise_addr: "{{ _swarm_addr }}"
+    remote_addrs: ["{{ master_vars._swarm_addr }}"]
+    join_token: "{{ join_token }}"
+  vars:
+    master_vars: "{{ hostvars[_swarm_master] }}"
+    tokens: "{{ master_vars._swarm_init.swarm_facts.JoinTokens }}"
+    join_token: "{{ tokens.Worker if _swarm_role == 'worker' else tokens.Manager }}"
+  when:
+    - _swarm_role in ['worker', 'manager-worker', 'manager-only']
+    - _swarm_master is defined
+
+- name: configure swarm nodes
+  docker_node:
+    hostname: "{{ inventory_hostname }}"
+    role: "{{ 'worker' if _swarm_role == 'worker' else 'manager' }}"
+    availability: "{{ 'drain' if _swarm_role == 'manager-only' else 'active' }}"
+    labels:
+      hostname: "{{ inventory_hostname }}"
+      memsize: "{{ 'normal' if ansible_memtotal_mb > docker_swarm_ram_threshold_mb else 'small' }}"
+  delegate_to: "{{ _swarm_master }}"
+  when:
+    - _swarm_role != 'none'
+    - _swarm_master is defined
+...

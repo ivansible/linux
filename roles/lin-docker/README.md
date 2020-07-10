@@ -16,6 +16,14 @@ None
 
 Available variables are listed below, along with default values.
 
+    docker_swarm_role: none
+The node role in the docker swarm:
+- `worker` - worker-only node runs tasks
+- `manager-worker` - manager node that runs tasks
+- `manager-only` - manager node without tasks
+- `manager-master` - first manager node in the swarm, runs tasks
+- `none` - the node does not participate in swarm
+
     docker_from_docker_io: true
     docker_focal_fix: true
 If true (the default), install `docker engine` from the docker.io
@@ -59,6 +67,7 @@ checked out in the given local directory.
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine
+- `lin_docker_swarm` -- setup swarm
 - `lin_docker_user` -- user bash aliases and permissions for docker daemon
                        and login into docker hub
 - `lin_docker_all` -- all tasks

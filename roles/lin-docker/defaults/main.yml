@@ -35,6 +35,21 @@ docker_bash_aliases:
   drl: docker ps -lq
   drp: docker system prune -f
 
+## docker swarm settings
+## role: worker, manager-worker, manager-only, manager-master, none
+docker_swarm_role: none
+
+docker_swarm_manager_ip: "{{ ansible_default_ipv4.address }}"
+docker_swarm_manager_port: 2377
+
+docker_swarm_ports:
+  - 2376/tcp  # daemon tls
+  - 2377/tcp  # swarm manager
+  - 7946/any  # intra-node
+  - 4789/udp  # overlay net (vxlan)
+
+docker_swarm_ram_threshold_mb: 984
+
 ## dictionary of custom docker daemon settings
 docker_daemon_settings: {}
 ...
