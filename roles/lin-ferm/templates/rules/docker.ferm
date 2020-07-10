@@ -5,6 +5,7 @@
 @if $first_run
 domain ip table nat {
     chain DOCKER;
+    chain DOCKER-INGRESS;
     chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
     chain OUTPUT daddr ! 127.0.0.0/8 mod addrtype dst-type LOCAL jump DOCKER;
     chain POSTROUTING saddr $docker_subnet4 outerface ! $docker_bridge MASQUERADE;
@@ -15,6 +16,7 @@ domain ip table nat {
 @if $first_run
 domain ip table filter {
     chain DOCKER;
+    chain DOCKER-INGRESS;
     chain DOCKER-ISOLATION-STAGE-1;
     chain DOCKER-ISOLATION-STAGE-2;
     chain DOCKER-USER;
@@ -52,11 +54,13 @@ domain ip table filter {
 @if @not($first_run)
 domain ip table nat {
     chain DOCKER @preserve;
+    chain DOCKER-INGRESS @preserve;
 }
 
 @if @not($first_run)
 domain ip table filter {
     chain DOCKER @preserve;
+    chain DOCKER-INGRESS @preserve;
     chain DOCKER-ISOLATION-STAGE-1 @preserve;
     chain DOCKER-ISOLATION-STAGE-2 @preserve;
     chain DOCKER-USER @preserve;
