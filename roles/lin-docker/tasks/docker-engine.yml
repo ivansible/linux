@@ -40,11 +40,33 @@
     ## note: jq helps to parse docker output
     packages_helpers: jq,bash-completion,pigz
 
+
 - name: bash completion script for docker
   file:
     src: /usr/share/bash-completion/completions/docker
     dest: /etc/bash_completion.d/docker
     state: link
+
+- name: user bash aliases for docker cli (optional)
+  blockinfile:
+    path: ~/.local/bashrc/4alias.sh
+    block: |
+      {% for item in docker_bash_aliases |dictsort %}
+      alias {{ item.0 }}='{{ item.1 }}'
+      {% endfor %}
+    marker: '# {mark} DOCKER ALIASES'
+  become: false
+  when: user_local_bashrc.stat.exists
+  tags: lin_docker_user
+
+- name: user bash completion for docker cli (optional)
+  lineinfile:
+    path: ~/.local/bashrc/5completion.sh
+    line: 'complete -F _docker dr'
+  become: false
+  when: user_local_bashrc.stat.exists
+  tags: lin_docker_user
+
 
 - name: create new docker daemon settings
   copy:

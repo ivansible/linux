@@ -1,4 +1,13 @@
 ---
+- name: check whether user has custom bashrc
+  stat:
+    path: ~/.local/bashrc
+  become: false
+  register: user_local_bashrc
+  tags:
+    - lin_docker_user
+    - lin_docker_all
+
 - name: install docker engine
   import_tasks: docker-engine.yml
   become: true

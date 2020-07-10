@@ -27,6 +27,14 @@ docker_files_repo: ""
 docker_files_branch: master
 docker_files_dir: ~/devel/docker
 
+docker_bash_aliases:
+  dc: docker-compose
+  dr: docker
+  drd: docker stack deploy
+  drf: docker system df
+  drl: docker ps -lq
+  drp: docker system prune -f
+
 ## dictionary of custom docker daemon settings
 docker_daemon_settings: {}
 ...

@@ -59,7 +59,7 @@ checked out in the given local directory.
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine
-- `lin_docker_user` -- give target user permissions for docker daemon
+- `lin_docker_user` -- user bash aliases and permissions for docker daemon
                        and login into docker hub
 - `lin_docker_all` -- all tasks
 
