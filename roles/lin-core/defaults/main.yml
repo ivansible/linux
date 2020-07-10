@@ -51,6 +51,7 @@ lin_core_packages_core:
   - ifupdown
   - iproute2
   - iputils-ping
+  - bridge-utils
   - traceroute
   - dnsutils
   - bind9-host
