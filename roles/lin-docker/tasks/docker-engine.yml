@@ -2,6 +2,8 @@
 - name: add docker signing key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
+  register: add_docker_key_result
+  until: add_docker_key_result is successful
   when: docker_from_docker_io |bool
 
 - name: add docker repository
