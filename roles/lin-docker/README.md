@@ -24,6 +24,11 @@ The node role in the docker swarm:
 - `manager-master` - first manager node in the swarm, runs tasks
 - `none` - the node does not participate in swarm
 
+```
+docker_daily_gc: <depends on swarm>
+```
+Enables nightly docker garbage collector. Can be `true` or `false`. By default, enabled if the node participates in the swarm.
+
     docker_from_docker_io: true
     docker_focal_fix: true
 If true (the default), install `docker engine` from the docker.io

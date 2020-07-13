@@ -53,6 +53,21 @@
     - lin_docker_swarm
     - lin_docker_all
 
+- name: enable daily docker garbage collector
+  copy:
+    dest: /etc/cron.daily/docker-gc
+    content: |
+      #!/bin/sh
+      {{ comment }}docker system prune --force --all |grep -v 'reclaimed space: 0B' ||:
+    mode: 0755
+    force: true
+  vars:
+    comment: "{{ docker_daily_gc |bool |ternary('','#') }}"
+  become: true
+  notify: reload systemd daemon
+  tags:
+    - lin_docker_all
+
 - name: create docker-enabled group
   group:
     name: docker

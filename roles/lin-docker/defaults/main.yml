@@ -35,6 +35,8 @@ docker_bash_aliases:
   drl: docker ps -lq
   drp: docker system prune -f
 
+docker_daily_gc: "{{ docker_swarm_role |default('none',true) != 'none' }}"
+
 ## docker swarm settings
 ## role: worker, manager-worker, manager-only, manager-master, none
 docker_swarm_role: none
