@@ -1,4 +1,14 @@
 ---
+- name: install docker helpers
+  apt:
+    name:
+      ## note: jq helps to parse docker output
+      - jq
+      - pigz
+      - bash-completion
+      - bridge-utils
+      - criu
+
 - name: add docker signing key
   apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
@@ -21,14 +31,14 @@
 - block:
     - name: install docker and friends
       apt:
-        name: "{{ packages_docker }},{{ packages_helpers }}"
+        name: "{{ packages_docker }}"
         state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
         autoremove: true
         install_recommends: false
   rescue:
     - name: install docker and friends (update apt cache)
       apt:
-        name: "{{ packages_docker }},{{ packages_helpers }}"
+        name: "{{ packages_docker }}"
         state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
         autoremove: true
         install_recommends: false
@@ -37,8 +47,6 @@
     packages_docker: "{{ docker_from_docker_io |bool |ternary(pkgs_dockerio, pkgs_ubuntu) }}"
     pkgs_ubuntu: docker.io,docker-compose
     pkgs_dockerio: docker-ce
-    ## note: jq helps to parse docker output
-    packages_helpers: jq,bash-completion,pigz
 
 
 - name: bash completion script for docker
