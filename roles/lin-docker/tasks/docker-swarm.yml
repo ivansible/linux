@@ -10,28 +10,28 @@
 
 - name: set docker swarm facts
   set_fact:
-    _swarm_role: "{{ docker_swarm_role |default('none',true) }}"
+    _swarm_role: "{{ docker_swarm_role |d('none',true) |replace('-','_') }}"
     _swarm_addr: "{{ docker_swarm_manager_ip }}:{{ docker_swarm_manager_port }}"
 
 - name: verify swarm role
   assert:
-    that: _swarm_role in ['worker', 'manager-worker', 'manager-master', 'manager-only', 'none']
+    that: _swarm_role in ['worker', 'manager_worker', 'manager_master', 'manager_only', 'none']
+
+- name: group hosts by swarm_role
+  group_by:
+    key: "_swarm_{{ _swarm_role }}"
 
 
 - name: derive swarm master hostname
   set_fact:
-    _swarm_master: "{{ inventory_hostname }}"
-  delegate_to: "{{ item }}"
-  delegate_facts: true
-  loop: "{{ play_hosts |sort }}"
-  when: _swarm_role == 'manager-master'
+    _swarm_master: "{{ groups._swarm_manager_master |d(['none'],true) |first }}"
 
 - name: setup swarm master
   docker_swarm:
     state: present
     advertise_addr: "{{ _swarm_addr }}"
   register: _swarm_init
-  when: _swarm_role == 'manager-master'
+  when: _swarm_role == 'manager_master'
 
 
 - name: join nodes into swarm
@@ -45,19 +45,19 @@
     tokens: "{{ master_vars._swarm_init.swarm_facts.JoinTokens }}"
     join_token: "{{ tokens.Worker if _swarm_role == 'worker' else tokens.Manager }}"
   when:
-    - _swarm_role in ['worker', 'manager-worker', 'manager-only']
-    - _swarm_master is defined
+    - _swarm_role in ['worker', 'manager_worker', 'manager_only']
+    - _swarm_master != 'none'
 
 - name: configure swarm nodes
   docker_node:
     hostname: "{{ inventory_hostname }}"
     role: "{{ 'worker' if _swarm_role == 'worker' else 'manager' }}"
-    availability: "{{ 'drain' if _swarm_role == 'manager-only' else 'active' }}"
+    availability: "{{ 'drain' if _swarm_role == 'manager_only' else 'active' }}"
     labels:
       hostname: "{{ inventory_hostname }}"
       memsize: "{{ 'normal' if ansible_memtotal_mb > docker_swarm_ram_threshold_mb else 'small' }}"
   delegate_to: "{{ _swarm_master }}"
   when:
     - _swarm_role != 'none'
-    - _swarm_master is defined
+    - _swarm_master != 'none'
 ...
