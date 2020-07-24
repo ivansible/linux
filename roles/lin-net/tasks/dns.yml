@@ -1,15 +1,15 @@
 ---
-- name: configure dns servers in systemd-resolved
+- name: configure systemd-resolved
   lineinfile:
     path: /etc/systemd/resolved.conf
-    line: "{{ item.param }}={{ item.value }}"
-    regexp: "^\\s*#*\\s*{{ item.param }}\\s*="
-  loop:
-    - {param: DNS, value: "{{ lin_net_dns_servers |join(' ') }}"}
-    - {param: Cache, value: 'yes'}
-    - {param: DNSStubListener, value: 'yes'}
+    line: "{{ item.0 }}={{ item.1 }}"
+    regexp: "^\\s*#*\\s*{{ item.0 }}\\s*="
+    ## Note: we control the *last* DNS= line
+    ##       letting user *prepend* custom DNS= servers!
+    firstmatch: false
+  loop: "{{ lin_net_resolved_settings |dictsort }}"
   loop_control:
-    label: "{{ item.param }}"
+    label: "{{ item.0 }}"
   notify: restart systemd-resolved
-  when: lin_net_enable_systemd_resolved |bool
+  when: lin_net_enable_resolved |bool
 ...

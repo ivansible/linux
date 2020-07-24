@@ -5,12 +5,24 @@
 lin_net_lo4: ~
 lin_net_lo6: ~
 
-lin_net_enable_systemd_resolved: "{{ ansible_lsb.codename != 'xenial' }}"
-lin_net_dns_servers: [1.1.1.1, 8.8.8.8]
-
 lin_net_interfaces_files: [interfaces]
 
-# Hurricane Electric IPv6
+## DNS resolver
+lin_net_dns_servers: [1.1.1.1, 8.8.8.8]
+lin_net_enable_resolved: "{{ ansible_lsb.release is version('16.04','>') }}"
+
+lin_net_resolved_settings:
+  DNS: "{{ lin_net_dns_servers |join(' ') }}"
+  ## Setting global route-only domain avoids the
+  ## resolving completely taken over by a link.
+  Domains: '~.'
+  Cache: 'yes'
+  DNSStubListener: 'yes'
+  DNSSEC: 'no'
+  MulticastDNS: 'no'
+  LLMNR: 'no'
+
+## Hurricane Electric IPv6
 lin_he6_enable: false
 lin_he6_local: "{{ ansible_default_ipv4.address }}"
 lin_he6_endpoint: 127.0.0.1
