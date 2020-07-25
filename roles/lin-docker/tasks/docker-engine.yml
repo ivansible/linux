@@ -67,6 +67,16 @@
   when: user_local_bashrc.stat.exists
   tags: lin_docker_user
 
+- name: user bash functions for docker cli (optional)
+  blockinfile:
+    path: ~/.local/bashrc/3common.sh
+    block: "{{ lookup('file', 'bashrc.docker.sh') }}"
+    marker: '# {mark} DOCKER FUNCTIONS'
+    insertafter: EOF
+  become: false
+  when: user_local_bashrc.stat.exists
+  tags: lin_docker_user
+
 - name: user bash completion for docker cli (optional)
   lineinfile:
     path: ~/.local/bashrc/5completion.sh

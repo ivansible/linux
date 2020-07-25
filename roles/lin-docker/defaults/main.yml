@@ -34,6 +34,9 @@ docker_bash_aliases:
   drf: docker system df
   drl: docker ps -lq
   drp: docker system prune -f
+  drk: docker stack
+  drs: docker service
+  drtop: docker container stats
 
 docker_daily_gc: "{{ docker_swarm_role |default('none',true) != 'none' }}"
 
