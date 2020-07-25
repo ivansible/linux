@@ -3,6 +3,7 @@
 
 ferm_install: false
 ferm_mimic_ufw: true
+ferm_extras: true
 
 ferm_ports_external:
   - 22/tcp

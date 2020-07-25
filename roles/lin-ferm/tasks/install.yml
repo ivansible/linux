@@ -15,6 +15,22 @@
       - build-essential
     state: present
 
+- name: install extra iptables modules for ferm
+  block:
+    - name: install extra iptables modules (will update if fails)
+      apt:
+        name: "{{ extras }}"
+  rescue:
+    - name: install extra iptables modules (update caches)
+      apt:
+        name: "{{ extras }}"
+        update_cache: true
+  vars:
+    extras:
+      - xtables-addons-dkms
+      - linux-headers-generic
+  when: ferm_extras |bool
+
 - name: download ferm script (skip in check mode)
   get_url:
     url: "{{ ferm_script_url }}"
