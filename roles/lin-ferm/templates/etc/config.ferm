@@ -112,3 +112,18 @@
 
     @include @glob('custom.d/*.ferm');
 }
+
+# enforce strict input/forward policy
+domain $ip_all table filter {
+    chain $FORWARD interface ($docker_bridge docker_gwbridge) RETURN;
+    chain $FORWARD outerface ($docker_bridge docker_gwbridge) RETURN;
+    chain ($INPUT $FORWARD) DROP;
+}
+
+# workaround for wrong preserved INPUT policy
+{% for chain in ['INPUT', 'FORWARD'] %}
+@if $do_ipv4 @hook post "LD_PRELOAD={{ ferm_lib_nolock }} iptables -P {{ chain }} DROP";
+@if $do_ipv6 @hook post "LD_PRELOAD={{ ferm_lib_nolock }} ip6tables -P {{ chain }} DROP";
+{% endfor %}
+
+# end
