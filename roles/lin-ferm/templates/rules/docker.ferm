@@ -8,8 +8,8 @@ domain ip table nat {
     chain DOCKER-INGRESS;
     chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
     chain OUTPUT daddr ! 127.0.0.0/8 mod addrtype dst-type LOCAL jump DOCKER;
-    chain POSTROUTING saddr $docker_subnet4 outerface ! $docker_bridge MASQUERADE;
-    chain DOCKER interface $docker_bridge RETURN;
+    chain POSTROUTING saddr $docker_subnet4 outerface ! docker0 MASQUERADE;
+    chain DOCKER interface docker0 RETURN;
 }
 
 @if $docker_make_chains
@@ -24,25 +24,25 @@ domain ip table filter {
     chain FORWARD {
         jump DOCKER-USER;
         jump DOCKER-ISOLATION-STAGE-1;
-        outerface $docker_bridge {
+        outerface docker0 {
             mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
             jump DOCKER;
         }
-        interface $docker_bridge {
-            outerface ! $docker_bridge ACCEPT;
-            outerface $docker_bridge ACCEPT;
+        interface docker0 {
+            outerface ! docker0 ACCEPT;
+            outerface docker0 ACCEPT;
         }
     }
 
     chain DOCKER-ISOLATION-STAGE-1 {
-        interface $docker_bridge outerface ! $docker_bridge {
+        interface docker0 outerface ! docker0 {
             jump DOCKER-ISOLATION-STAGE-2;
         }
         RETURN;
     }
 
     chain DOCKER-ISOLATION-STAGE-2 {
-        outerface $docker_bridge DROP;
+        outerface docker0 DROP;
         RETURN;
     }
 

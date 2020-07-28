@@ -14,7 +14,7 @@
 @def $do_ufw = {{ ferm_mimic_ufw |bool |ternary(1,0) }};
 
 @def $docker_make_chains = {{ ferm_docker_make_chains |bool |ternary(1,0) }};
-@def $docker_bridge = {{ ferm_docker_bridge |default('docker0') }};
+@def $docker_bridges = (docker0 docker_gwbridge);
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 
 # aliases for hooked chains
@@ -115,8 +115,8 @@
 
 # enforce strict input/forward policy
 domain $ip_all table filter {
-    chain $FORWARD interface ($docker_bridge docker_gwbridge) RETURN;
-    chain $FORWARD outerface ($docker_bridge docker_gwbridge) RETURN;
+    chain $FORWARD interface $docker_bridges RETURN;
+    chain $FORWARD outerface $docker_bridges RETURN;
     chain ($INPUT $FORWARD) DROP;
 }
 
