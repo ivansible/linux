@@ -36,5 +36,8 @@ lin_he6_net32: 2001:470::/32
 lin_he6_device: he0
 lin_he6_metric: 3192
 
+## loopback ip for testing
+lin_he6_loopip: beef
+
 lin_net_port_trace6: 33434
 ...

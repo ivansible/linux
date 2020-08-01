@@ -10,3 +10,6 @@ iface {{ lin_he6_device }} inet6 v4tunnel
   metric {{ lin_he6_metric }}
   he6-henet {{ lin_he6_net32 }}
   he6-net48 {{ lin_he6_net48 }}
+{% if lin_he6_loopip |d('',1) %}
+  he6-loopip {{ lin_he6_loopip }}
+{% endif %}
