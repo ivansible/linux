@@ -5,6 +5,9 @@ ferm_install: false
 ferm_mimic_ufw: true
 ferm_extras: true
 
+ferm_public_interface: "{{ ansible_default_ipv4.interface
+                         | d(ansible_default_ipv6.interface) }}"
+
 ferm_ports_external:
   - 22/tcp
 ferm_ports_internal: []
@@ -26,6 +29,8 @@ ferm_ipv6: true
 
 ferm_openvz: false
 
+ferm_docker_user_chain: true
+ferm_docker_ingress_jail: true
 ferm_docker_subnet4: 172.17.0.0/16
 
 ferm_dir: /etc/ferm

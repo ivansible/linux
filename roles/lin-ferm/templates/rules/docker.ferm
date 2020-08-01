@@ -12,6 +12,32 @@
         chain DOCKER-INGRESS @preserve;
         chain DOCKER-ISOLATION-STAGE-1 @preserve;
         chain DOCKER-ISOLATION-STAGE-2 @preserve;
-        chain DOCKER-USER @preserve;
+        @if @not($docker_user_chain)
+            chain DOCKER-USER @preserve;
+    }
+}
+
+@if $docker_user_chain
+@if @not($openvz)
+domain $ip_all table filter {
+    @if @eq($DOMAIN,ip)
+        @def $int_hosts = ferm-hosts-int-ipv4;
+    @if @eq($DOMAIN,ip6)
+        @def $int_hosts = ferm-hosts-int-ipv6;
+
+    @if $docker_ingress_jail
+    chain FERM-INGRESS-JAIL {
+        mod conntrack ctstate (ESTABLISHED RELATED) RETURN;
+        mod set ! set $int_hosts src DROP;
+    }
+
+    chain DOCKER-USER {
+        @if $docker_ingress_jail {
+            proto (tcp udp)
+            interface $public_interface
+            outerface $docker_bridges
+            jump FERM-INGRESS-JAIL;
+        }
+        RETURN;
     }
 }
