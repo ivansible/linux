@@ -1,67 +1,17 @@
 # Docker
 # core rule
 
-@if $docker_make_chains
-@if $first_run
-domain ip table nat {
-    chain DOCKER;
-    chain DOCKER-INGRESS;
-    chain PREROUTING mod addrtype dst-type LOCAL jump DOCKER;
-    chain OUTPUT daddr ! 127.0.0.0/8 mod addrtype dst-type LOCAL jump DOCKER;
-    chain POSTROUTING saddr $docker_subnet4 outerface ! docker0 MASQUERADE;
-    chain DOCKER interface docker0 RETURN;
-}
-
-@if $docker_make_chains
-@if $first_run
-domain ip table filter {
-    chain DOCKER;
-    chain DOCKER-INGRESS;
-    chain DOCKER-ISOLATION-STAGE-1;
-    chain DOCKER-ISOLATION-STAGE-2;
-    chain DOCKER-USER;
-
-    chain FORWARD {
-        jump DOCKER-USER;
-        jump DOCKER-ISOLATION-STAGE-1;
-        outerface docker0 {
-            mod conntrack ctstate (RELATED ESTABLISHED) ACCEPT;
-            jump DOCKER;
-        }
-        interface docker0 {
-            outerface ! docker0 ACCEPT;
-            outerface docker0 ACCEPT;
-        }
+@if @not($first_run) {
+    domain ip table nat {
+        chain DOCKER @preserve;
+        chain DOCKER-INGRESS @preserve;
     }
 
-    chain DOCKER-ISOLATION-STAGE-1 {
-        interface docker0 outerface ! docker0 {
-            jump DOCKER-ISOLATION-STAGE-2;
-        }
-        RETURN;
+    domain ip table filter {
+        chain DOCKER @preserve;
+        chain DOCKER-INGRESS @preserve;
+        chain DOCKER-ISOLATION-STAGE-1 @preserve;
+        chain DOCKER-ISOLATION-STAGE-2 @preserve;
+        chain DOCKER-USER @preserve;
     }
-
-    chain DOCKER-ISOLATION-STAGE-2 {
-        outerface docker0 DROP;
-        RETURN;
-    }
-
-    chain DOCKER-USER {
-        RETURN;
-    }
-}
-
-@if @not($first_run)
-domain ip table nat {
-    chain DOCKER @preserve;
-    chain DOCKER-INGRESS @preserve;
-}
-
-@if @not($first_run)
-domain ip table filter {
-    chain DOCKER @preserve;
-    chain DOCKER-INGRESS @preserve;
-    chain DOCKER-ISOLATION-STAGE-1 @preserve;
-    chain DOCKER-ISOLATION-STAGE-2 @preserve;
-    chain DOCKER-USER @preserve;
 }
