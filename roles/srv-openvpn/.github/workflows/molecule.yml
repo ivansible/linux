@@ -40,7 +40,7 @@ jobs:
           # stock and pypy flavors of PyYAML are incompatible:
           sudo apt-get remove -q -y python3-yaml
           sudo -H pip3 install -U pip setuptools wheel
-          sudo -H pip3 install docker jmespath boto3 mitogen molecule pytest testinfra
+          sudo -H pip3 install docker jmespath netaddr boto3 mitogen molecule pytest testinfra
           # also pulled: ansible-lint yamllint flake8
 
 # test this role in docker only, not on runner
@@ -70,7 +70,7 @@ jobs:
           # stock and pypy flavors of PyYAML are incompatible:
           sudo apt-get remove -q -y python3-yaml
           sudo -H pip3 install -U pip setuptools wheel
-          sudo -H pip3 install docker jmespath boto3 mitogen molecule pytest testinfra
+          sudo -H pip3 install docker jmespath netaddr boto3 mitogen molecule pytest testinfra
           # also pulled: ansible-lint yamllint flake8
 
       - name: Run test
