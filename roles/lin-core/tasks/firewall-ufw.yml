@@ -35,6 +35,7 @@
     port: '123'
     proto: udp
   no_log: "{{ hide_secrets |bool }}"
+  when: lin_core_open_ntp |bool
 
 
 - name: disable ferm firewall (please ignore possible failure)

@@ -7,8 +7,14 @@
     ferm_ports_external:
       # open actual ssh port
       - "{{ real_ssh_port |string }}/tcp"
-      # open ntp port
-      - 123/udp
+
+- name: open ntp port in ferm
+  ferm_port:
+    port: 123/udp
+    zone: "{{ lin_core_open_ntp |bool |ternary('external','internal') }}"
+    solo_zone: true
+    comment: ntp
+  tags: skip_ansible_lint
 
 - name: fix ssh port in ferm firewall
   block:
