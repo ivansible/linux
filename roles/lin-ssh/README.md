@@ -34,6 +34,10 @@ port 22 is used, otherwise the item should be formatted as `host:port`.
     lin_ssh_settings: {...}
 A dictionary with SSH daemon settings.
 
+    lin_ssh_superusers: [<main ansible user id>]
+    lin_ssh_superuser_settings: {...}
+SSH settings for dedicated user(s).
+
     lin_ssh_conn_limit: 1/sec
     lin_ssh_conn_burst: 9
 Set limit on SSH connections per second (if `limit` is not an empty string).

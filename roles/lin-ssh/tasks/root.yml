@@ -70,7 +70,7 @@
   notify: restart ssh service
   tags: lin_ssh_settings
 
-- name: set some common ssh settings
+- name: set global sshd settings
   lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^#*\s*{{ item.0 }}\b'
@@ -81,6 +81,22 @@
   loop: "{{ lin_ssh_settings |dictsort }}"
   loop_control:
     label: "{{ item.0 }}"
+  notify: restart ssh service
+  tags: lin_ssh_settings
+
+- name: set sshd settings for superuser
+  blockinfile:
+    path: /etc/ssh/sshd_config
+    block: |
+      Match User {{ superusers }}
+      {% for key, val in lin_ssh_superuser_settings |dictsort if val != '' %}
+          {{ key }} {{ val }}
+      {% endfor %}
+    marker: "# {mark} SUPERUSER"
+    insertafter: EOF
+  vars:
+    superusers: "{{ lin_ssh_superusers |d([],true) |join(',') }}"
+  when: superusers |d('')
   notify: restart ssh service
   tags: lin_ssh_settings
 
