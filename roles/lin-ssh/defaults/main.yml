@@ -41,6 +41,9 @@ lin_ssh_settings:
   AllowTcpForwarding: 'no'
   AllowAgentForwarding: 'no'
   X11Forwarding: 'no'
+  ## per-user environment is required to enable aliases for superuser
+  ## unfortunately, it can be set only globally
+  PermitUserEnvironment: "{{ lin_ssh_permit_user_env |bool |ternary('yes','no') }}"
 
 lin_ssh_superuser_settings:
   MaxSessions: 6
@@ -53,6 +56,8 @@ lin_ssh_superuser_settings:
 lin_ssh_superusers: ["{{ ansible_user_id }}"]
 
 lin_ssh_root_login_from: ~
+
+lin_ssh_permit_user_env: false
 
 lin_ssh_idle_timeout_minutes: 10
 
