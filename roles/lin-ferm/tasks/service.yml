@@ -16,15 +16,24 @@
   command: systemctl daemon-reload  # noqa 303
   when: ferm_service_result is changed
 
-- name: disable ufw (please ignore possible failure)
-  ufw:
-    state: disabled
-  no_log: "{{ hide_secrets |bool }}"
+- name: check ufw status (please ignore possible failure)
+  command: ufw status
   ignore_errors: true
+  no_log: "{{ hide_secrets |bool }}"
+  changed_when: false
+  register: _ufw_status
 
-- name: activate ferm
+- name: disable ufw if it's active yet
+  ufw: state=disabled
+  ignore_errors: true
+  ## trigger immediate ferm restart after invoking `ufw disable` and run it
+  ## only if really required because it resets chains policy to ACCEPT!
+  when: _ufw_status.stdout |d('') is search('Status[:] active')
+  register: _ufw_disable
+
+- name: activate ferm (restart if ufw was active)
   systemd:
     name: ferm
-    state: started
+    state: "{{ 'started' if _ufw_disable is skipped else 'restarted' }}"
     enabled: true
 ...
