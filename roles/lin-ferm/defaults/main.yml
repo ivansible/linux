@@ -35,7 +35,7 @@ ferm_docker_subnet4: 172.17.0.0/16
 
 ferm_dir: /etc/ferm
 ferm_bindir: /usr/local/sbin
-ferm_binary: "{{ ferm_bindir }}/ferm"
+ferm_binary: "{{ ferm_bindir }}/ferm-script"
 ferm_openvz_file: /var/lib/ferm/openvz.ferm
 ferm_lib_nolock: /usr/local/lib/ferm-nolock.so
 

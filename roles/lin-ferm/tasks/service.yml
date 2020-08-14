@@ -4,11 +4,7 @@
     src: etc/ferm.service
     dest: /etc/systemd/system/ferm.service
   vars:
-    ferm_config: "{{ ferm_dir }}/config.ferm"
-    force_cleanup: '/usr/bin/env FERM_FORCE_HOOKS=1'
-    lock_xtables: "/usr/bin/flock {{ no_fork }}/run/xtables.lock"
-    no_fork: "{{ modern_flock |ternary('--no-fork ', '') }}"
-    modern_flock: "{{ ansible_lsb.release is version('16.04', '>') }}"
+    ferm_run: "{{ ferm_bindir }}/ferm-run"
   register: ferm_service_result
   notify: reload ferm service
 

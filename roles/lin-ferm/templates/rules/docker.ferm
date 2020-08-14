@@ -1,7 +1,7 @@
 # Docker
 # core rule
 
-@if @not($first_run) {
+@if @not($reset) {
     domain ip table nat {
         chain DOCKER @preserve;
         chain DOCKER-INGRESS @preserve;
@@ -40,4 +40,11 @@ domain $ip_all table filter {
         }
         RETURN;
     }
+}
+
+# preserve chains for kubernetes and podman
+domain ip {
+    table nat chain `echo ${KUBE_CHAINS_NAT4}` @preserve;
+    table nat chain `echo ${CNI_CHAINS_NAT4}` @preserve;
+    table filter chain `echo ${CNI_CHAINS_FILTER4}` @preserve;
 }

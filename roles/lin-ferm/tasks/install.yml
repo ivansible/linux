@@ -50,9 +50,12 @@
     owner: root
     group: root
     mode: "{{ item.mode }}"
+  vars:
+    ferm_nofork: "{{ '--no-fork' if ansible_lsb.release is version('16.04','>') else '' }}"
   loop:
     - {name: ferm-ipset.pl, mode: '754'}
     - {name: ferm-openvz.pl, mode: '754'}
+    - {name: ferm-run.sh, mode: '754'}
     - {name: ferm-ctl.py, mode: '755'}
   loop_control:
     label: "{{ item.name }}"
@@ -60,7 +63,10 @@
 
 - name: build ferm helper library
   command:
-    cmd: gcc -shared "-Wl,-soname,{{ ferm_lib_nolock |basename }}.so" -o "{{ ferm_lib_nolock }}" -fPIC -lc -xc -
+    cmd: gcc -shared "-Wl,-soname,{{ lib_name }}.so" -o "{{ lib_path }}" -fPIC -lc -xc -
     stdin: "int flock(int fd, int op) { return 0; }"
-    creates: "{{ ferm_lib_nolock }}"
+    creates: "{{ lib_path }}"
+  vars:
+    lib_path: "{{ ferm_lib_nolock }}"
+    lib_name: "{{ ferm_lib_nolock |basename }}"
 ...

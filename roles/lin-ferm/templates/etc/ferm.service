@@ -12,10 +12,9 @@ Before={{ service }}.service
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart={{ force_cleanup }} {{ ferm_binary }} {{ ferm_config }}
-ExecReload={{ lock_xtables }} {{ ferm_binary }} {{ ferm_config }}
-ExecStop={{ force_cleanup }} {{ ferm_binary }} --flush {{ ferm_config }}
-ExecStop={{ ferm_binary }} --flush {{ ferm_config }}
+ExecStart={{ ferm_run }} --reset
+ExecReload={{ ferm_run }}
+ExecStop={{ ferm_run }} --reset --flush
 
 [Install]
 WantedBy=multi-user.target

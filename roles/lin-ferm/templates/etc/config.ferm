@@ -1,7 +1,6 @@
-# fERM rules
+# Ferm rules
 # ansible-managed
 
-@def $openvz = {{ ferm_openvz |bool |ternary(1,0) }};
 {% if ferm_ipv4 |bool and ferm_ipv6 |bool %}
 @def $ip_all = (ip ip6);
 {% elif ferm_ipv4 |bool or ferm_ipv6 |bool %}
@@ -26,19 +25,12 @@
 @def $OUTPUT = _OUTPUT;
 @def $FORWARD = _FORWARD;
 
-# $first_run is non-zero if hook isn't found in the forward chain
-# use 'export FERM_FORCE_HOOKS=1' to force inserting the hooks
-# note: skip xtables lock here since we lock the whole process
-{#
- # we could use strace instead of helper shared library, like this:
- # `strace -o /dev/null -e flock -e inject=flock:retval=0 iptables`
- # but `inject` is not supported on ubuntu 16.04
- #}
-@def $first_run = `LD_PRELOAD="{{ ferm_lib_nolock }}" iptables -C FORWARD -j _FORWARD 2>/dev/null; echo "${FERM_FORCE_HOOKS}$?"`;
+@def $openvz = `echo ${FERM_VZ}`;
+@def $reset = `echo ${FERM_RESET}`;
 
 @def &CHAIN_HOOK($chain, $policy) = {
     @def $hook = @cat('_', $chain);
-    @if $first_run {
+    @if $reset {
         # create standard chain and embed the hook
         chain $chain policy $policy;
         chain $hook;
@@ -102,18 +94,10 @@
     }
 }
 
-# HEADS UP! errors in ferm-ipset/ferm-openvz will be ignored!
-@if $openvz {
-    # setup host/port multi-lists
-    @include "{{ ferm_bindir }}/ferm-openvz -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }} -o {{ ferm_openvz_file }} -O |";
+@if $openvz
+@include 'echo "${FERM_VZ_DEFS}" |';
 
-    @include @glob('custom.d/*.ferm');
-} @else {
-    # setup host/port ipsets
-    @hook pre "{{ ferm_bindir }}/ferm-ipset -c {{ ferm_dir }} -l {{ ferm_ipset_files |join(',') }}";
-
-    @include @glob('custom.d/*.ferm');
-}
+@include @glob('custom.d/*.ferm');
 
 # enforce strict input/forward policy
 domain $ip_all table filter {
