@@ -3,6 +3,7 @@
   template:
     src: etc/ferm.service
     dest: /etc/systemd/system/ferm.service
+    mode: 0644
   vars:
     ferm_run: "{{ ferm_bindir }}/ferm-run"
   register: ferm_service_result

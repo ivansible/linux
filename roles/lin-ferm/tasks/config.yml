@@ -23,6 +23,7 @@
   template:
     src: etc/config.ferm
     dest: "{{ ferm_dir }}/config.ferm"
+    mode: 0640
   notify: reload ferm service
 
 - name: ensure ferm files exist for host/port sets
@@ -32,6 +33,7 @@
       # ferm {{ item }}
       # ansible-managed
     force: false
+    mode: 0640
   loop: "{{ ferm_ipset_files }}"
   notify: reload ferm service
 
