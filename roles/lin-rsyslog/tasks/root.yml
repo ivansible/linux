@@ -50,6 +50,7 @@
     content: |
       :msg, contains, "Server returned error NXDOMAIN, mitigating potential DNS violation DVE-2018-0001" stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   notify: restart syslog service
   tags: lin_rsyslog_fixes
 
@@ -64,6 +65,7 @@
       {# noqa 203 (force tabs) #}mail.*		-/var/log/mail.log
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   notify: restart syslog service
   tags: lin_rsyslog_mail
 
@@ -80,6 +82,7 @@
       # normally containing kern.* messages (eg, /var/log/kern.log)
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   notify: restart syslog service
   when: lin_rsyslog_separate_ufw |bool
   tags: lin_rsyslog_ufw
@@ -113,6 +116,7 @@
       :programname,isequal,"drupal" /var/log/drupal.log
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   notify: restart syslog service
   when: lin_rsyslog_separate_drupal |bool
   tags: lin_rsyslog_drupal
@@ -135,6 +139,7 @@
           endscript
       }
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   vars:
     commentout: "{{ '' if lin_compress_logs |bool or lin_compress_logs is none else '#' }}"
   when: lin_rsyslog_separate_drupal |bool
@@ -163,6 +168,7 @@
       {# noqa 203 (force tabs) #}:FROMHOST,isequal,"{{ lin_rsyslog_keenetic_ip }}"	/var/log/keenetic.log
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   notify: restart syslog service
   when: lin_rsyslog_keenetic_ip |default('')
   tags: lin_rsyslog_keenetic
@@ -185,9 +191,10 @@
           endscript
       }
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   vars:
     commentout: "{{ '' if lin_compress_logs |bool or lin_compress_logs is none else '#' }}"
-  when: lin_rsyslog_keenetic_ip != '' # noqa 602
+  when: lin_rsyslog_keenetic_ip |d('')
   tags: lin_rsyslog_keenetic
 
 
@@ -205,6 +212,7 @@
       cron.* {{ cron_log }}
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   vars:
     patterns:
       - '[Cron]'
@@ -256,6 +264,7 @@
       OnCalendar=
       OnCalendar=*-*-* 01,13:00:00
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    mode: 0644
   notify: reload systemd daemon
   when: lin_rsyslog_thin_php_cleaner |bool
   tags: lin_rsyslog_php
