@@ -18,6 +18,7 @@
       ./easyrsa --batch build-ca nopass
     chdir: "{{ srv_ovpn_easyrsa_dir }}"
     creates: "{{ srv_ovpn_easyrsa_dir }}/pki/ca.crt"
+    warn: false
   environment:
     EASYRSA_CERT_EXPIRE: 3650
   notify: restart openvpn servers
