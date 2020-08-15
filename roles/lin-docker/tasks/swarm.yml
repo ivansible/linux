@@ -20,6 +20,11 @@
 - name: group hosts by swarm_role
   group_by:
     key: "_swarm_{{ _swarm_role }}"
+  ## ansible 2.9.11 reports this step as changed breaking idempotence
+  ## issue: https://github.com/ansible/ansible/issues/70844
+  ## fix:   https://github.com/ansible/ansible/pull/70919
+  ## patch: https://gist.githubusercontent.com/ivandeex/dfb69718baad3e2ac3feec6dd3296045/raw/a49b1bd449b488731066685707761f6b6a7af62c/fix-ansible-group_by.patch
+  changed_when: false
 
 
 - name: derive swarm master hostname
