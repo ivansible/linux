@@ -20,6 +20,7 @@
   apt_repository:
     repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ codename }} stable"
     filename: docker-ce
+    mode: 0644
   register: add_docker_repo_result
   until: add_docker_repo_result is successful
   when: docker_from_docker_io |bool

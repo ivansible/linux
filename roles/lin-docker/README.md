@@ -68,7 +68,7 @@ checked out in the given local directory.
 
 ## Tags
 
-- `lin_docker_core` -- install docker core
+- `lin_docker_engine`  -- install docker engine
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine

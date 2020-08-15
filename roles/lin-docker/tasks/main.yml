@@ -9,10 +9,10 @@
     - lin_docker_all
 
 - name: install docker engine
-  import_tasks: docker-engine.yml
+  import_tasks: engine.yml
   become: true
   tags:
-    - lin_docker_core
+    - lin_docker_engine
     - lin_docker_all
 
 - name: install ansible docker bindings
@@ -27,7 +27,7 @@
     - lin_docker_all
 
 - name: install docker-compose from github
-  import_tasks: docker-compose.yml
+  import_tasks: compose.yml
   when: docker_compose_github_enable |bool
   become: true
   tags:
@@ -36,7 +36,7 @@
     - ip4only
 
 - name: install docker machine from github
-  import_tasks: docker-machine.yml
+  import_tasks: machine.yml
   when: docker_machine_github_enable |bool
         and docker_extras |bool
   become: true
@@ -46,7 +46,7 @@
     - ip4only
 
 - name: configure docker swarm
-  import_tasks: docker-swarm.yml
+  import_tasks: swarm.yml
   become: true
   when: docker_swarm_role |default('none',true) != 'none'
   tags:
@@ -91,7 +91,7 @@
     - lin_docker_all
 
 - name: give target user permissions for docker group/hub
-  import_tasks: docker-user.yml
+  import_tasks: user.yml
   when: docker_permit_user |bool
   tags:
     - lin_docker_user
