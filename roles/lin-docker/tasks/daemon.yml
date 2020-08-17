@@ -1,0 +1,104 @@
+---
+- name: create directories for dockerd config and systemd drop-in
+  file:
+    path: "{{ item }}"
+    state: directory
+  loop:
+    - /etc/docker
+    - /etc/systemd/system/docker.service.d
+
+- name: keep all daemon options in config file only
+  copy:
+    dest: /etc/systemd/system/docker.service.d/noopt.conf
+    force: true
+    mode: 0644
+    content: |
+      # keep all dockerd options in daemon.json only
+      # this drop-in is managed by ansible
+      [Service]
+      ExecStart=
+      ExecStart=/usr/bin/dockerd
+      {% if docker_daemon_proxy %}
+      Environment=HTTP_PROXY={{ docker_daemon_proxy }}
+      Environment=HTTPS_PROXY={{ docker_daemon_proxy }}
+      {% endif %}
+  register: _docker_systemd_dropin
+  notify:
+    - reload systemd daemon
+    - restart docker daemon
+
+- name: slurp old docker daemon settings
+  slurp:
+    path: /etc/docker/daemon.json
+  ignore_errors: true
+  register: _docker_old_settings_b64
+  notify: restart docker daemon
+
+- name: set new docker daemon settings
+  copy:
+    dest: /etc/docker/daemon.json
+    content: "{{ new_cfg |to_nice_json(indent=2) }}\n"
+    force: true
+    backup: "{{ docker_daemon_backup |bool }}"
+    owner: root
+    group: root
+    mode: 0644
+
+  vars:
+    recursive_merge: true
+
+    ## pull in current daemon settings
+    old_cfg: "{{ docker_daemon_reset |bool |ternary({}, old_json) }}"
+    old_json: "{{ _docker_old_settings_b64.content |d('{}'|b64encode) |b64decode }}"
+
+    ## combine maps and remove '-' items
+    new_cfg: "{{ old_cfg
+               | combine(base_cfg, recursive=recursive_merge)
+               | combine({'labels': new_labels})
+               | combine(user_cfg, recursive=recursive_merge)
+               | dict2items
+               | selectattr('value','ne','-')   |list
+               | items2dict }}"
+
+    ## scrub null values from user settings
+    base_cfg: "{{ docker_daemon_base_settings
+                | dict2items
+                | selectattr('value','ne',none) |list
+                | selectattr('value','ne','')   |list
+                | items2dict }}"
+
+    user_cfg: "{{ docker_daemon_user_settings
+                | dict2items
+                | selectattr('value','ne',none) |list
+                | selectattr('value','ne','')   |list
+                | items2dict }}"
+
+    ## cast old labels from list to map, merge with new labels, cast back to list
+    new_labels: >
+      {% set old_lst = old_cfg.labels |d([], true) -%}
+      {% set new_dic = base_labels |combine(user_labels) -%}
+
+      {% set ns = namespace(dic={}, lst=[]) -%}
+      {% for item in old_lst -%}
+        {% set key = item |regex_replace('=.*$') -%}
+        {% set val = item |regex_replace('^.*=') -%}
+        {% set ns.dic = ns.dic |combine({key: val}) -%}
+      {% endfor -%}
+
+      {% for key, val in ns.dic |combine(new_dic) |dictsort -%}
+        {% set ns.lst = ns.lst + ['%s=%s' |format(key, val)] -%}
+      {% endfor -%}
+
+      {{ ns.lst }}
+
+    ## ignore null labels
+    user_labels: "{{ docker_daemon_user_labels
+                   | dict2items
+                   | selectattr('value','ne',none) |list
+                   | selectattr('value','ne','')   |list
+                   | items2dict }}"
+
+    base_labels: "{{ docker_daemon_base_labels }}"
+
+  notify: restart docker daemon
+...

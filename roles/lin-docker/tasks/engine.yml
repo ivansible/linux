@@ -95,32 +95,15 @@
   tags: lin_docker_user
 
 
-- name: create new docker daemon settings
-  copy:
-    content: "{}"
-    dest: /etc/docker/daemon.json
-    force: false
-    owner: root
-    mode: 0644
-  when: docker_daemon_settings |default({}) |length
-  notify: restart docker daemon
-
-- name: set custom docker daemon settings
-  json_patch:
-    src: /etc/docker/daemon.json
-    operations:
-      - op: add
-        path: "{{ item.0 }}"
-        value: "{{ item.1 }}"
-    pretty: true
-  loop: "{{ docker_daemon_settings |default({}) |dictsort }}"
-  notify: restart docker daemon
-  ## ansible lint raises error because json_patch module belongs with custom collection
-  tags: skip_ansible_lint
+- name: configure docker daemon
+  import_tasks: daemon.yml
+  tags: lin_docker_daemon
 
 - name: enable docker service
   systemd:
     name: docker
     state: started
     enabled: true
+    daemon_reload: "{{ _docker_systemd_dropin |d({}) is changed }}"
+  tags: lin_docker_daemon
 ...

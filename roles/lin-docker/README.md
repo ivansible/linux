@@ -65,10 +65,35 @@ If current host belongs to the `permitted` group and the URL of Git repository
 with user _docker files_ is defined and not empty, the repository will be
 checked out in the given local directory.
 
+    docker_daemon_reset: true|false
+    docker_daemon_user_settings: {}
+    docker_daemon_user_labels: {}
+    docker_daemon_base_labels: <derived from ansible node facts>
+Custom docker daemon settings.
+Labels should be provided as a map.
+`none` and `empty` values are ignored. `-` values will be removed.
+
+    docker_daemon_log_level: info|warn|error
+    docker_daemon_use_criu: true|false|none
+    docker_daemon_proxy: none|http://proxy_url
+    docker_storage_driver: none|overlay2
+Generic docker daemon settings.
+
+    docker_tls_host: 127.0.0.1|0.0.0.0|none
+    docker_listen_sockets: <unix socket, [http socket]>
+Docker listen sockets.
+
+    docker_bridge_addr4: 172.17.0.1/16
+    docker_bridge_pool4: 172.16.0.0/12
+    docker_enable_ipv6: true|false|none
+    docker_bridge_subnet6: fdff:dead:beef::/64
+Docker bridge (docker0) settings.
+
 
 ## Tags
 
 - `lin_docker_engine`  -- install docker engine
+- `lin_docker_daemon`  -- configure docker daemon
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine

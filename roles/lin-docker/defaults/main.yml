@@ -55,6 +55,66 @@ docker_swarm_ports:
 
 docker_swarm_ram_threshold_mb: 984
 
-## dictionary of custom docker daemon settings
-docker_daemon_settings: {}
+## overriding custom daemon settings
+## 'none' and '' values are ignored
+## '-' values will be removed
+## labels should be provided as a map
+docker_daemon_user_settings: {}
+docker_daemon_user_labels: {}
+docker_daemon_reset: false
+docker_daemon_backup: false
+
+## docker network settings
+docker_tls_enable: false
+docker_tls_addr: 127.0.0.1
+docker_listen_sockets:
+  - "unix:///var/run/docker.sock"
+  - "{{ docker_tls_enable |bool |ternary('tcp://%s:2376' % docker_tls_addr, none) }}"
+
+docker_bridge_pool4: ~    # 172.16.0.0/12
+docker_bridge_addr4: ~    # 172.17.0.1/16
+docker_bridge_subnet6: ~  # fdff:dead:beef::/64
+docker_enable_ipv6: ~
+
+## docker daemon settings
+docker_daemon_log_level: ~  # warn
+docker_storage_driver: ~  # overlay2
+docker_daemon_use_criu: ~
+docker_daemon_proxy: ~
+
+docker_miss_containerd: "{{ lookup('env', 'TRAVIS') |bool and
+                            ansible_connection == 'local' }}"
+docker_containerd_sock: "{{ docker_miss_containerd |bool
+                          | ternary(none, '/run/containerd/containerd.sock') }}"
+
+docker_daemon_base_settings:
+  log-level: "{{ docker_daemon_log_level }}"
+  containerd: "{{ docker_containerd_sock }}"
+  storage-driver: "{{ docker_storage_driver }}"
+
+  hosts: "{{ docker_listen_sockets |d([],true) |select |list }}"
+
+  ipv6: "{{ none if (docker_enable_ipv6 is none)
+            else docker_enable_ipv6 |bool }}"
+  fixed-cidr-v6: "{{ docker_enable_ipv6 |bool |ternary(docker_bridge_subnet6, '-') }}"
+  bip: "{{ docker_bridge_addr4 }}"
+  default-address-pools: "{{ none if (docker_bridge_pool4 is none) else
+                             '-' if (docker_bridge_pool4 == '-') else
+                             [{'base': docker_bridge_pool4, 'size': 24}] }}"
+
+  experimental: "{{ none if (docker_daemon_use_criu is none)
+                    else docker_daemon_use_criu |bool }}"
+  live-restore: ~  # live restore is incompatible with swarm mode
+
+## dynamic docker engine labels
+docker_daemon_base_labels:
+  os.family: "{{ ansible_lsb.id |lower }}"
+  os.codename: "{{ ansible_lsb.codename }}"
+  os.arch: "{{ ansible_architecture }}"
+
+  os.cpus: "{{ ansible_processor_count }}"
+  os.memory.gb: "{{ (ansible_memtotal_mb / 1024) |round(1)
+                    if ansible_memtotal_mb < 1000 else
+                    (ansible_memtotal_mb + 127) // 1024 }}"
+  os.memory.mb: "{{ ansible_memtotal_mb }}"
 ...
