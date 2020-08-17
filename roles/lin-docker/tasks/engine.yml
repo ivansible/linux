@@ -6,8 +6,16 @@
       - jq
       - pigz
       - bash-completion
-      - bridge-utils
       - criu
+
+- name: install extra docker tools
+  apt:
+    name:
+      - bridge-utils
+      - ipvsadm
+      - apache2-utils
+      - siege
+  when: docker_extras |bool
 
 - name: add docker signing key
   apt_key:
