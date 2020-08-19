@@ -76,6 +76,9 @@ docker_bridge_addr4: ~    # 172.17.0.1/16
 docker_bridge_subnet6: ~  # fdff:dead:beef::/64
 docker_enable_ipv6: ~
 
+docker_gwbridge_addr4: ~      # 172.18.0.1/16
+docker_gwbridge_force: false  # true will leave swarm to update gwbridge
+
 ## docker daemon settings
 docker_daemon_log_level: ~  # warn
 docker_storage_driver: ~  # overlay2

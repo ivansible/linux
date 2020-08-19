@@ -89,11 +89,19 @@ Docker listen sockets.
     docker_bridge_subnet6: fdff:dead:beef::/64
 Docker bridge (docker0) settings.
 
+    docker_gwbridge_addr4: 172.18.0.1/16
+    docker_gwbridge_force: false
+Docker gwbridge settings.
+Warning: if node is part of swarm, this step will fail with error:
+`error while removing network: docker_gwbridge has active endpoints`
+Fix it by setting `gwbridge_force` to `true`.
+
 
 ## Tags
 
 - `lin_docker_engine`  -- install docker engine
 - `lin_docker_daemon`  -- configure docker daemon
+- `lin_docker_gwbridge`  -- configure gwbridge network
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine

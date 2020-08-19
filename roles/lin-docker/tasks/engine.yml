@@ -106,4 +106,45 @@
     enabled: true
     daemon_reload: "{{ _docker_systemd_dropin |d({}) is changed }}"
   tags: lin_docker_daemon
+
+
+- name: query gwbridge network parameters
+  docker_network_info:
+    name: docker_gwbridge
+  ignore_errors: true
+  register: _gwbridge_info
+  when: docker_gwbridge_addr4 |d('')
+  tags: lin_docker_gwbridge
+
+- name: configure gwbridge network
+  ## Warning: if node is part of swarm, this step will fail with error:
+  ## "error while removing network: docker_gwbridge has active endpoints"
+  ## Force by: docker_gwbridge_force=true
+  ## Note: run shell commands since docker_network fails here with error:
+  ## docker.errors.NotFound ("No such container: gateway_ingress-sbox")
+  shell:
+    cmd: >
+      {{ gwbridge_force_cmd }} &&
+      yes| docker network remove docker_gwbridge &&
+      docker network create {{ arg_subnet4 }} {{ arg_opts.strip() }} docker_gwbridge
+  vars:
+    old_net: "{{ _gwbridge_info.network.IPAM.Config.0.Subnet |d(none) }}"
+    old_gwy: "{{ _gwbridge_info.network.IPAM.Config.0.Gateway |d(none) }}"
+    new_net: "{{ docker_gwbridge_addr4 |d(old_net, true) |ipaddr('network/prefix') }}"
+    new_gwy: "{{ docker_gwbridge_addr4 |d(old_gwy, true) |ipaddr('address') }}"
+    arg_subnet4: "--subnet {{ new_net }} --gateway {{ new_gwy }}"
+    old_opts: "{{ _gwbridge_info.network.Options |d({}) }}"
+    arg_opts: >
+      {% set ns = namespace(lst=[]) -%}
+      {% for key, val in old_opts.items() |sort -%}
+        {% set ns.lst = ns.lst + ['-o %s=%s' |format(key, val)] -%}
+      {% endfor -%}
+      {{ ns.lst |join(' ') }}
+    leave_swarm_cmd: '(docker swarm leave --force || true)'
+    gwbridge_force_cmd: "{{ docker_gwbridge_force |bool |ternary(leave_swarm_cmd, 'true') }}"
+  when:
+    - _gwbridge_info is successful
+    - _gwbridge_info.exists |d(false) |bool
+    - old_net != new_net or old_gwy != new_gwy
+  tags: lin_docker_gwbridge
 ...
