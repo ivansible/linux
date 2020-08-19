@@ -79,6 +79,10 @@ docker_enable_ipv6: ~
 docker_gwbridge_addr4: ~      # 172.18.0.1/16
 docker_gwbridge_force: false  # true will leave swarm to update gwbridge
 
+docker_swarm_overlay_pool4: ~    # 10.0.0.0/8
+docker_swarm_ingress_subnet4: ~  # 10.255.0.0/16
+docker_swarm_ingress_encrypt: ~
+
 ## docker daemon settings
 docker_daemon_log_level: ~  # warn
 docker_storage_driver: ~  # overlay2

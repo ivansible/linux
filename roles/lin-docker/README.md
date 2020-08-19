@@ -96,6 +96,11 @@ Warning: if node is part of swarm, this step will fail with error:
 `error while removing network: docker_gwbridge has active endpoints`
 Fix it by setting `gwbridge_force` to `true`.
 
+    docker_swarm_overlay_pool4: 10.0.0.0/8
+    docker_swarm_ingress_subnet4: 10.255.0.0/16
+    docker_swarm_ingress_encrypt: false
+Swarm network settings.
+
 
 ## Tags
 
@@ -106,6 +111,7 @@ Fix it by setting `gwbridge_force` to `true`.
 - `lin_docker_compose` -- install docker-compose
 - `lin_docker_machine` -- install docker-machine
 - `lin_docker_swarm` -- setup swarm
+- `lin_docker_firewall` -- set firewall rules for docker
 - `lin_docker_user` -- user bash aliases and permissions for docker daemon
                        and login into docker hub
 - `lin_docker_all` -- all tasks

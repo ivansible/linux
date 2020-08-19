@@ -5,7 +5,20 @@
     comment: docker swarm
     zone: internal
   when: lin_firewall == 'ferm'
-  tags: skip_ansible_lint
+  tags: [skip_ansible_lint, lin_docker_firewall]
+
+- name: permit ipsec/esp in ferm for swarm
+  ferm_rule:
+    name: docker-swarm
+    prio: 33
+    rule: |
+      # Allow encrypted overlays (ipsec esp)
+      domain $ip_all table filter {
+        chain $INPUT  proto esp  jump FERM-HOSTS-EXTERNAL;
+        chain FERM-HOSTS-INTERNAL  proto esp  ACCEPT;
+      }
+  when: lin_firewall == 'ferm'
+  tags: [skip_ansible_lint, lin_docker_firewall]
 
 
 - name: set docker swarm facts
@@ -35,8 +48,39 @@
   docker_swarm:
     state: present
     advertise_addr: "{{ _swarm_addr }}"
+    default_addr_pool: "{{ docker_swarm_overlay_pool4 }}"
   register: _swarm_init
   when: _swarm_role == 'manager_master'
+
+- name: query ingress network parameters
+  docker_network_info:
+    name: ingress
+  register: _ingress_info
+  when:
+    - _swarm_role == 'manager_master'
+    - docker_swarm_ingress_subnet4 is not none
+      or docker_swarm_ingress_encrypt is not none
+
+- name: configure ingress network
+  ## Warning: if there are connected services, this step will fail.
+  ## Force by: docker_swarm_reset=true
+  ## Note: run shell commands since docker_network module fails to change ingress
+  shell:
+    cmd:
+      yes| docker network remove ingress >/dev/null &&
+      docker network create {{ arg_ingress }} {{ arg_subnet4 }}{{ arg_encrypt }} ingress
+  when:
+    - _ingress_info is not skipped
+    - old_subnet4 != new_subnet4 or old_encrypt != new_encrypt
+  vars:
+    old_encrypt: "{{ _ingress_info.network.Options.encrypted |d(none) is not none }}"
+    old_subnet4: "{{ _ingress_info.network.IPAM.Config.0.Subnet |d(none) }}"
+    new_encrypt: "{{ old_encrypt if (docker_swarm_ingress_encrypt is none) else
+                     docker_swarm_ingress_encrypt |bool }}"
+    new_subnet4: "{{ docker_swarm_ingress_subnet4 |d(old_subnet4, true) }}"
+    arg_ingress: "--driver overlay --ingress"
+    arg_subnet4: "--subnet {{ new_subnet4 }} --gateway {{ new_subnet4 |ipaddr('next_usable') }}"
+    arg_encrypt: "{{ new_encrypt |ternary(' --opt encrypted','') }}"
 
 
 - name: join nodes into swarm

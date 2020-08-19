@@ -9,6 +9,8 @@
   import_tasks: root.yml
   when: lin_use_docker |d(true) |bool  # inherited from lin_base
   become: true
+  vars:
+    _swarm_role: "{{ docker_swarm_role |d('none',true) |replace('-','_') }}"
   tags: lin_docker_all
 
 - name: checkout docker files, if permitted
