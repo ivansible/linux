@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for default settings and github_release/json_patch modules
+  - ivansible.lin_base  # for lin_use_docker and default settings
 
 galaxy_info:
   role_name: lin_docker

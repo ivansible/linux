@@ -2,79 +2,14 @@
 - name: check whether user has custom bashrc
   stat:
     path: ~/.local/bashrc
-  become: false
   register: user_local_bashrc
-  tags:
-    - lin_docker_user
-    - lin_docker_all
+  tags: [lin_docker_user, lin_docker_all]
 
-- name: install docker engine
-  import_tasks: engine.yml
+- name: install docker as root
+  import_tasks: root.yml
+  when: lin_use_docker |d(true) |bool  # inherited from lin_base
   become: true
-  tags:
-    - lin_docker_engine
-    - lin_docker_all
-
-- name: install ansible docker bindings
-  apt:
-    name: "{{ lin_use_python2 |bool |ternary(packages_pythons, packages_python3) }}"
-  become: true
-  vars:
-    packages_pythons: python3-docker,python-docker
-    packages_python3: python3-docker
-  tags:
-    - lin_docker_ansible
-    - lin_docker_all
-
-- name: install docker-compose from github
-  import_tasks: compose.yml
-  when: docker_compose_github_enable |bool
-  become: true
-  tags:
-    - lin_docker_compose
-    - lin_docker_all
-    - ip4only
-
-- name: install docker machine from github
-  import_tasks: machine.yml
-  when: docker_machine_github_enable |bool
-        and docker_extras |bool
-  become: true
-  tags:
-    - lin_docker_machine
-    - lin_docker_all
-    - ip4only
-
-- name: configure docker swarm
-  import_tasks: swarm.yml
-  become: true
-  when: docker_swarm_role |default('none',true) != 'none'
-  tags:
-    - lin_docker_swarm
-    - lin_docker_all
-
-- name: enable daily docker garbage collector
-  copy:
-    dest: /etc/cron.daily/docker-gc
-    content: |
-      #!/bin/sh
-      {{ comment }}docker system prune --force --all |grep -v 'reclaimed space: 0B' ||:
-    mode: 0755
-    force: true
-  vars:
-    comment: "{{ docker_daily_gc |bool |ternary('','#') }}"
-  become: true
-  notify: reload systemd daemon
-  tags:
-    - lin_docker_all
-
-- name: create docker-enabled group
-  group:
-    name: docker
-    state: present
-  become: true
-  tags:
-    - lin_docker_all
+  tags: lin_docker_all
 
 - name: checkout docker files, if permitted
   git:
@@ -84,16 +19,13 @@
     ## only clone, don't choke on pending modifications
     update: false
     accept_hostkey: true
-  when: docker_files_repo |default('')
-        and is_permitted |bool
-  tags:
-    - lin_docker_files
-    - lin_docker_all
+  when:
+    - docker_files_repo |default('')
+    - is_permitted |bool
+  tags: [lin_docker_files, lin_docker_all]
 
 - name: give target user permissions for docker group/hub
   import_tasks: user.yml
   when: docker_permit_user |bool
-  tags:
-    - lin_docker_user
-    - lin_docker_all
+  tags: [lin_docker_user, lin_docker_all]
 ...
