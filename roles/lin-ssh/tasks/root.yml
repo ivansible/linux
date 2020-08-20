@@ -41,9 +41,10 @@
     name: ssh-limit
     rule: |
       # SSH Connection Limit
+      domain $ip_all table filter chain $INPUT
       proto tcp syn dport {{ real_ssh_port }} {{ match_limit }} DROP;
-    hook: input
-    prio: 50
+    hook: custom
+    prio: 21
   vars:
     match_limit: >-
       mod hashlimit
