@@ -1,0 +1,265 @@
+---
+- name: setup python openssl bindings
+  block:
+    - name: install python openssl bindings
+      apt:
+        name: "{{ lin_use_python2 |bool |ternary(py2packages + ',' + py3packages, py3packages) }}"
+      vars:
+        ## setuptools is required by xenial-crypto to run easy_install
+        py3packages: python3-cryptography,python3-pip,python3-setuptools
+        py2packages: python-cryptography,python-pip,python-setuptools
+
+    - name: fix python cryptography and openssl on xenial
+      include_tasks: xenial-crypto.yml
+      loop: "{{ lin_use_python2 |bool |ternary(['','3'], ['3']) }}"
+      loop_control:
+        loop_var: ver
+      when: ansible_lsb.codename == 'xenial'
+  when: not _dockerd_ca_crt_from_vars
+     or not _dockerd_server_crt_from_vars
+
+
+- name: upload predefined ca certificate for dockerd
+  block:
+    - name: upload predefined ca crt for dockerd
+      copy:
+        dest: /etc/docker/ca.crt
+        content: "{{ docker_tls_ca_crt }}"
+        owner: root
+        group: docker
+        mode: 0640
+        force: true
+      notify: restart docker daemon
+
+    - name: upload predefined ca key for dockerd
+      copy:
+        dest: /etc/docker/ca.key
+        content: "{{ docker_tls_ca_key }}"
+        owner: root
+        group: docker
+        mode: 0600
+        force: true
+      when: not _dockerd_server_crt_from_vars
+  when: _dockerd_ca_crt_from_vars
+
+- name: check existing dockerd ca certificate
+  stat:
+    path: /etc/docker/ca.crt
+  register: _stat_dockerd_ca_crt
+
+
+- name: generate ca certificate for dockerd
+  block:
+    - name: report ca certificate details for dockerd
+      debug:
+        msg: "common name: {{ docker_tls_ca_cname }}"
+
+    - name: generate ca key for dockerd
+      openssl_privatekey:
+        path: /etc/docker/ca.key
+        type: "{{ docker_tls_params.type }}"
+        curve: "{{ docker_tls_params.curve }}"
+        size: "{{ docker_tls_params.size }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0600
+
+    - name: generate ca csr for dockerd
+      openssl_csr:
+        path: /etc/docker/ca.csr
+        privatekey_path: /etc/docker/ca.key
+
+        basic_constraints: 'CA:TRUE'
+        basic_constraints_critical: true
+        key_usage: ['CRL Sign', 'Certificate Sign']
+        key_usage_critical: true
+
+        common_name: "{{ docker_tls_ca_cname }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0600
+      notify: clean temporary docker certificate files
+
+    - name: generate ca crt for dockerd
+      openssl_certificate:
+        path: /etc/docker/ca.crt
+        privatekey_path: /etc/docker/ca.key
+        csr_path: /etc/docker/ca.csr
+
+        provider: selfsigned
+        selfsigned_not_after: "{{ docker_tls_params.ca_days }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0640
+      notify: restart docker daemon
+      when: not ansible_check_mode
+
+    - name: slurp data of generated dockerd ca crt
+      slurp:
+        src: /etc/docker/ca.crt
+      register: _slurp_dockerd_ca_crt
+      when: not ansible_check_mode
+
+    - name: extract text of generated dockerd ca crt
+      set_fact:
+        docker_tls_daemon_crt: "{{ _slurp_dockerd_ca_crt.content |b64decode }}"
+      when: not ansible_check_mode
+  when:
+    - not _dockerd_ca_crt_from_vars
+    - docker_tls_reset |bool
+      or not _stat_dockerd_ca_crt.stat.exists
+
+
+- name: upload predefined server certificate for dockerd
+  block:
+    - name: upload predefined server crt for dockerd
+      copy:
+        dest: /etc/docker/server.crt
+        content: "{{ docker_tls_server_crt }}"
+        owner: root
+        group: docker
+        mode: 0640
+        force: true
+      notify: restart docker daemon
+
+    - name: upload predefined server key for dockerd
+      copy:
+        dest: /etc/docker/server.key
+        content: "{{ docker_tls_server_key }}"
+        owner: root
+        group: docker
+        mode: 0640
+        force: true
+      notify: restart docker daemon
+  when: _dockerd_server_crt_from_vars
+
+- name: check that server certificate for dockerd is up-to-date
+  block:
+    - name: check existing dockerd server key
+      stat:
+        path: /etc/docker/server.key
+      register: _stat_dockerd_server_key
+
+    - name: query old dockerd server crt (ok to fail)
+      openssl_certificate_info:
+        path: /etc/docker/server.crt
+      ignore_errors: true
+      register: _old_docker_crt_info
+  when: not _dockerd_server_crt_from_vars
+
+
+- name: extract common names from docker server certificate
+  set_fact:
+    _docker_crt_new_names: "{{ [docker_tls_server_cnames |d([],true)]
+                             | flatten
+                             | select
+                             | map('regex_findall','[^,]+')
+                             | flatten
+                             | map('string')
+                             | sort
+                             | join(',') }}"
+    _docker_crt_old_names: "{{ _old_docker_crt_info.subject_alt_name |d([])
+                             | map('replace','DNS:','')
+                             | map('replace','IP:','')
+                             | sort
+                             | join(',') }}"
+
+- name: generate server certificate for dockerd
+  block:
+    - name: report server certificate details for dockerd
+      debug:
+        msg:
+          - "alt names: {{ alt_names |join(',') |d('-',true) }}"
+          - "old names: {{ _docker_crt_old_names |d('-',true) }}"
+
+    - name: generate server key for dockerd
+      openssl_privatekey:
+        path: /etc/docker/server.key
+        type: "{{ docker_tls_params.type }}"
+        curve: "{{ docker_tls_params.curve }}"
+        size: "{{ docker_tls_params.size }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0640
+      notify: restart docker daemon
+
+    - name: generate server csr for dockerd
+      openssl_csr:
+        path: /etc/docker/server.csr
+        privatekey_path: /etc/docker/server.key
+
+        basic_constraints: 'CA:FALSE'
+        basic_constraints_critical: true
+        key_usage: ['Digital Signature', 'Key Encipherment']
+        key_usage_critical: true
+        extended_key_usage: ['TLS Web Server Authentication']
+        extended_key_usage_critical: false
+
+        common_name: "{{ cname }}"
+        subject_alt_name: "{{ alt_names }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0600
+      notify: clean temporary docker certificate files
+
+    - name: generate server crt for dockerd
+      openssl_certificate:
+        path: /etc/docker/server.crt
+        privatekey_path: /etc/docker/server.key
+        csr_path: /etc/docker/server.csr
+
+        provider: ownca
+        ownca_path: /etc/docker/ca.crt
+        ownca_privatekey_path: /etc/docker/ca.key
+        ownca_not_after: "{{ docker_tls_params.days }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0640
+      notify: restart docker daemon
+      when: not ansible_check_mode
+
+    - name: slurp data of generated dockerd server crt
+      slurp:
+        src: /etc/docker/server.crt
+      register: _slurp_dockerd_server_crt
+      when: not ansible_check_mode
+
+    - name: extract text of generated dockerd server crt
+      set_fact:
+        docker_tls_server_crt: "{{ _slurp_dockerd_server_crt.content |b64decode }}"
+      when: not ansible_check_mode
+
+  vars:
+    names: "{{ [docker_tls_server_cnames |d('')]
+             | flatten
+             | select
+             | map('regex_findall','[^,]+')
+             | flatten }}"
+    cname: "{{ names |first }}"
+    cn_kind: "{{ 'IP' if cname is match('^([0-9.]+|[0-9a-fA-F:]+)$') else 'DNS' }}"
+    alt_names: >
+        {% set ns = namespace(lst=[]) -%}
+        {% for cn in names[1:] -%}
+          {% set kind = 'IP' if cn is match('^([0-9.]+|[0-9a-fA-F:]+)$') else 'DNS' -%}
+          {% set ns.lst = ns.lst + ['%s:%s' % (kind, cn)] -%}
+        {% endfor -%}
+        {{ ['%s:%s' % (cn_kind, cname)] + (ns.lst |sort) -}}
+
+  when:
+    - not _dockerd_server_crt_from_vars
+    - docker_tls_reset |bool
+      or not _stat_dockerd_server_key.stat.exists
+      or _docker_crt_new_names != _docker_crt_old_names
+...

@@ -1,11 +1,8 @@
 ---
-- name: create directories for dockerd config and systemd drop-in
+- name: create directory for docker systemd drop-in
   file:
-    path: "{{ item }}"
+    path: /etc/systemd/system/docker.service.d
     state: directory
-  loop:
-    - /etc/docker
-    - /etc/systemd/system/docker.service.d
 
 - name: keep all daemon options in config file only
   copy:

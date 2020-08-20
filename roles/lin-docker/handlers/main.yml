@@ -6,4 +6,11 @@
     state: restarted
     daemon_reload: true
   become: true
+
+- name: clean temporary docker certificate files
+  file:
+    path: "/etc/docker/{{ item }}"
+    state: absent
+  loop: [ca.csr, server.csr]
+  become: true
 ...

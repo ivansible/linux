@@ -99,6 +99,13 @@ Fix it by setting `gwbridge_force` to `true`.
     docker_swarm_ingress_encrypt: false
 Swarm network settings.
 
+    docker_tls_enable: false|true
+    docker_tls_reset: false|true
+    docker_tls_addr: 127.0.0.1|0.0.0.0|...
+    docker_tls_ca_cname: ca.example.com
+    docker_tls_server_cnames: [dockerd.example.com]
+TLS settings.
+
 
 ## Tags
 

@@ -65,6 +65,23 @@
     state: link
 
 
+- name: create directory for dockerd config
+  file:
+    path: /etc/docker
+    state: directory
+    owner: root
+    group: docker
+    mode: 0750
+  tags: [lin_docker_daemon, lin_docker_tls]
+
+- name: configure docker daemon tls security
+  import_tasks: tls.yml
+  vars:
+    _dockerd_ca_crt_from_vars: "{{ (docker_tls_ca_crt and docker_tls_ca_key) |ternary(true,false) }}"
+    _dockerd_server_crt_from_vars: "{{ (docker_tls_server_crt and docker_tls_server_key) |ternary(true,false) }}"
+  when: docker_tls_enable |bool
+  tags: lin_docker_tls
+
 - name: configure docker daemon
   import_tasks: daemon.yml
   tags: lin_docker_daemon

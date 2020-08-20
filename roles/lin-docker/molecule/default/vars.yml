@@ -3,4 +3,11 @@ is_permitted: false
 lin_use_firewall: none
 lin_use_ssh: false
 lin_use_docker: true
+
+docker_tls_enable: true
+docker_tls_addr: 127.0.0.1
+docker_tls_server_cnames:
+  - "{{ ansible_default_ipv4.address |d('') }}"
+  - "{{ ansible_default_ipv6.address |d('') }}"
+  - "{{ inventory_hostname }}.ca.example.com"
 ...

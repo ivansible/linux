@@ -40,6 +40,26 @@ docker_bash_aliases:
 
 docker_daily_gc: "{{ docker_swarm_role |default('none',true) != 'none' }}"
 
+## daemon tls settings
+docker_tls_enable: false
+docker_tls_reset: false
+docker_tls_addr: 127.0.0.1
+
+docker_tls_params:
+  type: ECC
+  curve: secp256r1
+  size: 256
+  days: +3650d
+  ca_days: +3650d
+
+docker_tls_ca_crt: ~  # predefined CA crt text (default: generate)
+docker_tls_ca_key: ~  # predefined CA key text (default: generate)
+docker_tls_ca_cname: ca.example.com
+
+docker_tls_server_crt: ~  # predefined server crt text (default: generate)
+docker_tls_server_key: ~  # predefined server key text (default: generate)
+docker_tls_server_cnames: dockerd.example.com
+
 ## docker swarm settings
 ## role: worker, manager-worker, manager-only, manager-master, none
 docker_swarm_role: none
@@ -65,8 +85,6 @@ docker_daemon_reset: false
 docker_daemon_backup: false
 
 ## docker network settings
-docker_tls_enable: false
-docker_tls_addr: 127.0.0.1
 docker_listen_sockets:
   - "unix:///var/run/docker.sock"
   - "{{ docker_tls_enable |bool |ternary('tcp://%s:2376' % docker_tls_addr, none) }}"
@@ -100,6 +118,12 @@ docker_daemon_base_settings:
   storage-driver: "{{ docker_storage_driver }}"
 
   hosts: "{{ docker_listen_sockets |d([],true) |select |list }}"
+
+  tls: "{{ docker_tls_enable |bool |ternary(true, '-') }}"
+  tlsverify: "{{ docker_tls_enable |bool |ternary(true, '-') }}"
+  tlscacert: "{{ docker_tls_enable |bool |ternary('/etc/docker/ca.crt', '') }}"
+  tlscert: "{{ docker_tls_enable |bool |ternary('/etc/docker/server.crt', '') }}"
+  tlskey: "{{ docker_tls_enable |bool |ternary('/etc/docker/server.key', '') }}"
 
   ipv6: "{{ none if (docker_enable_ipv6 is none)
             else docker_enable_ipv6 |bool }}"

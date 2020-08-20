@@ -5,10 +5,10 @@ dependencies:
 galaxy_info:
   role_name: lin_docker
   author: "Ivan Andreev"
-  description: "install docker, docker-compose, docker-machine"
+  description: "install docker engine, docker-compose, docker-machine, setup tls and swarm"
   company: "IvanSible"
   license: MIT
-  min_ansible_version: 2.5
+  min_ansible_version: 2.8
 
   platforms:
     - name: Ubuntu
