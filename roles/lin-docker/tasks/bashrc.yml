@@ -1,0 +1,29 @@
+---
+- name: user bash aliases for docker cli
+  blockinfile:
+    path: ~/.local/bashrc/4alias.sh
+    block: |
+      {% for item in docker_bash_aliases |dictsort %}
+      alias {{ item.0 }}='{{ item.1 }}'
+      {% endfor %}
+    marker: '# {mark} DOCKER ALIASES'
+
+- name: user bash functions for docker cli
+  blockinfile:
+    path: ~/.local/bashrc/3common.sh
+    block: "{{ lookup('file', 'bashrc.docker.sh') }}"
+    marker: '# {mark} DOCKER FUNCTIONS'
+    insertafter: EOF
+
+- name: user bash completion for docker cli
+  lineinfile:
+    path: ~/.local/bashrc/5completion.sh
+    line: 'complete -F _docker dr'
+
+- name: user bash completion for docker-compose
+  lineinfile:
+    path: ~/.local/bashrc/5completion.sh
+    line: 'complete -F _docker_compose dc'
+  when: docker_bash_completion_extras |bool
+  tags: lin_docker_compose
+...

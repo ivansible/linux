@@ -18,7 +18,7 @@
   when: latest_dman_release is changed
   ## fix intermittent network failures
   register: download_result
-  until: "'timed out' not in download_result.msg |default('')"
+  until: download_result.msg |d('') is not search('timed out')
 
 - name: bash completion scripts for docker-machine (optional, so ok to fail)
   get_url:

@@ -44,14 +44,4 @@
         force: "{{ docker_upgrade |bool }}"
   ## end of block
   when: docker_bash_completion_extras |bool
-
-- name: user bash completion for docker-compose (optional)
-  lineinfile:
-    path: ~/.local/bashrc/5completion.sh
-    line: 'complete -F _docker_compose dc'
-  become: false
-  when:
-    - docker_bash_completion_extras |bool
-    - user_local_bashrc.stat.exists
-  tags: lin_docker_user
 ...

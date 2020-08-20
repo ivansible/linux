@@ -1,17 +1,30 @@
 ---
-- name: check whether user has custom bashrc
-  stat:
-    path: ~/.local/bashrc
-  register: user_local_bashrc
-  tags: [lin_docker_user, lin_docker_all]
-
 - name: install docker as root
   import_tasks: root.yml
   when: lin_use_docker |d(true) |bool  # inherited from lin_base
   become: true
   vars:
     _swarm_role: "{{ docker_swarm_role |d('none',true) |replace('-','_') }}"
-  tags: lin_docker_all
+  tags: [lin_docker_all]
+
+
+- name: check whether user has custom bashrc
+  stat:
+    path: ~/.local/bashrc
+  register: _user_local_bashrc
+  tags: [lin_docker_bashrc, lin_docker_all]
+
+- name: user bash addons for docker cli (optional)
+  import_tasks: bashrc.yml
+  when: _user_local_bashrc.stat.exists
+  tags: [lin_docker_bashrc, lin_docker_all]
+
+
+- name: give target user permissions for docker group/hub
+  import_tasks: user.yml
+  when: docker_permit_user |bool
+  tags: [lin_docker_user, lin_docker_all]
+
 
 - name: checkout docker files, if permitted
   git:
@@ -25,9 +38,4 @@
     - docker_files_repo |default('')
     - is_permitted |bool
   tags: [lin_docker_files, lin_docker_all]
-
-- name: give target user permissions for docker group/hub
-  import_tasks: user.yml
-  when: docker_permit_user |bool
-  tags: [lin_docker_user, lin_docker_all]
 ...

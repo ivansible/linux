@@ -14,8 +14,6 @@ None
 
 ## Variables
 
-Available variables are listed below, along with default values.
-
     docker_swarm_role: none
 The node role in the docker swarm:
 - `worker` - worker-only node runs tasks
@@ -112,7 +110,9 @@ Swarm network settings.
 - `lin_docker_machine` -- install docker-machine
 - `lin_docker_swarm` -- setup swarm
 - `lin_docker_firewall` -- set firewall rules for docker
-- `lin_docker_user` -- user bash aliases and permissions for docker daemon
+- `lin_docker_files` -- checkout docker files
+- `lin_docker_bashrc` -- add user bash aliases
+- `lin_docker_user` -- permissions for docker daemon
                        and login into docker hub
 - `lin_docker_all` -- all tasks
 
