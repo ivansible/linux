@@ -6,7 +6,7 @@
     append: true
   become: true
 
-- name: include the "reset ssh connection" task
+- name: reset ssh connection to unlock new user group
   include_tasks: reset-connection.yml
 
 - name: install docker login dependencies on bionic+

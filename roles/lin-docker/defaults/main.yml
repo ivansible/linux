@@ -8,6 +8,7 @@ docker_from_docker_io: "{{ ansible_lsb.release is version('20.04','<') or docker
 docker_focal_fix: true
 
 docker_upgrade: false
+docker_reset: false
 docker_extras: false
 ## bash completion scripts for docker-compose and docker-machine
 docker_bash_completion_extras: false
@@ -42,7 +43,7 @@ docker_daily_gc: "{{ docker_swarm_role |default('none',true) != 'none' }}"
 
 ## daemon tls settings
 docker_tls_enable: false
-docker_tls_reset: false
+docker_tls_reset: "{{ docker_reset }}"
 docker_tls_addr: 127.0.0.1
 
 docker_tls_params:
@@ -65,6 +66,8 @@ docker_tls_client_cname: docker-cli.example.com
 ## docker swarm settings
 ## role: worker, manager-worker, manager-only, manager-master, none
 docker_swarm_role: none
+docker_swarm_reset: "{{ docker_reset }}"
+docker_swarm_destroy: false
 
 docker_swarm_manager_ip: "{{ ansible_default_ipv4.address }}"
 docker_swarm_manager_port: 2377
@@ -83,7 +86,7 @@ docker_swarm_ram_threshold_mb: 984
 ## labels should be provided as a map
 docker_daemon_user_settings: {}
 docker_daemon_user_labels: {}
-docker_daemon_reset: false
+docker_daemon_reset: "{{ docker_reset }}"
 docker_daemon_backup: false
 
 ## docker network settings
@@ -97,7 +100,7 @@ docker_bridge_subnet6: ~  # fdff:dead:beef::/64
 docker_enable_ipv6: ~
 
 docker_gwbridge_addr4: ~      # 172.18.0.1/16
-docker_gwbridge_force: false  # true will leave swarm to update gwbridge
+docker_gwbridge_force: "{{ docker_reset }}"  # true will leave swarm to update gwbridge
 
 docker_swarm_overlay_pool4: ~    # 10.0.0.0/8
 docker_swarm_ingress_subnet4: ~  # 10.255.0.0/16

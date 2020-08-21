@@ -106,6 +106,11 @@ Swarm network settings.
     docker_tls_server_cnames: [dockerd.example.com]
 TLS settings.
 
+    docker_reset: false
+    docker_swarm_reset: false
+    docker_swarm_destroy: false
+These flags allow to reset all docker settings or detach node from swarm.
+
 
 ## Tags
 

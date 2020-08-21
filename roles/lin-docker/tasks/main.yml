@@ -38,4 +38,8 @@
     - docker_files_repo |default('')
     - is_permitted |bool
   tags: [lin_docker_files, lin_docker_all]
+
+
+- name: apply postponed changes
+  meta: flush_handlers
 ...

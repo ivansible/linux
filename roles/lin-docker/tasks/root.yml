@@ -41,14 +41,32 @@
   tags: [lin_docker_machine, ip4only]
 
 
+- name: apply dockerd changes before poking swarm
+  meta: flush_handlers
+
+- name: reset swarm
+  docker_swarm:
+    state: absent
+    force: true
+  when: docker_swarm_reset |bool
+     or docker_swarm_destroy |bool
+  tags:
+    - lin_docker_swarm
+    - lin_docker_swarm_reset
+    - lin_docker_reset
+
 - name: configure gwbridge network
   import_tasks: gwbridge.yml
-  when: docker_gwbridge_addr4 |d('')
+  when:
+    - docker_gwbridge_addr4 |d('')
+    - not docker_swarm_destroy |bool
   tags: lin_docker_gwbridge
 
 - name: configure docker swarm
   import_tasks: swarm.yml
-  when: _swarm_role != 'none'
+  when:
+    - _swarm_role != 'none'
+    - not docker_swarm_destroy |bool
   tags: lin_docker_swarm
 
 
