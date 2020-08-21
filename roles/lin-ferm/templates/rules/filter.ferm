@@ -1,0 +1,6 @@
+# Filter Hosts
+# core rule
+
+domain $ip_all table filter
+  chain ($INPUT $FORWARD)
+  proto (tcp udp) jump FERM-HOSTS-EXTERNAL;

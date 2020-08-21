@@ -68,8 +68,9 @@ ferm_core_rules:
   - {name: docker, prio: 10}
   - {name: pre, prio: 12}
   - {name: ufwpre, prio: 15}
+  - {name: blockhost, prio: 20}
   - {name: blockport, prio: 20}
-  - {name: blockhost, prio: 22}
+  - {name: filter, prio: 25}
   - {name: includes, prio: 55}
   - {name: openport, prio: 70}
   - {name: natmss, prio: 75}

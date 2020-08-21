@@ -17,6 +17,5 @@ domain $ip_all table filter {
             @if @eq($DOMAIN,ip6)
                 mod set  set ferm-hosts-block-ipv6 src  DROP;
         }
-        jump FERM-HOSTS-EXTERNAL;
     }
 }
