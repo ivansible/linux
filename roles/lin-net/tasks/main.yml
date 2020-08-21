@@ -3,4 +3,7 @@
   import_tasks: root.yml
   become: true
   tags: lin_net_all
+
+- name: commit changes
+  meta: flush_handlers
 ...

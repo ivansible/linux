@@ -7,4 +7,11 @@
     state: restarted
     daemon_reload: true
   become: true
+
+- name: restart ntp daemon
+  systemd:
+    name: ntp
+    state: restarted
+  become: true
+  ignore_errors: true
 ...

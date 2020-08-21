@@ -23,4 +23,12 @@
         - lin_net_he6
         - lin_net_all
   tags: lin_net_he6
+
+- name: prevent ntp from listening on virtual interfaces like veth
+  lineinfile:
+    path: /etc/ntp.conf
+    line: "interface listen {{ item }}"
+  loop: "{{ lin_net_ntp_interfaces |d([],1) }}"
+  tags: lin_net_ntp
+  notify: restart ntp daemon
 ...

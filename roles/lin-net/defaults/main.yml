@@ -7,6 +7,10 @@ lin_net_lo6: ~
 
 lin_net_interfaces_files: [interfaces]
 
+## prevent ntp daemon from picking docker veth interfaces
+## by default ntp daemon listens on all interfaces
+lin_net_ntp_interfaces: ~  # ['eth*', 'ens*']
+
 ## DNS resolver
 lin_net_dns_servers: [1.1.1.1, 8.8.8.8]
 lin_net_enable_resolved: "{{ ansible_lsb.release is version('16.04','>') }}"
