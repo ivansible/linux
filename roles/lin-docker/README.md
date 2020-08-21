@@ -1,5 +1,9 @@
 # ivansible.lin_docker
 
+[![Github Test Status](https://github.com/ivansible/lin-docker/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-docker/actions)
+[![Travis Test Status](https://travis-ci.org/ivansible/lin-docker.svg?branch=master)](https://travis-ci.org/ivansible/lin-docker)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__docker-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_docker/)
+
 Install
 [docker-ce](https://docs.docker.com/install/linux/docker-ce/ubuntu/#install-using-the-repository),
 [docker-compose](https://docs.docker.com/compose/install/#install-compose),
