@@ -23,9 +23,10 @@ The node role in the docker swarm:
 - `none` - the node does not participate in swarm
 
 ```
-docker_daily_gc: <depends on swarm>
+docker_daily_gc: <depends on swarm>|none
 ```
 Enables nightly docker garbage collector. Can be `true` or `false`. By default, enabled if the node participates in the swarm.
+Garbage collector setup will be skipped if this setting is `none`.
 
     docker_from_docker_io: true
     docker_focal_fix: true
@@ -111,6 +112,22 @@ TLS settings.
     docker_swarm_destroy: false
 These flags allow to reset all docker settings or detach node from swarm.
 
+    docker_watchtower_enable: false|true|none
+Enable daily container auto-updater.
+Watchtower setup will be skipped if this setting is `none`.
+Containers to be watched should be marked with docker label
+`--label=com.centurylinklabs.watchtower.enable=true`.
+
+    docker_watchtower_mail_to: none|user@mail.com
+If non-empty, watchtower will send notifications about updated
+containers to this e-mail.
+
+    docker_watchtower_schedule: '0 0 0 * * *'
+Cron schedule of checking new images in 6-piece format
+`seconds minutes hours day month weekday`
+(see [docs](https://pkg.go.dev/github.com/robfig/cron@v1.2.0?tab=doc#hdr-CRON_Expression_Format)).
+By default watchtower runs every midnight.
+
 
 ## Tags
 
@@ -122,6 +139,7 @@ These flags allow to reset all docker settings or detach node from swarm.
 - `lin_docker_machine` -- install docker-machine
 - `lin_docker_swarm` -- setup swarm
 - `lin_docker_firewall` -- set firewall rules for docker
+- `lin_docker_helpers` -- garbage collector and container auto-updater
 - `lin_docker_files` -- checkout docker files
 - `lin_docker_bashrc` -- add user bash aliases
 - `lin_docker_user` -- permissions for docker daemon

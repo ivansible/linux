@@ -39,8 +39,6 @@ docker_bash_aliases:
   drs: docker service
   drtop: docker container stats
 
-docker_daily_gc: "{{ docker_swarm_role |default('none',true) != 'none' }}"
-
 ## daemon tls settings
 docker_tls_enable: false
 docker_tls_reset: "{{ docker_reset }}"
@@ -153,4 +151,18 @@ docker_daemon_base_labels:
                     if ansible_memtotal_mb < 1000 else
                     (ansible_memtotal_mb + 127) // 1024 }}"
   os.memory.mb: "{{ ansible_memtotal_mb }}"
+
+docker_daily_gc: ~
+# docker_daily_gc: "{{ docker_swarm_role |default('none',true) != 'none' }}"
+
+docker_watchtower_enable: ~
+docker_watchtower_upgrade: false
+docker_watchtower_debug: false
+## 6-piece cron schedule: seconds minutes hours day month weekday
+docker_watchtower_schedule: '0 0 0 * * *'
+docker_watchtower_mail_to: ~
+docker_watchtower_mail_from: watchtower
+docker_watchtower_mail_server: localhost
+docker_watchtower_mail_user: ~
+docker_watchtower_mail_pass: ~
 ...

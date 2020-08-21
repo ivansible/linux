@@ -1,0 +1,77 @@
+---
+- name: detect latest watchtower release
+  github_release:
+    repository: containrrr/watchtower
+    release: latest
+    creates: /usr/local/sbin/watchtower
+    reinstall: "{{ docker_watchtower_upgrade |bool }}"
+    template: '{download_url}/watchtower_linux_amd64.tar.gz'
+  tags: skip_ansible_lint
+  register: latest_watchtower_release
+
+- name: download and unpack watchtower
+  unarchive:
+    remote_src: true
+    src: "{{ latest_watchtower_release.url }}"
+    dest: /usr/local/sbin
+    exclude: LICENSE.md
+    owner: root
+    group: root
+    mode: 0755
+  when: latest_watchtower_release is changed
+
+- name: configure watchtower
+  copy:
+    dest: /etc/default/watchtower
+    content: |
+      # watchtower settings
+      # ansible-managed
+      WATCHTOWER_CLEANUP=true
+      WATCHTOWER_LABEL_ENABLE=true
+      WATCHTOWER_NO_STARTUP_MESSAGE=true
+      WATCHTOWER_SCHEDULE="{{ docker_watchtower_schedule }}"
+      WATCHTOWER_DEBUG={{ docker_watchtower_debug |bool |to_json }}
+      {% if docker_watchtower_mail_to and docker_watchtower_enable |bool %}
+      WATCHTOWER_NOTIFICATIONS=email
+      WATCHTOWER_NOTIFICATION_EMAIL_TO={{ docker_watchtower_mail_to }}
+      WATCHTOWER_NOTIFICATION_EMAIL_FROM={{ docker_watchtower_mail_from }}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER={{ docker_watchtower_mail_server }}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER={{ docker_watchtower_mail_user }}
+      WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD={{ docker_watchtower_mail_pass }}
+      {% endif %}
+    force: true
+    owner: root
+    group: root
+    mode: 0640
+  notify: "{{ _watchtower_enable |ternary('restart watchtower service', 'reload systemd daemon') }}"
+
+- name: setup watchtower service
+  copy:
+    dest: /etc/systemd/system/watchtower.service
+    ## FIXME watchtower tries to access docker config as /config.json
+    ## FIXME watchtower always returns exit status of 1
+    content: |
+      # docker watchtower
+      # ansible-managed
+      [Unit]
+      Description=watchtower
+      After=docker.service
+      After=network-online.target
+      [Service]
+      Type=simple
+      EnvironmentFile=/etc/default/watchtower
+      ExecStart=/usr/local/sbin/watchtower
+      SuccessExitStatus=1 3
+      [Install]
+      WantedBy=multi-user.target
+    force: true
+    mode: 0644
+  register: _watchtower_systemd_service
+
+- name: activate watchtower service
+  systemd:
+    name: watchtower
+    state: "{{ _watchtower_enable |ternary('started','stopped') }}"
+    enabled: "{{ _watchtower_enable }}"
+    daemon_reload: "{{ _watchtower_systemd_service is changed }}"
+...

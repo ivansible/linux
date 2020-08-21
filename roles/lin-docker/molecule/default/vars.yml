@@ -10,4 +10,7 @@ docker_tls_server_cnames:
   - "{{ ansible_default_ipv4.address |d('') }}"
   - "{{ ansible_default_ipv6.address |d('') }}"
   - "{{ inventory_hostname }}.ca.example.com"
+
+docker_daily_gc: true
+docker_watchtower_enable: true
 ...

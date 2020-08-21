@@ -7,6 +7,12 @@
     daemon_reload: true
   become: true
 
+- name: restart watchtower service
+  systemd:
+    name: watchtower
+    state: restarted
+  become: true
+
 - name: clean temporary docker certificate files
   file:
     path: "/etc/docker/{{ item }}"

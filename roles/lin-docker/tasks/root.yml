@@ -80,5 +80,14 @@
     force: true
   vars:
     comment: "{{ docker_daily_gc |bool |ternary('','#') }}"
+  when: docker_daily_gc is not none
   notify: reload systemd daemon
+  tags: lin_docker_helpers
+
+- name: enable daily container updater
+  import_tasks: watchtower.yml
+  vars:
+    _watchtower_enable: "{{ docker_watchtower_enable |bool }}"
+  when: docker_watchtower_enable is not none
+  tags: lin_docker_helpers
 ...
