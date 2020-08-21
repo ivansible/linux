@@ -11,6 +11,6 @@
   file:
     path: "/etc/docker/{{ item }}"
     state: absent
-  loop: [ca.csr, server.csr]
+  loop: [ca.csr, server.csr, client.csr]
   become: true
 ...

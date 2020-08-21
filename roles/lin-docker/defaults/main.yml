@@ -60,6 +60,8 @@ docker_tls_server_crt: ~  # predefined server crt text (default: generate)
 docker_tls_server_key: ~  # predefined server key text (default: generate)
 docker_tls_server_cnames: dockerd.example.com
 
+docker_tls_client_cname: docker-cli.example.com
+
 ## docker swarm settings
 ## role: worker, manager-worker, manager-only, manager-master, none
 docker_swarm_role: none

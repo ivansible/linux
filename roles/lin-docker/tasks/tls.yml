@@ -15,8 +15,7 @@
       loop_control:
         loop_var: ver
       when: ansible_lsb.codename == 'xenial'
-  when: not _dockerd_ca_crt_from_vars
-     or not _dockerd_server_crt_from_vars
+  tags: lin_docker_user
 
 
 - name: upload predefined ca certificate for dockerd
@@ -262,4 +261,62 @@
     - docker_tls_reset |bool
       or not _stat_dockerd_server_key.stat.exists
       or _docker_crt_new_names != _docker_crt_old_names
+
+
+- name: check existing sample docker client certificate
+  stat:
+    path: /etc/docker/client.crt
+  register: _stat_dockerd_client_crt
+
+- name: generate sample docker client certificate
+  block:
+    - name: generate sample docker client key
+      openssl_privatekey:
+        path: /etc/docker/client.key
+        type: "{{ docker_tls_params.type }}"
+        curve: "{{ docker_tls_params.curve }}"
+        size: "{{ docker_tls_params.size }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0640
+
+    - name: generate sample docker client csr
+      openssl_csr:
+        path: /etc/docker/client.csr
+        privatekey_path: /etc/docker/client.key
+
+        basic_constraints: 'CA:FALSE'
+        basic_constraints_critical: true
+        key_usage: ['Digital Signature']
+        key_usage_critical: true
+
+        common_name: "{{ docker_tls_client_cname }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0600
+      notify: clean temporary docker certificate files
+
+    - name: generate sample docker client crt
+      openssl_certificate:
+        path: /etc/docker/client.crt
+        privatekey_path: /etc/docker/client.key
+        csr_path: /etc/docker/client.csr
+
+        provider: ownca
+        ownca_path: /etc/docker/ca.crt
+        ownca_privatekey_path: /etc/docker/ca.key
+        ownca_not_after: "{{ docker_tls_params.days }}"
+
+        force: true
+        owner: root
+        group: docker
+        mode: 0640
+      when: not ansible_check_mode
+  when:
+    - docker_tls_client_cname |d('')
+    - not _stat_dockerd_client_crt.stat.exists
 ...
