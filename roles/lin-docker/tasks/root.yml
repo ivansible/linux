@@ -23,6 +23,12 @@
     - docker_extras |bool
   tags: [lin_docker_machine, ip4only]
 
+
+- name: configure gwbridge network
+  import_tasks: gwbridge.yml
+  when: docker_gwbridge_addr4 |d('')
+  tags: lin_docker_gwbridge
+
 - name: configure docker swarm
   import_tasks: swarm.yml
   when: docker_swarm_role |default('none',true) != 'none'
