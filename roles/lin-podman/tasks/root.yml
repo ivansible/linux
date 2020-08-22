@@ -1,5 +1,71 @@
 ---
-- name: root task1
-  debug:
-    msg: task1
+- name: install podman on modern ubuntu
+  block:
+    - name: add kubic key on modern ubuntu
+      apt_key:
+        url: "{{ kubic_repo }}/Release.key"
+
+    - name: add kubic repository on modern ubuntu
+      apt_repository:
+        repo: "deb [arch=amd64] {{ kubic_repo }}/ /"
+        filename: podman-kubic
+        mode: 0644
+  vars:
+    kubic_repo: "{{ kubic_repo_base_url }}/stable/xUbuntu_{{ ansible_lsb.release }}"
+    kubic_repo_base_url: 'https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:'
+  when: ansible_lsb.release is version('16.04', '>')
+
+- name: add project atomic ppa on xenial
+  apt_repository:
+    repo: ppa:projectatomic/ppa
+    filename: podman-ppa
+    mode: 0644
+  when: ansible_lsb.release is version('16.04', '<=')
+
+- name: install podman packages
+  apt:
+    name:
+      - podman
+      - skopeo
+      - buildah
+      ## slirp4netns is required by rootless mode
+      - slirp4netns
+      ## helpers
+      - bash-completion
+
+- name: sysctl for rootless podman
+  sysctl:
+    name: user.max_user_namespaces
+    value: '15000'
+    sysctl_file: /etc/sysctl.d/77-podman.conf
+  when: allow_sysctl |bool
+
+- name: detect latest fuse-overlayfs release
+  github_release:
+    repository: containers/fuse-overlayfs
+    release: latest
+    creates: /usr/bin/fuse-overlayfs
+    reinstall: "{{ podman_fuse_overlayfs_upgrade |bool }}"
+    template: '{download_url}/fuse-overlayfs-x86_64'
+  tags: skip_ansible_lint
+  register: latest_fuse_overlayfs_release
+
+- name: download and install fuse-overlayfs
+  get_url:
+    url: "{{ latest_fuse_overlayfs_release.url }}"
+    dest: /usr/bin/fuse-overlayfs
+    owner: root
+    group: root
+    mode: 0755
+    force: "{{ podman_fuse_overlayfs_upgrade |bool }}"
+  when: latest_fuse_overlayfs_release is changed
+
+- name: set registry search order
+  ini_file:
+    path: /etc/containers/registries.conf
+    section: registries.search
+    option: registries
+    value: "['docker.io', 'quay.io']"
+    create: true
+    mode: 0644
 ...

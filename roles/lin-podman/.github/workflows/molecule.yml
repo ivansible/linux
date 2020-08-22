@@ -12,6 +12,8 @@ on:
 env:
   ROLE_NAME: ivansible.lin_podman
   ANSIBLE_FORCE_COLOR: true
+  IVATEST_SSH_SERVER: false
+  IVATEST_FIREWALL: none
 
 jobs:
   localhost_test:
@@ -25,8 +27,6 @@ jobs:
           - ubuntu-18.04
     env:
       SCENARIO: localhost
-      IVATEST_FIREWALL: ferm
-      IVATEST_SSH_SERVER: false
 
     steps:
       - name: Checkout
@@ -54,8 +54,6 @@ jobs:
       fail-fast: false
     env:
       SCENARIO: default
-      IVATEST_FIREWALL: none
-      IVATEST_SSH_SERVER: true
 
     steps:  # copy-pasting above steps since anchors are unsupported
       - name: Checkout

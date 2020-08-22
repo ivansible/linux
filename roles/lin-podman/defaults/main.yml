@@ -1,3 +1,5 @@
 ---
 # defaults for ivansible.lin_podman
+
+podman_fuse_overlayfs_upgrade: false
 ...

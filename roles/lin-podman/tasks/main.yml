@@ -1,6 +1,6 @@
 ---
-- name: become root and install role
+- name: become root and install podman
   import_tasks: root.yml
   become: true
-  tags: role_all
+  tags: lin_podman_all
 ...
