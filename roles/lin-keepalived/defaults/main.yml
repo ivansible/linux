@@ -1,3 +1,17 @@
 ---
 # defaults for ivansible.lin_keepalived
+
+kad_enable: true
+
+kad_user_config: '#'
+kad_vrrp_password: ~
+
+kad_router_all_peers: []
+kad_router_peer: ~
+
+kad_ping_interval: 60
+kad_ping_randomize: 0
+kad_ping_timeout: 5
+kad_ping_attempts: 2
+kad_ping_prio: 20
 ...

@@ -1,0 +1,5 @@
+# keepalived
+domain $ip_all table filter {
+  chain $INPUT  proto vrrp  jump FERM-HOSTS-EXTERNAL;
+  chain FERM-HOSTS-INTERNAL  proto vrrp  ACCEPT;
+}

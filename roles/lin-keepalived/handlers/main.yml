@@ -1,3 +1,9 @@
 ---
 # handlers for ivansible.lin_keepalived
+
+- name: restart keepalived service
+  systemd:
+    name: keepalived
+    state: restarted
+  become: true
 ...

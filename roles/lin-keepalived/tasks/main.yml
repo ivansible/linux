@@ -2,5 +2,10 @@
 - name: become root and install role
   import_tasks: root.yml
   become: true
-  tags: role_all
+  when: kad_enable |bool
+  tags: lin_kad_all
+
+- name: run postponed tasks
+  meta: flush_handlers
+  tags: lin_kad_all
 ...
