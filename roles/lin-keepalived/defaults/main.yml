@@ -6,8 +6,16 @@ kad_enable: true
 kad_user_config: '#'
 kad_vrrp_password: ~
 
-kad_router_all_peers: []
-kad_router_peer: ~
+kad_router_enable: false
+kad_router_prio: 100
+kad_router_gw_prio: 512
+kad_router_vip_prio: 1024
+kad_router_vip_device: "{{ ansible_default_ipv4.interface |d(ansible_default_ipv6.interface) }}"
+kad_routes: []
+
+kad_unicast_ip: ~
+kad_unicast_group: ~
+kad_unicast_peer_ips: "{{ groups[kad_unicast_group] |d([]) |map('extract', hostvars, 'kad_unicast_ip') |select |sort }}"
 
 kad_ping_interval: 60
 kad_ping_randomize: 0
