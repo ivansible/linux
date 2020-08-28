@@ -2,6 +2,8 @@
 # defaults for ivansible.lin_keepalived
 
 kad_enable: true
+kad_reset: false
+kad_install_from_ppa: false
 
 kad_user_config: '#'
 kad_vrrp_password: ~

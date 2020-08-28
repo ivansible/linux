@@ -4,6 +4,7 @@
     repo: ppa:hnakamur/keepalived
     filename: keepalived
     mode: 0644
+  when: kad_install_from_ppa |bool
 
 - name: install keepalived packages
   apt:
@@ -22,7 +23,7 @@
   template:
     src: defaults.conf
     dest: /etc/keepalived/keepalived.conf
-    force: "{{ _keepalived_apt_result is changed }}"
+    force: "{{ _keepalived_apt_result is changed or kad_reset |bool }}"
     mode: 0644
   notify: restart keepalived service
 
