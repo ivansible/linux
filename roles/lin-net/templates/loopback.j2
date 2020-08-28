@@ -1,12 +1,12 @@
 # loopback address
 # ansible-managed
 auto lo:0
-{% if lin_net_lo4 |default('') %}
+{% if lin_net_lo4 |d('') %}
 iface lo:0 inet static
     address {{ lin_net_lo4 }}
     netmask 255.255.255.255
 {% endif %}
-{% if lin_net_lo6 |default('') %}
+{% if lin_net_lo6 |d('') %}
 iface lo:0 inet6 static
     address {{ lin_net_lo6 }}
     netmask 128

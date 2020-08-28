@@ -3,6 +3,7 @@
   template:
     src: loopback.j2
     dest: /etc/network/interfaces.d/loopback
+    mode: 0644
   register: loopback_result
 
 - name: set loopback address now

@@ -1,0 +1,19 @@
+# vxlan group
+# ansible-managed
+auto {{ lin_vxlan_device }}
+{% if lin_vxlan_ip4 %}
+iface {{ lin_vxlan_device }} inet static
+    address {{ lin_vxlan_ip4 }}
+    netmask {{ '0/%s' |format(lin_vxlan_prefix4) |ipaddr('netmask') }}
+    pre-up ip link add {{ lin_vxlan_device }} type vxlan id {{ lin_vxlan_id }}{% if lin_vxlan_base_device %} dev {{ lin_vxlan_base_device }}{% endif %} local {{ lin_vxlan_base_ip }} dstport {{ lin_vxlan_port }}
+    post-down ip link del {{ lin_vxlan_device }}
+{%   for peer_ip in lin_vxlan_peer_ips if peer_ip != lin_vxlan_base_ip %}
+    up bridge fdb append to 00:00:00:00:00:00 dst {{ peer_ip }} dev {{ lin_vxlan_device }}
+{%   endfor %}
+{% endif %}
+{% if lin_vxlan_ip6 %}
+iface {{ lin_vxlan_device }} inet6 static
+    address {{ lin_vxlan_ip6 }}
+    netmask {{ lin_vxlan_prefix6 }}
+    dad-attempts 0
+{% endif %}

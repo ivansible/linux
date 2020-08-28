@@ -24,6 +24,17 @@
         - lin_net_all
   tags: lin_net_he6
 
+- name: setup vxlan
+  include_tasks: vxlan.yml
+  when: lin_vxlan_enable |bool
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_net_vxlan
+        - lin_net_all
+  tags: lin_net_vxlan
+
 - name: prevent ntp from listening on virtual interfaces like veth
   lineinfile:
     path: /etc/ntp.conf

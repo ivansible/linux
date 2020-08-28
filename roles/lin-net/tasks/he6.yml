@@ -13,6 +13,7 @@
   template:
     src: he6-iface.j2
     dest: "/etc/network/interfaces.d/{{ lin_he6_device }}"
+    mode: 0644
   register: he6_iface_result
 
 - name: configure ferm firewall on he6 interface

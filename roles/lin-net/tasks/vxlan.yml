@@ -1,0 +1,36 @@
+---
+- name: configure vxlan interface
+  template:
+    src: vxlan.j2
+    dest: "/etc/network/interfaces.d/{{ lin_vxlan_device }}"
+    mode: 0644
+  register: _vxlan_iface_result
+
+- name: open vxlan port in ferm
+  ferm_port:
+    port: "{{ lin_vxlan_port }}"
+    proto: udp
+    zone: internal
+    comment: vxlan
+  tags: skip_ansible_lint
+  when: lin_firewall == 'ferm'
+
+- name: permit vxlan forwarding in ferm
+  ferm_rule:
+    name: vxlan
+    prio: 77
+    hook: custom
+    rule: |
+      domain ($ip_all) table filter
+        chain ($FORWARD)
+        interface {{ lin_vxlan_device }} ACCEPT;
+  tags: skip_ansible_lint
+  when: lin_firewall == 'ferm'
+
+- name: reset vxlan interface
+  shell: |
+    ifdown {{ lin_vxlan_device }} >/dev/null 2>&1
+    sleep 1
+    ifup {{ lin_vxlan_device }}
+  when: _vxlan_iface_result is changed
+...

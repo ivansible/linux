@@ -7,6 +7,7 @@
     ## Note: we control the *last* DNS= line
     ##       letting user *prepend* custom DNS= servers!
     firstmatch: false
+    mode: 0644
   loop: "{{ lin_net_resolved_settings |dictsort }}"
   loop_control:
     label: "{{ item.0 }}"

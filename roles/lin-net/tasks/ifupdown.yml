@@ -17,5 +17,6 @@
     insertbefore: '^auto |^#VAGRANT-|^\s*$'
     firstmatch: true
     create: true
+    mode: 0644
   loop: "{{ lin_net_interfaces_files }}"
 ...
