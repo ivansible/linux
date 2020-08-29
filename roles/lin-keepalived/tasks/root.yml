@@ -63,7 +63,7 @@
     random_ping_max: "{{ kad_ping_randomize |int + 1 }}"
     random_ping: "{{ random_ping_max |int |random(0, seed=random_seed) }}"
 
-- name: make helper scripts for dynamuc routes
+- name: make helper scripts for dynamic routes
   template:
     src: "{{ item }}"
     dest: "/etc/keepalived/{{ item }}"
@@ -97,4 +97,9 @@
   file:
     path: /etc/sysctl.d/77-liveroutes.conf
     mode: 0644
+
+- name: configure keepalived logging
+  import_tasks: syslog.yml
+  when: kad_use_rsyslog |bool
+  tags: lin_kad_syslog
 ...

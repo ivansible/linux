@@ -1,5 +1,5 @@
 ---
-- name: become root and install role
+- name: setup keepalived
   import_tasks: root.yml
   become: true
   when: kad_enable |bool

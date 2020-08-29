@@ -3,6 +3,7 @@
 
 kad_enable: true
 kad_reset: false
+kad_use_rsyslog: "{{ lin_use_rsyslog |bool }}"
 kad_install_from_ppa: false
 
 kad_user_config: '# not yet'

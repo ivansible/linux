@@ -1,0 +1,44 @@
+---
+- name: ensure keepalived log file exists
+  copy:
+    dest: /var/log/keepalived.log
+    content: ""
+    force: false
+    owner: syslog
+    group: adm
+    mode: 0640
+  notify: restart syslog service
+
+- name: configure syslog for keepalived
+  copy:
+    dest: /etc/rsyslog.d/34-keepalived.conf
+    content: |
+      :programname,startswith,"Keepalived" /var/log/keepalived.log
+      & stop
+    force: true
+    mode: 0644
+  notify: restart syslog service
+
+- name: rotate keepalived log file
+  copy:
+    dest: /etc/logrotate.d/keepalived
+    content: |
+      /var/log/keepalived.log {
+          daily
+          maxsize 1M
+          missingok
+          rotate 4
+          notifempty
+          {{ commentout }}compress
+          {{ commentout }}delaycompress
+          sharedscripts
+          postrotate
+              invoke-rc.d rsyslog rotate > /dev/null 2> /dev/null
+          endscript
+      }
+    force: true
+    mode: 0644
+  vars:
+    commentout: "{{ compress |ternary('','#') }}"
+    compress: "{{ lin_compress_logs |bool or lin_compress_logs is none }}"
+...
