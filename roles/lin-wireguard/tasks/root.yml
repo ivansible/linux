@@ -113,16 +113,49 @@
     - skip_ansible_lint
     - lin_wg_firewall
 
+- name: make directory for wireguard service drop-in
+  file:
+    path: "/etc/systemd/system/wg-quick@wg{{ item }}.service.d"
+    state: directory
+  loop: "{{ range(1, lin_wg_nets |count) |list }}"
+  loop_control:
+    label: "wg{{ item }}"
+  tags: lin_wg_service
+
+- name: enforce ordering on start of wireguard devices
+  copy:
+    dest: "/etc/systemd/system/wg-quick@wg{{ item }}.service.d/order.conf"
+    force: true
+    mode: 0644
+    content: |
+      # enforce wireguard start order (ansible-managed)
+      # 1sec delay allows route priorities kick in
+      # so that interfaces can have client with equal ip
+      [Unit]
+      {% for prev in range(item) %}
+      After=wg-quick@wg{{ prev }}.service
+      {% endfor %}
+      [Service]
+      ExecStartPre=/bin/sleep 1
+  loop: "{{ range(1, lin_wg_nets |count) |list }}"
+  loop_control:
+    label: "wg{{ item }}"
+  register: wg_order_result
+  notify: restart wireguard service
+  tags: lin_wg_service
 
 - name: enable wireguard service
   systemd:
     name: "wg-quick@wg{{ item }}"
     state: started
     enabled: true
-    daemon_reload: "{{ wg_conf_result |default({}) is changed }}"
+    daemon_reload: "{{ conf_changed or order_changed }}"
   loop: "{{ range(lin_wg_nets |count) |list }}"
   loop_control:
     label: "wg{{ item }}"
+  vars:
+    conf_changed: "{{ wg_conf_result |d({}) is changed }}"
+    order_changed: "{{ wg_order_result |d({}) is changed }}"
   register: enable_service_result
   until: enable_service_result is successful
   retries: 2  # workaround for pluto
