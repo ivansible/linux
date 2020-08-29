@@ -7,11 +7,19 @@
   when: kad_install_from_ppa |bool
 
 - name: install keepalived packages
-  apt:
-    name:
-      - keepalived
-      - fping
-  register: _keepalived_apt_result
+  block:
+    - name: install keepalived packages (will rescue if fails)
+      apt:
+        name: "{{ packages }}"
+      register: _keepalived_apt_result
+  rescue:
+    - name: install keepalived packages (update cache)
+      apt:
+        name: "{{ packages }}"
+        update_cache: true
+      register: _keepalived_apt_result
+  vars:
+    packages: keepalived,fping
 
 - name: directory for keepalived config and scripts
   file:
@@ -83,8 +91,14 @@
   ferm_rule:
     name: vrrp
     prio: 34
-    rule: "{{ lookup('template', 'vrrp.ferm') }}"
+    rule: |
+      # keepalived
+      domain $ip_all table filter {
+        chain $INPUT  proto vrrp  jump FERM-HOSTS-EXTERNAL;
+        chain FERM-HOSTS-INTERNAL  proto vrrp  ACCEPT;
+      }
   tags: skip_ansible_lint
+  when: lin_firewall == 'ferm'
 
 - name: allow gratuitous keepalived routes
   sysctl:
@@ -92,11 +106,13 @@
     value: '0'
     sysctl_file: /etc/sysctl.d/77-liveroutes.conf
   loop: "{{ [kad_router_vip_device] }}"
+  when: allow_sysctl |bool
 
 - name: fix mode of the sysctl file
   file:
     path: /etc/sysctl.d/77-liveroutes.conf
     mode: 0644
+  when: allow_sysctl |bool
 
 - name: configure keepalived logging
   import_tasks: syslog.yml

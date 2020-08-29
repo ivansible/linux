@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for lin_use_rsyslog
+  - ivansible.lin_base  # for lin_use_rsyslog, lin_firewall, allow_sysctl
 
 galaxy_info:
   role_name: lin_keepalived
