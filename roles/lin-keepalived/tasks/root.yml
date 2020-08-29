@@ -37,7 +37,7 @@
 - name: add dynamic routes to keepalived
   blockinfile:
     path: /etc/keepalived/keepalived.conf
-    block: "{{ lookup('template', 'route.conf') }}"
+    block: "{{ lookup('template', 'route.conf') if enabled |bool else '# disabled' }}"
     marker: "# {mark} ROUTE {{ name }}"
   notify: restart keepalived service
   when: kad_router_enable |bool
@@ -46,6 +46,19 @@
     label: "{{ name }}"
   vars:
     name: "{{ item.name }}"
+    target: "{{ item.target }}"
+    vip: "{{ item.vip_addr }}"
+    gates: "{{ item.gateways }}"
+    dev: "{{ kad_router_vip_device }}"
+    prio: "{{ kad_router_vip_prio }}"
+    router_id: "{{ item.router_id }}"
+
+    ipv6: "{{ ':' in target }}"
+    proto: "{{ ipv6 |ternary('-6','-4') }}"
+    unicast_ip: "{{ ipv6 |ternary(kad_unicast_ip6, kad_unicast_ip4) }}"
+    unicast_peers: "{{ ipv6 |ternary(kad_unicast_peers6, kad_unicast_peers4) }}"
+    enabled: "{{ ipv6 |ternary(kad_router_use_ip6, kad_router_use_ip4) |bool }}"
+
     random_seed: "{{ '%s@%s' |format(name, inventory_hostname) }}"
     random_ping_max: "{{ kad_ping_randomize |int + 1 }}"
     random_ping: "{{ random_ping_max |int |random(0, seed=random_seed) }}"

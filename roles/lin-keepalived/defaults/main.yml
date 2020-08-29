@@ -5,19 +5,26 @@ kad_enable: true
 kad_reset: false
 kad_install_from_ppa: false
 
-kad_user_config: '#'
+kad_user_config: '# not yet'
 kad_vrrp_password: ~
 
+kad_routes: []
 kad_router_enable: false
+kad_router_use_ip4: true
+kad_router_use_ip6: true
+
 kad_router_prio: 100
 kad_router_gw_prio: 512
 kad_router_vip_prio: 1024
 kad_router_vip_device: "{{ ansible_default_ipv4.interface |d(ansible_default_ipv6.interface) }}"
-kad_routes: []
 
-kad_unicast_ip: ~
+kad_unicast_ip4: ~
+kad_unicast_ip6: ~
 kad_unicast_group: ~
-kad_unicast_peer_ips: "{{ groups[kad_unicast_group] |d([]) |map('extract', hostvars, 'kad_unicast_ip') |select |sort }}"
+kad_unicast_group4: "{{ kad_unicast_group }}"
+kad_unicast_group6: "{{ kad_unicast_group }}"
+kad_unicast_peers4: "{{ groups[kad_unicast_group4] |d([]) |map('extract', hostvars, 'kad_unicast_ip4') |select |sort }}"
+kad_unicast_peers6: "{{ groups[kad_unicast_group6] |d([]) |map('extract', hostvars, 'kad_unicast_ip6') |select |sort }}"
 
 kad_ping_interval: 60
 kad_ping_randomize: 0
