@@ -11,7 +11,7 @@ declare -A gateways
 for addr in "$@"; do
   gateways[$addr]=$(
     ip "$proto" -o route get "$addr" |
-    grep -Eo '(via|src) ([^ ]+)' |
+    grep -Eo 'dev [^ ]+' |
     head -1 |
     cut -c5-)
 done
@@ -22,7 +22,7 @@ lead=$($pinger -a -r1 "$@" | head -1)
 if [ -n "$lead" ]; then
     gw1=${gateways[$lead]}
     #echo "$(date) radd $target $gw1 $prio" >>/tmp/ping
-    ip "$proto" route replace "$target" via "$gw1" prio "$prio" 2>/dev/null
+    ip "$proto" route replace "$target" dev "$gw1" prio "$prio" 2>/dev/null
     retval=0
 fi
 
@@ -30,7 +30,7 @@ for addr in "$@"; do
   if [ "$addr" != "$lead" ]; then
     gw=${gateways[$addr]}
     #echo "$(date) rdel $target $gw $prio" >>/tmp/ping
-    ip "$proto" route del "$target" via "$gw" prio "$prio" 2>/dev/null
+    ip "$proto" route delete "$target" dev "$gw" prio "$prio" 2>/dev/null
   fi
 done
 
