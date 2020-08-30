@@ -111,7 +111,7 @@
     has_self_routes6: "{{ client.self_routes6 |default(none) is not none }}"
     has_self_routes: "{{ has_self_routes4 or has_self_routes6 }}"
 
-    metric: "{{ client.metric |default(0) |int }}"
+    client_metric: "{{ client.metric |d(server.client_metric) |d(0) |int }}"
     has_metric: "{{ client_metric |int > 0 }}"
   notify: restart openvpn servers
 

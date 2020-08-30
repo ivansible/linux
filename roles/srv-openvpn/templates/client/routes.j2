@@ -11,10 +11,10 @@ iroute {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}
 iroute-ipv6 {{ route6 }}
 {% endfor %}
 {% for route4 in push_routes4 %}
-push "route {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}{% if has_metric %} default {{ metric }}{% endif %}"
+push "route {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}{% if has_metric %} vpn_gateway {{ client_metric }}{% endif %}"
 {% endfor %}
-{% for route6 in push_routes6 %}
-push "route-ipv6 {{ route6 }}"
+{% for route6 in push_routes6 if has_subnet6 %}
+push "route-ipv6 {{ route6 }}{% if has_metric %} {{ client_subnet6 |ipaddr('network/prefix') |ipaddr('next_usable') }} {{ client_metric }}{% endif %}"
 {% endfor %}
 {% if redirect_ipv4 or redirect_ipv6 %}
 push "redirect-gateway def1{{ ' ipv6' if redirect_ipv6 else '' }}"
