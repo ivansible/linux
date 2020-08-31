@@ -3,6 +3,6 @@ route {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}{% if has_m
 
 {% endfor %}
 {% for route6 in server_routes6 %}
-route-ipv6 {{ route6 }}{% if has_metric %} default {{ metric }}{% endif %}
+route-ipv6 {{ route6 |ipaddr('address') or route6 |ipaddr('network') }}/{{ route6 |ipaddr('prefix') }}{% if has_metric %} default {{ metric }}{% endif %}
 
 {% endfor %}

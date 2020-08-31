@@ -2,19 +2,19 @@
 ifconfig-push {{ client_subnet4 |ipaddr('address') }} {{ client_subnet4 |ipaddr('netmask') }}
 {% endif %}
 {% if has_subnet6 %}
-ifconfig-ipv6-push {{ client_subnet6 }}
+ifconfig-ipv6-push {{ client_subnet6 |ipaddr('address') or client_subnet6 |ipaddr('network') }}/{{ client_subnet6 |ipaddr('prefix') }}
 {% endif %}
 {% for route4 in self_routes4 %}
 iroute {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}
 {% endfor %}
 {% for route6 in self_routes6 %}
-iroute-ipv6 {{ route6 }}
+iroute-ipv6 {{ route6 |ipaddr('address') or route6 |ipaddr('network') }}/{{ route6 |ipaddr('prefix') }}
 {% endfor %}
 {% for route4 in push_routes4 %}
 push "route {{ route4 |ipaddr('network') }} {{ route4 |ipaddr('netmask') }}{% if has_metric %} vpn_gateway {{ client_metric }}{% endif %}"
 {% endfor %}
 {% for route6 in push_routes6 if has_subnet6 %}
-push "route-ipv6 {{ route6 }}{% if has_metric %} {{ client_subnet6 |ipaddr('network/prefix') |ipaddr('next_usable') }} {{ client_metric }}{% endif %}"
+push "route-ipv6 {{ route6 |ipaddr('address') or route6 |ipaddr('network') }}/{{ route6 |ipaddr('prefix') }}{% if has_metric %} {{ client_subnet6 |ipaddr('network/prefix') |ipaddr('next_usable') }} {{ client_metric }}{% endif %}"
 {% endfor %}
 {% if redirect_ipv4 or redirect_ipv6 %}
 push "redirect-gateway def1{{ ' ipv6' if redirect_ipv6 else '' }}"
