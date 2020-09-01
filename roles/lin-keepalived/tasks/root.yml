@@ -45,7 +45,7 @@
 - name: add dynamic routes to keepalived
   blockinfile:
     path: /etc/keepalived/keepalived.conf
-    block: "{{ lookup('template', 'route.conf') if enabled |bool else '# disabled' }}"
+    block: "{{ lookup('template', 'route.conf') if enabled else '# disabled' }}"
     marker: "# {mark} ROUTE {{ name }}"
   notify: restart keepalived service
   when: kad_router_enable |bool
@@ -54,31 +54,37 @@
     label: "{{ name }}"
   vars:
     name: "{{ item.name }}"
-    target: "{{ item.target }}"
-    vip: "{{ item.vip_addr }}"
-    gates: "{{ item.gateways }}"
-    dev: "{{ kad_router_vip_device }}"
-    prio: "{{ kad_router_vip_prio }}"
-    router_id: "{{ item.router_id }}"
+    device: "{{ kad_router_vip_device }}"
+    metric: "{{ kad_router_vip_metric }}"
 
-    ipv6: "{{ ':' in target }}"
-    proto: "{{ ipv6 |ternary('-6','-4') }}"
-    unicast_ip: "{{ ipv6 |ternary(kad_unicast_ip6, kad_unicast_ip4) }}"
-    unicast_peers: "{{ ipv6 |ternary(kad_unicast_peers6, kad_unicast_peers4) }}"
-    enabled: "{{ ipv6 |ternary(kad_router_use_ip6, kad_router_use_ip4) |bool }}"
+    beacons: "{{ [item.beacons] |flatten |join(',') }}"
+    _targets: "{{ [item.targets] |flatten }}"
+    targets4: "{{ _targets |ternary(_targets |ipv4, []) |join(',') |d('-',true) }}"
+    targets6: "{{ _targets |ternary(_targets |ipv6, []) |join(',') |d('-',true) }}"
+
+    vip4: "{{ item.vip_addr4 |d('') }}"
+    vip6: "{{ item.vip_addr6 |d('') }}"
+    rid4: "{{ item.router_id4 |d(0) |int }}"
+    rid6: "{{ item.router_id6 |d(0) |int }}"
+
+    use4: "{{ vip4 and rid4 and targets4 != '-' and kad_router_use_ip4 |bool }}"
+    use6: "{{ vip6 and rid6 and targets6 != '-' and kad_router_use_ip6 |bool }}"
+    enabled: "{{ beacons and (use4 or use6) }}"
 
     random_seed: "{{ '%s@%s' |format(name, inventory_hostname) }}"
     random_ping_max: "{{ kad_ping_randomize |int + 1 }}"
     random_ping: "{{ random_ping_max |int |random(0, seed=random_seed) }}"
 
 - name: make helper scripts for dynamic routes
-  template:
+  copy:
     src: "{{ item }}"
     dest: "/etc/keepalived/{{ item }}"
+    force: true
     mode: 0755
   loop:
     - route-ping.sh
     - route-ctl.sh
+  notify: restart keepalived service
 
 - name: activate keepalived service
   systemd:
@@ -108,7 +114,7 @@
   loop: "{{ [kad_router_vip_device] }}"
   when: allow_sysctl |bool
 
-- name: fix mode of the sysctl file
+- name: fix sysctl file mode
   file:
     path: /etc/sysctl.d/77-liveroutes.conf
     mode: 0644

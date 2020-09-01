@@ -10,13 +10,14 @@ kad_user_config: '# not yet'
 kad_vrrp_password: ~
 
 kad_routes: []
+
 kad_router_enable: false
 kad_router_use_ip4: true
 kad_router_use_ip6: true
 
 kad_router_prio: 100
-kad_router_gw_prio: 512
-kad_router_vip_prio: 1024
+kad_router_gw_metric: 512
+kad_router_vip_metric: 1024
 kad_router_vip_device: "{{ ansible_default_ipv4.interface |d(ansible_default_ipv6.interface) }}"
 
 kad_unicast_ip4: ~
