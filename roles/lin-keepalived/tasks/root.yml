@@ -84,6 +84,7 @@
   loop:
     - route-ping.sh
     - route-ctl.sh
+  when: kad_router_enable |bool
   notify: restart keepalived service
 
 - name: activate keepalived service
@@ -119,6 +120,15 @@
     path: /etc/sysctl.d/77-liveroutes.conf
     mode: 0644
   when: allow_sysctl |bool
+
+- name: setup router log
+  lineinfile:
+    path: /etc/default/keepalived
+    regexp: '^ROUTER_LOG='
+    line: "ROUTER_LOG={{ kad_router_log |bool |ternary(kad_router_log_file,'') }}"
+    create: true
+    mode: 0644
+  when: kad_router_enable |bool
 
 - name: configure keepalived logging
   import_tasks: syslog.yml

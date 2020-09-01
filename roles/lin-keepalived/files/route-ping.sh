@@ -1,12 +1,14 @@
 #!/bin/bash
 #set -x
 
+# shellcheck disable=SC1091
+. /etc/default/keepalived
+
 name=${1:-}
 beacons=${2:-}
 targets4=${3:-}
 targets6=${4:-}
 metric=${5:-}
-debug=0
 
 beacons=${beacons//,/ }
 targets4=${targets4%-}
@@ -29,7 +31,7 @@ leader=$(fping -a -r1 $beacons | head -1)
 if [ -n "$leader" ]; then
     retval=0
     dev=${devices[$leader]}
-    [ $debug = 0 ] || echo "$(date) radd $name $dev $metric" >>/tmp/ping
+    [[ $ROUTER_LOG ]] && echo "$(date) radd $name $dev $metric" >> "$ROUTER_LOG"
     for tip in $targets4; do
         ip -4 route replace "$tip" dev "$dev" metric "$metric" 2>/dev/null
     done
@@ -41,7 +43,7 @@ fi
 for bip in $beacons; do
     [ "$bip" = "$leader" ] && continue
     dev=${devices[$bip]}
-    [ $debug = 0 ] || echo "$(date) rdel $name $dev $metric" >>/tmp/ping
+    [[ $ROUTER_LOG ]] && echo "$(date) rdel $name $dev $metric" >> "$ROUTER_LOG"
     for tip in $targets4; do
         ip -4 route delete "$tip" dev "$dev" metric "$metric" 2>/dev/null
     done

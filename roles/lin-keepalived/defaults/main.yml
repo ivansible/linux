@@ -15,6 +15,9 @@ kad_router_enable: false
 kad_router_use_ip4: true
 kad_router_use_ip6: true
 
+kad_router_log: false
+kad_router_log_file: /tmp/keepalived-router.log
+
 kad_router_prio: 100
 kad_router_gw_metric: 512
 kad_router_vip_metric: 1024
