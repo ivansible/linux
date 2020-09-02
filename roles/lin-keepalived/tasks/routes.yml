@@ -1,0 +1,102 @@
+---
+- name: add dynamic routes to keepalived
+  blockinfile:
+    path: /etc/keepalived/keepalived.conf
+    block: "{{ lookup('template', 'route.conf') if enabled else '# disabled' }}"
+    marker: "# {mark} ROUTE {{ name }}"
+  notify: restart keepalived service
+  loop: "{{ kad_routes }}"
+  loop_control:
+    label: "{{ name }}"
+  tags: lin_kad_config
+  vars:
+    name: "{{ item.name }}"
+    device: "{{ kad_router_vip_device }}"
+    metric: "{{ kad_router_vip_metric }}"
+
+    beacons: "{{ [item.beacons] |flatten |join(',') }}"
+    _targets: "{{ [item.targets] |flatten }}"
+    targets4: "{{ _targets |ternary(_targets |ipv4, []) |join(',') |d('-',true) }}"
+    targets6: "{{ _targets |ternary(_targets |ipv6, []) |join(',') |d('-',true) }}"
+
+    vip4: "{{ item.vip_addr4 |d('') }}"
+    vip6: "{{ item.vip_addr6 |d('') }}"
+    rid4: "{{ item.router_id4 |d(0) |int }}"
+    rid6: "{{ item.router_id6 |d(0) |int }}"
+
+    use4: "{{ vip4 and rid4 and targets4 != '-' and kad_router_use_ip4 |bool }}"
+    use6: "{{ vip6 and rid6 and targets6 != '-' and kad_router_use_ip6 |bool }}"
+    enabled: "{{ beacons and (use4 or use6) }}"
+
+    random_seed: "{{ '%s@%s' |format(name, inventory_hostname) }}"
+    random_ping_max: "{{ kad_ping_randomize |int + 1 }}"
+    random_ping: "{{ random_ping_max |int |random(0, seed=random_seed) }}"
+
+- name: make helper scripts for dynamic routes
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/keepalived/{{ item }}"
+    force: true
+    mode: 0755
+  loop:
+    - route-ping.sh
+    - route-ctl.sh
+    - route-stop.sh
+  notify: restart keepalived service
+  tags: lin_kad_install
+
+- name: set keepalive router parameters
+  lineinfile:
+    path: /etc/default/keepalived
+    regexp: '^ROUTER_{{ item.0 }}='
+    line: 'ROUTER_{{ item.0 }}="{{ item.1 }}"'
+    create: true
+    mode: 0644
+  notify: restart keepalived service
+  loop: "{{ params |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+  tags: lin_kad_config
+  vars:
+    params:
+      LOG: "{{ kad_router_log |bool |ternary(kad_router_log_file, '') }}"
+      METRIC_GW: "{{ kad_router_gw_metric }}"
+      METRIC_VIP: "{{ kad_router_vip_metric }}"
+
+- name: make directory for keepalived service drop-in
+  file:
+    path: /etc/systemd/system/keepalived.service.d
+    state: directory
+  tags: lin_kad_service
+
+- name: cleanup live routes on service stop
+  copy:
+    dest: /etc/systemd/system/keepalived.service.d/clean-routes.conf
+    force: true
+    mode: 0644
+    content: |
+      # cleanup live routes (ansible-managed)
+      [Service]
+      {{ comment }}ExecStopPost=/etc/keepalived/route-stop.sh
+  vars:
+    comment: "{{ kad_router_cleanup |bool |ternary('','#') }}"
+  notify: reload systemd daemon
+  register: _kad_router_systemd_dropin
+  tags: lin_kad_service
+
+- name: allow gratuitous keepalived routes
+  sysctl:
+    name: "net.ipv4.conf.{{ item }}.rp_filter"
+    value: '0'
+    sysctl_file: /etc/sysctl.d/77-liveroutes.conf
+  loop: "{{ [kad_router_vip_device] }}"
+  when: allow_sysctl |bool
+  tags: lin_kad_firewall
+
+- name: fix sysctl file mode
+  file:
+    path: /etc/sysctl.d/77-liveroutes.conf
+    mode: 0644
+  when: allow_sysctl |bool
+  tags: lin_kad_firewall
+...

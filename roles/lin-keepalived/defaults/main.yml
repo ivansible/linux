@@ -12,6 +12,7 @@ kad_vrrp_password: ~
 kad_routes: []
 
 kad_router_enable: false
+kad_router_cleanup: true
 kad_router_use_ip4: true
 kad_router_use_ip6: true
 

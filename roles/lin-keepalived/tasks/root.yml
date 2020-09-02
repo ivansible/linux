@@ -5,6 +5,7 @@
     filename: keepalived
     mode: 0644
   when: kad_install_from_ppa |bool
+  tags: lin_kad_install
 
 - name: install keepalived packages
   block:
@@ -20,12 +21,14 @@
       register: _keepalived_apt_result
   vars:
     packages: keepalived,fping
+  tags: lin_kad_install
 
 - name: directory for keepalived config and scripts
   file:
     path: /etc/keepalived
     state: directory
     mode: 0755
+  tags: lin_kad_install
 
 - name: initialize keepalived config
   template:
@@ -34,6 +37,7 @@
     force: "{{ _keepalived_apt_result is changed or kad_reset |bool }}"
     mode: 0644
   notify: restart keepalived service
+  tags: lin_kad_config
 
 - name: add user config to keepalived
   blockinfile:
@@ -41,58 +45,20 @@
     block: "{{ kad_user_config }}"
     marker: '# {mark} USER CONFIG'
   notify: restart keepalived service
+  tags: lin_kad_config
 
-- name: add dynamic routes to keepalived
-  blockinfile:
-    path: /etc/keepalived/keepalived.conf
-    block: "{{ lookup('template', 'route.conf') if enabled else '# disabled' }}"
-    marker: "# {mark} ROUTE {{ name }}"
-  notify: restart keepalived service
+- name: setup dynamic routes
+  import_tasks: routes.yml
   when: kad_router_enable |bool
-  loop: "{{ kad_routes }}"
-  loop_control:
-    label: "{{ name }}"
-  vars:
-    name: "{{ item.name }}"
-    device: "{{ kad_router_vip_device }}"
-    metric: "{{ kad_router_vip_metric }}"
-
-    beacons: "{{ [item.beacons] |flatten |join(',') }}"
-    _targets: "{{ [item.targets] |flatten }}"
-    targets4: "{{ _targets |ternary(_targets |ipv4, []) |join(',') |d('-',true) }}"
-    targets6: "{{ _targets |ternary(_targets |ipv6, []) |join(',') |d('-',true) }}"
-
-    vip4: "{{ item.vip_addr4 |d('') }}"
-    vip6: "{{ item.vip_addr6 |d('') }}"
-    rid4: "{{ item.router_id4 |d(0) |int }}"
-    rid6: "{{ item.router_id6 |d(0) |int }}"
-
-    use4: "{{ vip4 and rid4 and targets4 != '-' and kad_router_use_ip4 |bool }}"
-    use6: "{{ vip6 and rid6 and targets6 != '-' and kad_router_use_ip6 |bool }}"
-    enabled: "{{ beacons and (use4 or use6) }}"
-
-    random_seed: "{{ '%s@%s' |format(name, inventory_hostname) }}"
-    random_ping_max: "{{ kad_ping_randomize |int + 1 }}"
-    random_ping: "{{ random_ping_max |int |random(0, seed=random_seed) }}"
-
-- name: make helper scripts for dynamic routes
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/keepalived/{{ item }}"
-    force: true
-    mode: 0755
-  loop:
-    - route-ping.sh
-    - route-ctl.sh
-  when: kad_router_enable |bool
-  notify: restart keepalived service
+  tags: lin_kad_routes
 
 - name: activate keepalived service
   systemd:
     name: keepalived
     state: started
     enabled: true
-    daemon_reload: true
+    daemon_reload: "{{ _kad_router_systemd_dropin |d({}) is changed }}"
+  tags: lin_kad_service
 
 - name: allow vrrp traffic in ferm
   ferm_rule:
@@ -104,31 +70,8 @@
         chain $INPUT  proto vrrp  jump FERM-HOSTS-EXTERNAL;
         chain FERM-HOSTS-INTERNAL  proto vrrp  ACCEPT;
       }
-  tags: skip_ansible_lint
   when: lin_firewall == 'ferm'
-
-- name: allow gratuitous keepalived routes
-  sysctl:
-    name: "net.ipv4.conf.{{ item }}.rp_filter"
-    value: '0'
-    sysctl_file: /etc/sysctl.d/77-liveroutes.conf
-  loop: "{{ [kad_router_vip_device] }}"
-  when: allow_sysctl |bool
-
-- name: fix sysctl file mode
-  file:
-    path: /etc/sysctl.d/77-liveroutes.conf
-    mode: 0644
-  when: allow_sysctl |bool
-
-- name: setup router log
-  lineinfile:
-    path: /etc/default/keepalived
-    regexp: '^ROUTER_LOG='
-    line: "ROUTER_LOG={{ kad_router_log |bool |ternary(kad_router_log_file,'') }}"
-    create: true
-    mode: 0644
-  when: kad_router_enable |bool
+  tags: [skip_ansible_lint, lin_kad_firewall]
 
 - name: configure keepalived logging
   import_tasks: syslog.yml
