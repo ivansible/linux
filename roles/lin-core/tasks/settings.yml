@@ -22,7 +22,7 @@
       LANG={{ lin_core_system_locale }}
       LANGUAGE={{ lin_core_system_locale }}
   changed_when: not lin_core_hide_changes |bool
-  when: lin_core_system_locale != '' # noqa 602
+  when: lin_core_system_locale |d('')
 
 - name: set timezone
   timezone:

@@ -3,14 +3,12 @@
     - name: install core packages (ok to fail once, log hidden)
       apt:
         name: "{{ lin_core_packages_core }}"
-        state: present
-      # failure message is too verbose, silence by default
+      ## reduce verbose failure message
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: update apt cache and install core packages
       apt:
         name: "{{ lin_core_packages_core }}"
-        state: present
         update_cache: true
 
 - name: install system logger
@@ -34,7 +32,7 @@
         state: present
         update_cache: true
 
-# it may be a good idea to restart mitogen runner
-# after installing python apt bindings
-#- meta: reset_connection
+## it may be a good idea to restart mitogen runner
+## after installing python apt bindings
+# - meta: reset_connection
 ...
