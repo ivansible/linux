@@ -20,6 +20,7 @@ lin_restic_mount_dir: /mnt/restic
 lin_restic_job_dirs: []
 
 lin_restic_repository: rclone:{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
+lin_restic_proxy: ~
 
 lin_restic_postgres_port: 5432
 

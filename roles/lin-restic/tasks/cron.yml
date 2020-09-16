@@ -6,6 +6,10 @@
       RESTIC_REPOSITORY={{ lin_restic_repository }}
       RESTIC_PASSWORD={{ lin_restic_password }}
       RCLONE_CONFIG={{ lin_rclone_config }}
+      {% if lin_restic_proxy |d('') %}
+      http_proxy={{ lin_restic_proxy }}
+      https_proxy={{ lin_restic_proxy }}
+      {% endif %}
       {% for key, val in lin_restic_cmd_vars |dictsort %}
       {{ key }}={{ val }}
       {% endfor %}

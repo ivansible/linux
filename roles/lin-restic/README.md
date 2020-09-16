@@ -32,6 +32,9 @@ By default these are unset, and remote should be setup externally.
     lin_restic_password: supersecret
 Name and password of the restic repository.
 
+    lin_restic_proxy: proto://host:port
+Optional proxy, protocol is one of `http`,`https`,`socks`,`socks5`.
+
     lin_restic_cron_time_backup: 2:00
     lin_restic_cron_ordering: false
 Fine-tune restic cron jobs (start daily at specified time).
