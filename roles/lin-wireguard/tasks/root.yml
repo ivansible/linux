@@ -199,5 +199,6 @@
     redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' }}"
     redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' }}"
     public_iface: "{{ lin_wg_public_interface |default('') }}"
+    has_metric: "{{ peer.metric |default('') and peer.device |default('') }}"
   tags: lin_wg_clients
 ...
