@@ -6,11 +6,11 @@
       RESTIC_REPOSITORY={{ lin_restic_repository }}
       RESTIC_PASSWORD={{ lin_restic_password }}
       RCLONE_CONFIG={{ lin_rclone_config }}
-      {% if lin_restic_proxy |d('') %}
-      http_proxy={{ lin_restic_proxy }}
-      https_proxy={{ lin_restic_proxy }}
+      {% if proxy %}
+      http_proxy={{ proxy }}
+      https_proxy={{ proxy }}
       {% endif %}
-      {% for key, val in lin_restic_cmd_vars |dictsort %}
+      {% for key, val in cmd_vars %}
       {{ key }}={{ val }}
       {% endfor %}
     marker: '# RESTIC {mark}'
@@ -18,6 +18,9 @@
     group: rclone
     mode: 0640
     create: true
+  vars:
+    proxy: "{{ lin_restic_proxy |d('',true) }}"
+    cmd_vars: "{{ lin_restic_cmd_vars |dictsort }}"
   no_log: "{{ hide_secrets |bool }}"
 
 
@@ -102,6 +105,8 @@
       --keep-weekly={{ lin_restic_forget_keep_weekly }}
       --keep-monthly={{ lin_restic_forget_keep_monthly }}
       --keep-yearly={{ lin_restic_forget_keep_yearly }}
+    hide_stream_reset_clause: "{{ lin_restic_hide_stream_reset |bool |ternary(_hide_stream_reset_clause, '') }}"
+    _hide_stream_reset_clause: " 2>&1 | grep -v 'finish writing GET request'"
   register: restic_prune_script_result
   notify: reload systemd daemon
 

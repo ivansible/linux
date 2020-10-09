@@ -4,27 +4,57 @@
     name: "{{ lin_restic_packages }}"
     state: present
 
-- name: detect latest restic release
-  github_release:
-    repository: restic
-    release: "{{ lin_restic_version }}"
-    owner: "{{ lin_restic_repo_owner }}"
-    template: '{download_url}/restic_{ver}_linux_amd64.bz2'
-    strip_v: true
-    creates: "{{ lin_restic_binary }}"
-    reinstall: "{{ lin_restic_upgrade |bool }}"
-  register: _restic_release
+- name: install restic binary
+  block:
+    - name: detect latest restic binary release
+      github_release:
+        repository: restic
+        release: "{{ lin_restic_version }}"
+        owner: "{{ lin_restic_repo_owner }}"
+        template: '{download_url}/restic_{ver}_linux_amd64.bz2'
+        strip_v: true
+        version_script: "{{ lin_restic_binary }} version"
+        script_regex: '[0-9][.][0-9.a-z_-]+'
+        reinstall: "{{ lin_restic_upgrade |bool }}"
+      register: _restic_release
 
-- name: download compressed restic binary
-  get_url:
-    url: "{{ _restic_release.url }}"
-    dest: "{{ lin_restic_binary }}.bz2"
-    force: true
-  when: _restic_release is changed
+    - name: download compressed restic binary
+      get_url:
+        url: "{{ _restic_release.url }}"
+        dest: "{{ lin_restic_binary }}.bz2"
+        force: true
+      when: _restic_release is changed
 
-- name: uncompress restic binary
-  command: bunzip2 -f "{{ lin_restic_binary }}.bz2"
-  when: _restic_release is changed
+    - name: uncompress restic binary
+      command: bunzip2 -f "{{ lin_restic_binary }}.bz2"
+      when: _restic_release is changed
+  when: not lin_restic_from_zip |bool
+
+- name: install restic binary from zip archive
+  block:
+    - name: detect latest restic archive release
+      github_release:
+        repository: restic
+        release: "{{ lin_restic_version }}"
+        owner: "{{ lin_restic_repo_owner }}"
+        template: '{download_url}/restic_{ver}_linux_amd64.zip'
+        strip_v: true
+        version_script: "{{ lin_restic_binary }} version"
+        script_regex: '[0-9][.][0-9.a-zA-Z_-]+'
+        reinstall: "{{ lin_restic_upgrade |bool }}"
+      register: _restic_release
+
+    - name: download and install restic zip archive
+      unarchive:
+        remote_src: true
+        src: "{{ _restic_release.url }}"
+        dest: "{{ lin_restic_binary |dirname }}"
+        exclude:
+          - CHANGELOG.md
+          - LICENSE
+          - README.rst
+      when: _restic_release is changed
+  when: lin_restic_from_zip |bool
 
 - name: ensure permissions of restic binary
   file:
@@ -44,7 +74,7 @@
   ignore_errors: "{{ ansible_check_mode |bool }}"
   ## workaround for buggy setcap, which is always "changed"
   when: _restic_release is changed
-        or _restic_binary_mode is changed
+     or _restic_binary_mode is changed
 
 - name: generate restic bash completion
   command: >

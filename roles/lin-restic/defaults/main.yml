@@ -4,6 +4,7 @@
 lin_restic_version: latest
 lin_restic_upgrade: false
 lin_restic_repo_owner: restic
+lin_restic_from_zip: false
 lin_restic_binary: /usr/bin/restic
 
 lin_restic_authorized_keys: "{{ lin_ssh_keys_files }}"
@@ -28,6 +29,7 @@ lin_restic_cron_time_backup: '2:00'
 lin_restic_cron_time_prune: '5:00'
 lin_restic_cron_ordering: true
 lin_restic_cron_verbose: 0
+lin_restic_hide_stream_reset: false
 
 lin_restic_prune_pre_command: ~
 lin_restic_prune_post_command: ~

@@ -10,9 +10,7 @@ echo '== unlock =='
 echo '== check =='
 {{ lin_restic_binary }} check
 echo '== forget =='
-{{ lin_restic_binary }} forget {{ verb_opts }}--group-by=host,paths,tags {{ forget_opts }}
-echo '== prune =='
-{{ lin_restic_binary }} prune 2>&1 | grep -v 'finish writing GET request'
+{{ lin_restic_binary }} forget {{ verb_opts }}--prune --group-by=host,paths,tags {{ forget_opts }}{{ hide_stream_reset_clause }}
 echo '== cleanup =='
 {{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
 echo '== about =='
