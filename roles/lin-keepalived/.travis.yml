@@ -17,9 +17,12 @@ before_install:
 
 install:
   - pip3 install -U pip setuptools wheel
-  - pip3 install jmespath netaddr boto3 mitogen molecule pytest testinfra
+  - pip3 install jmespath netaddr boto3 pytest testinfra
   - pip3 install "docker<4"  # client api<1.38 on travis xenial
-  # also pulled: ansible-lint yamllint flake8
+  - pip3 install "ansible<2.10"  # postpone 2.10
+  - pip3 install mitogen
+  - pip3 install "molecule[docker]"  # docker driver is split since 3.1
+  - pip3 install ansible-lint yamllint flake8
 
 matrix:
   include:
