@@ -1,7 +1,6 @@
 # ivansible.lin_ssh
 
-[![Github Test Status](https://github.com/ivansible/lin-ssh/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-ssh/actions)
-[![Travis Test Status](https://travis-ci.org/ivansible/lin-ssh.svg?branch=master)](https://travis-ci.org/ivansible/lin-ssh)
+[![Github Test Status](https://github.com/ivansible/lin-ssh/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-ssh/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__ssh-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_ssh/)
 
 This role will perform additional ssh configuration: harden permissions,
@@ -86,4 +85,4 @@ MIT
 
 ## Author Information
 
-Created in 2019-2020 by [IvanSible](https://github.com/ivansible)
+Created in 2019-2021 by [IvanSible](https://github.com/ivansible)

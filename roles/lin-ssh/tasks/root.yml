@@ -90,7 +90,7 @@
     path: /etc/ssh/sshd_config
     block: |
       Match User {{ superusers }}
-      {% for key, val in lin_ssh_superuser_settings |dictsort if val != '' %}
+      {% for key, val in lin_ssh_superuser_settings |dictsort if val |d('') %}
           {{ key }} {{ val }}
       {% endfor %}
     marker: "# {mark} SUPERUSER"
