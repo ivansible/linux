@@ -74,7 +74,7 @@
 - name: set global sshd settings
   lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: '^#*\s*{{ item.0 }}\b'
+    regexp: '^(#+\s*|#*){{ item.0 }}\b'
     line: '{{ item.0 }} {{ item.1 }}'
     backrefs: false
     insertbefore: '^Match|^Subsystem|^# *BEGIN'
