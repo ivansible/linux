@@ -1,33 +1,5 @@
 ---
-- block:
-    - name: add wireguard signing key
-      apt_key:
-        keyserver: keyserver.ubuntu.com
-        id: "{{ key_id }}"
-  rescue:
-    - name: add wireguard signing key (ip6-only hosts)
-      apt_key:
-        keyserver: p80.pool.sks-keyservers.net
-        id: "{{ key_id }}"
-  vars:
-    key_id: E1B39B6EF6DDB96564797591AE33835F504A1A25
-  tags: lin_wg_install
-
-- name: add wireguard ppa repository
-  apt_repository:
-    repo: "deb [arch=amd64] http://ppa.launchpad.net/{{ ppa }}/ubuntu {{ codename }} main"
-    ## if lsb_release executable is not installed on target,
-    ## the python aptsource module defaults to the codename "sid"
-    ## and fails. as a workaround, set codename here explicitly.
-    filename: wireguard
-    mode: 0644
-    update_cache: true
-  vars:
-    ppa: wireguard/wireguard
-    codename: "{{ ansible_lsb.codename }}"
-  tags: lin_wg_install
-
-- name: install wireguard from ppa
+- name: install wireguard from universe
   apt:
     name: wireguard
   tags: lin_wg_install
