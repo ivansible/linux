@@ -43,5 +43,7 @@
         mode: 0644
         force: "{{ docker_upgrade |bool }}"
   ## end of block
-  when: docker_bash_completion_extras |bool
+  when:
+    - docker_bash_completion_extras |bool
+    - not ansible_check_mode  # avoid false change result from get_url
 ...

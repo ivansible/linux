@@ -25,12 +25,14 @@
     url: https://raw.githubusercontent.com/docker/machine/master/contrib/completion/bash/{{ item }}.bash
     dest: /etc/bash_completion.d/{{ item }}
     mode: 0644
-    force: "{{ docker_upgrade | bool }}"
+    force: "{{ docker_upgrade |bool }}"
   loop:
     - docker-machine
     - docker-machine-prompt
     - docker-machine-wrapper
   ## stuff of low importance, so ok to fail
   ignore_errors: true
-  when: docker_bash_completion_extras |bool
+  when:
+    - docker_bash_completion_extras |bool
+    - not ansible_check_mode  # avoid false change result from get_url
 ...
