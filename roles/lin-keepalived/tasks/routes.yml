@@ -89,6 +89,8 @@
     name: "net.ipv4.conf.{{ item }}.rp_filter"
     value: '0'
     sysctl_file: /etc/sysctl.d/77-liveroutes.conf
+  register: _kad_gratuitous_sysctl
+  until: _kad_gratuitous_sysctl is successful
   loop: "{{ [kad_router_vip_device] }}"
   when: allow_sysctl |bool
   tags: lin_kad_firewall
