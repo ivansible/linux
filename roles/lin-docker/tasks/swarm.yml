@@ -68,6 +68,7 @@
   shell:
     cmd:
       yes| docker network remove ingress >/dev/null &&
+      sleep 2 &&
       docker network create {{ arg_ingress }} {{ arg_subnet4 }}{{ arg_encrypt }} ingress
   when:
     - _ingress_info is not skipped
