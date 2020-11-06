@@ -12,8 +12,12 @@ targets=${5:-}
 device=${6:-}
 metric=${7:-}
 
+targets=${targets%-}
+targets=${targets//,/ }
+
 [ "$state" = up ] && cmd=del || cmd=add
-for tip in ${targets//,/ }; do
+
+for tip in $targets; do
     ip "$proto" route "$cmd" "$tip" via "$vip" metric "$metric"
 done
 

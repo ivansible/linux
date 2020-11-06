@@ -28,7 +28,7 @@ done
 retval=1
 # shellcheck disable=SC2086
 leader=$(fping -a -r1 $beacons | head -1)
-if [ -n "$leader" ]; then
+if [[ $leader ]]; then
     retval=0
     dev=${devices[$leader]}
     [[ $ROUTER_LOG ]] && echo "$(date) radd $name $dev $metric" >> "$ROUTER_LOG"
