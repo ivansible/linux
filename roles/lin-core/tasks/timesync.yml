@@ -13,6 +13,13 @@
   ## fails on ubuntu 20.04 'focal' with "Failed to set ntp: NTP not supported"
   when: lin_systemd_ntp |bool
 
+- name: point ntpd to our time server
+  lineinfile:
+    path: /etc/ntp.conf
+    line: "pool {{ lin_core_time_server }}"
+    insertafter: "^pool "
+  when: lin_systemd_ntp |bool
+
 - name: activate ntp daemon
   systemd:
     name: ntp
