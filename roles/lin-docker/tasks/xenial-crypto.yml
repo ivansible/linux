@@ -9,7 +9,7 @@
 
 - name: fix broken ansible to python{{ ver }}-openssl bindings on xenial
   block:
-    - name: verify validity of python{{ ver }}-openssl packages
+    - name: verify validity of python{{ ver }}-openssl packages (ok to fail, will rescue)
       command: "python{{ ver }} -c 'from OpenSSL import SSL'"
       changed_when: false
       ## minimize long error message
@@ -27,5 +27,6 @@
     ## https://stackoverflow.com/questions/45188413/python-pip-install-is-failing-with-attributeerror-module-object-has-no-att
     - name: upgrade python{{ ver }}-openssl python package
       ## easy_install is part of python-setuptools
-      command: python{{ ver }} -m easy_install --upgrade pyOpenSSL
+      ## mitigate pyOpenSSL 20.0+ failure to install on xenial
+      command: python{{ ver }} -m easy_install --upgrade "pyOpenSSL<20"
 ...
