@@ -75,6 +75,7 @@
     dest: /etc/cron.daily/docker-gc
     content: |
       #!/bin/sh
+      {{ comment }}export HOME=/root
       {{ comment }}docker system prune --force --all |grep -v 'reclaimed space: 0B' ||:
     mode: 0755
     force: true
