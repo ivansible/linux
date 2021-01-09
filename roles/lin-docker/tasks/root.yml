@@ -70,6 +70,31 @@
   tags: lin_docker_swarm
 
 
+- name: fix race between dockerd and udevd for gwbridge
+  ## https://github.com/systemd/systemd/issues/3374#issuecomment-452718898
+  ## dockerd creates the bridge and then sets it address, this races
+  ## with udev and results in the following message in system log:
+  ## "udevd: could not generate persistent MAC address"
+  ## the fix prevents systemd (udevd or networkd) from tinkering
+  ## with MAC of virtual network devices, namely docker gwbridge
+  copy:
+    dest: /etc/systemd/network/99-default.link
+    content: |
+      # prevent error "could not generate persistent MAC address"
+      # due to race between dockerd and udevd for gwbridge
+
+      [Match]
+      Path=/devices/virtual/net/*
+
+      [Link]
+      NamePolicy=kernel database onboard slot path
+      MACAddressPolicy=none
+    mode: 0644
+  notify: reload systemd daemon
+  when: ansible_lsb.release is version('20.04','<')
+  tags: lin_docker_gwbridge
+
+
 - name: enable daily docker garbage collector
   copy:
     dest: /etc/cron.daily/docker-gc
