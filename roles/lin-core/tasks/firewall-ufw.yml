@@ -15,8 +15,9 @@
         port: '22'
         delete: true
       no_log: "{{ hide_secrets |bool }}"
-  when: lin_use_ssh |bool
-        and real_ssh_port |int != 22
+  when:
+    - lin_use_ssh |bool
+    - real_ssh_port |int != 22
   tags: lin_core_ssh
 
 - name: open actual ssh port in ufw

@@ -23,6 +23,10 @@ lin_core_swap_enable: false
 lin_core_swap_mb: 0
 lin_core_swap_file: /swapfile
 
+# https://askubuntu.com/questions/1357/how-to-empty-swap-if-there-is-free-ram
+lin_core_vm_swappiness: 10
+lin_core_vm_cache_presure: 50
+
 lin_core_apt_disable_32bit: false
 lin_core_apt_fast_mirrors: false
 

@@ -33,14 +33,16 @@
 
 - name: adjust kernel parameters
   import_tasks: kernel.yml
+  when: allow_sysctl |bool
   tags:
     - lin_core_sysctl
     - lin_core_kernel
 
 - name: setup swap space
   import_tasks: swap.yml
-  when: lin_core_swap_enable |bool
-        and lin_core_swap_mb |int > 0
+  when:
+    - lin_core_swap_enable |bool
+    - lin_core_swap_mb |int > 0
   tags: lin_core_swap
 
 

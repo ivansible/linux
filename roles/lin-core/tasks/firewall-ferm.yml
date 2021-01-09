@@ -30,8 +30,9 @@
         port: 22
         state: absent
       tags: skip_ansible_lint
-  when: lin_use_ssh |bool
-        and real_ssh_port |int != 22
+  when:
+    - lin_use_ssh |bool
+    - real_ssh_port |int != 22
   tags: lin_core_ssh
 
 - name: test connection
