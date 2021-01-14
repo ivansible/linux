@@ -35,6 +35,7 @@
   tags:
     - skip_ansible_lint
     - lin_ferm_hosts
+    - lin_ferm_hosts_extras
 
 - name: block hosts in ferm
   ferm_host:
@@ -48,4 +49,5 @@
   tags:
     - skip_ansible_lint
     - lin_ferm_hosts
+    - lin_ferm_hosts_extras
 ...

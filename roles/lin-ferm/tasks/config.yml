@@ -1,5 +1,12 @@
 ---
-- name: directories for ferm rules
+- name: remove obsolete directories for ferm rules
+  file:
+    path: "{{ ferm_dir }}/{{ item }}"
+    state: absent
+  loop: "{{ ferm_rule_hooks }}"
+  register: _ferm_remove_old_dirs
+
+- name: make directories for ferm rules
   file:
     path: "{{ ferm_dir }}/{{ item }}.d"
     state: directory

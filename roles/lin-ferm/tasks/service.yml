@@ -28,9 +28,13 @@
   when: _ufw_status.stdout |d('') is search('Status[:] active')
   register: _ufw_disable
 
-- name: activate ferm (restart if ufw was active)
+- name: activate ferm (restart if ufw was active or old dirs were found)
   systemd:
     name: ferm
-    state: "{{ 'started' if _ufw_disable is skipped else 'restarted' }}"
+    state: "{{ 'restarted' if need_restart else 'started' }}"
     enabled: true
+  vars:
+    ufw_was_active: "{{ _ufw_disable is not skipped }}"
+    old_dirs_found: "{{ _ferm_remove_old_dirs is changed }}"
+    need_restart: "{{ ufw_was_active or old_dirs_found }}"
 ...
