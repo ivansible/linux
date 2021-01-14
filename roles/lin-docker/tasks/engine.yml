@@ -1,12 +1,21 @@
 ---
 - name: install docker helpers
-  apt:
-    name:
+  block:
+    - name: install docker helpers (rescue if it fails)
+      apt:
+        name: "{{ helpers }}"
+  rescue:
+    - name: install docker helpers (update cache)
+      apt:
+        name: "{{ helpers }}"
+        update_cache: true
+  vars:
+    helpers:
       ## note: jq helps to parse docker output
       - jq
       - pigz
       - bash-completion
-      - criu
+      # - criu  # criu install failed on hetzner-heron
 
 - name: install extra docker tools
   apt:
