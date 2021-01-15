@@ -1,8 +1,38 @@
 ---
 - name: verify
   hosts: all
+  become: true
   tasks:
-    - name: nothing to test
+    - name: vars
+      include_vars: vars.yml
+
+    - name: verify that repository was created
+      file:
+        path: "{{ restic_repo_dir }}/config"
+        state: file
+
+    - name: run backup
+      # noqa 301
+      command: /etc/systemd/system/restic-backup.sh
+      environment: "{{ restic_test_env }}"
+
+    - name: run prune
+      # noqa 301
+      command: /etc/systemd/system/restic-prune.sh
+      environment: "{{ restic_test_env }}"
+
+    - name: list snapshots
+      # noqa 301
+      command: restic snapshots --path {{ restic_data_path }}
+      environment: "{{ restic_test_env }}"
+      register: snapshot_list
+
+    - name: print snapshot list
       debug:
-        msg: 'tests complete'
+        msg: "{{ snapshot_list.stdout |d('???') }}"
+      when: false
+
+    - name: assert that snapshots were created
+      assert:
+        that: snapshot_list.stdout |d('') is search('[0-9] snapshots')
 ...

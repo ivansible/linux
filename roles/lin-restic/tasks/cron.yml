@@ -59,6 +59,7 @@
       EnvironmentFile=/etc/default/restic
       ExecStart=/etc/systemd/system/restic-backup.sh
     force: true
+    mode: 0644
   register: restic_backup_service_result
   notify: reload systemd daemon
 
@@ -74,6 +75,7 @@
       [Install]
       WantedBy=timers.target
     force: true
+    mode: 0644
   register: restic_backup_timer_result
   notify: reload systemd daemon
 
@@ -127,6 +129,7 @@
       EnvironmentFile=/etc/default/restic
       ExecStart=/etc/systemd/system/restic-prune.sh
     force: true
+    mode: 0644
   register: restic_prune_service_result
   notify: reload systemd daemon
 
@@ -142,6 +145,7 @@
       [Install]
       WantedBy=timers.target
     force: true
+    mode: 0644
   register: restic_prune_timer_result
   notify: reload systemd daemon
   vars:

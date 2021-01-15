@@ -11,6 +11,7 @@
   register: restic_user_result
 
 - name: authorize public keys
+  ## this task requires molecule/default/files
   authorized_key:
     user: restic
     key: "{{ lookup('pipe', keygen_cmd) }}"

@@ -1,5 +1,5 @@
 ---
-# defaults for ivansible.lin_restic
+## defaults for ivansible.lin_restic
 
 lin_restic_version: latest
 lin_restic_upgrade: false
@@ -34,7 +34,7 @@ lin_restic_hide_stream_reset: false
 lin_restic_prune_pre_command: ~
 lin_restic_prune_post_command: ~
 lin_restic_cron_day_prune: Mon
-#lin_restic_cron_day_prune: Mon-Sun
+# lin_restic_cron_day_prune: Mon-Sun
 
 lin_restic_forget_keep_last: 2
 lin_restic_forget_keep_daily: 7
@@ -77,4 +77,5 @@ lin_restic_packages:
   - at
   - rsync
   - expect
+  - libcap2-bin  # for 'capabilities' module
 ...
