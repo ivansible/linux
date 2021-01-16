@@ -135,6 +135,13 @@
   notify: restart yggdrasil service
   tags: lin_ygg_service
 
+- name: remove yggdrasil auto-config service
+  file:
+    path: /etc/systemd/system/yggdrasil-default-config.service
+    state: absent
+  notify: reload systemd daemon
+  tags: lin_ygg_service
+
 - name: enable yggdrasil service
   systemd:
     name: yggdrasil
