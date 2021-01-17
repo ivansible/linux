@@ -18,12 +18,6 @@ provisioner:
   inventory:
     group_vars:
       molecule:
-        linsys_system_locale: en_US.UTF-8
-        lin_use_ssh: ${IVATEST_SSH_SERVER:-true}
-        allow_sysctl: false
-        # these pass on host:
-        linsys_time_sync: true
-        lin_firewall: ${IVATEST_FIREWALL:-ferm}
   playbooks:
     prepare: ../default/prepare.yml
     converge: ../default/converge.yml

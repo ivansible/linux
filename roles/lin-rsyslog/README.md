@@ -1,7 +1,6 @@
 # ivansible.lin_rsyslog
 
-[![Github Test Status](https://github.com/ivansible/lin-rsyslog/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-rsyslog/actions)
-[![Travis Test Status](https://travis-ci.org/ivansible/lin-rsyslog.svg?branch=master)](https://travis-ci.org/ivansible/lin-rsyslog)
+[![Github Test Status](https://github.com/ivansible/lin-rsyslog/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-rsyslog/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__rsyslog-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_rsyslog/)
 
 This role configures rsyslog service so that some chatty subsystems
