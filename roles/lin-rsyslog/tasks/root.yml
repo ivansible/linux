@@ -7,6 +7,15 @@
     state: present
   tags: lin_rsyslog_packages
 
+- name: fix systemd warning "duplicate line for path /var/log"
+  lineinfile:
+    path: /usr/lib/tmpfiles.d/var.conf
+    regex: '^(d /var/log 0755 - - -)$'
+    line: '#\1 # (ansible, see rsyslog)'
+    backrefs: true
+  when: ansible_lsb.release is version('20.04','<')
+  tags: lin_rsyslog_fixes
+
 - name: disable kernel logging in docker
   lineinfile:
     path: /etc/rsyslog.conf
@@ -252,6 +261,7 @@
   file:
     path: /etc/systemd/system/phpsessionclean.timer.d
     state: directory
+    mode: 0755
   when: lin_rsyslog_thin_php_cleaner |bool
   tags: lin_rsyslog_php
 
