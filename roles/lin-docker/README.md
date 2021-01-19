@@ -1,6 +1,6 @@
 # ivansible.lin_docker
 
-[![Github Test Status](https://github.com/ivansible/lin-docker/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-docker/actions)
+[![Github Test Status](https://github.com/ivansible/lin-docker/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-docker/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__docker-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_docker/)
 
 Install
@@ -169,4 +169,4 @@ MIT
 
 ## Author Information
 
-Created in 2018-2020 by [IvanSible](https://github.com/ivansible)
+Created in 2018-2021 by [IvanSible](https://github.com/ivansible)

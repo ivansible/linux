@@ -3,6 +3,7 @@
   file:
     path: /etc/systemd/system/docker.service.d
     state: directory
+    mode: 0755
 
 - name: keep all daemon options in config file only
   copy:
