@@ -9,6 +9,7 @@
     src: sources.list.j2
     dest: /etc/apt/sources.list
     backup: true
+    mode: 0644
   register: apt_switch_mirrors
   when: lin_core_apt_fast_mirrors |bool
 

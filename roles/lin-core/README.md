@@ -1,6 +1,6 @@
 # ivansible.lin_core
 
-[![Github Test Status](https://github.com/ivansible/lin-core/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-core/actions)
+[![Github Test Status](https://github.com/ivansible/lin-core/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-core/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__core-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_core/)
 
 Perform basic configuration of a linux box:
@@ -128,4 +128,4 @@ MIT
 
 ## Author Information
 
-Created in 2018-2020 by [IvanSible](https://github.com/ivansible)
+Created in 2018-2021 by [IvanSible](https://github.com/ivansible)

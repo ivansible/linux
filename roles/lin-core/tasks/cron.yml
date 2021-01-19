@@ -3,6 +3,7 @@
   file:
     path: /etc/systemd/system/cron-{{ item.0 }}.timer.d
     state: directory
+    mode: 0755
 
 - name: adjust systemd calendar for {{ item.0 }} timer
   copy:
@@ -12,5 +13,6 @@
       OnCalendar=
       OnCalendar={{ item.1 }}
     force: true
+    mode: 0644
   notify: reload systemd daemon
 ...
