@@ -22,6 +22,15 @@ platforms:
     pre_build_image: true
     groups:
       - molecule
+  - name: focal
+    image: ivandeex/molecule:20.04
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+    groups:
+      - molecule
 provisioner:
   name: ansible
   inventory:

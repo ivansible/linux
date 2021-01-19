@@ -3,7 +3,9 @@
 
 ferm_install: false
 ferm_mimic_ufw: true
-ferm_extras: true
+
+# don't install extras by default, it fails on focal
+ferm_extras: false
 
 ferm_public_interface: "{{ ansible_default_ipv4.interface
                          | d(ansible_default_ipv6.interface) }}"
