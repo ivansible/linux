@@ -2,6 +2,9 @@
 - name: verify
   hosts: all
   tasks:
+    - name: vars
+      include_vars: vars.yml
+
     - name: nothing to test
       debug:
         msg: 'tests complete'
