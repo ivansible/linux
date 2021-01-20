@@ -4,6 +4,7 @@
   tasks:
     - name: vars
       include_vars: vars.yml
+      tags: always
 
     - name: nothing to test
       debug:

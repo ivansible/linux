@@ -4,4 +4,6 @@
 - name: reload ferm service
   command: systemctl reload-or-restart ferm.service  # noqa 303
   become: true
+  register: _ferm_service_reload
+  until: _ferm_service_reload is successful
 ...
