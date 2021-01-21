@@ -1,5 +1,8 @@
 # ivansible.lin_restic
 
+[![Github Test Status](https://github.com/ivansible/lin-restic/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-restic/actions)
+[![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__restic-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_restic/)
+
 Install restic on linux and setup backup cron jobs.
 
 
@@ -105,7 +108,7 @@ Optional array of records. Each record must contain the following fields:
 
 ## Dependencies
 
-- ivansible.lin_rclone
+- `ivansible.lin_rclone`
 
 
 ## Example Playbook
@@ -131,4 +134,4 @@ MIT
 
 ## Author Information
 
-Created in 2019-2020 by [IvanSible](https://github.com/ivansible)
+Created in 2019-2021 by [IvanSible](https://github.com/ivansible)

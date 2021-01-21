@@ -5,6 +5,7 @@
   tasks:
     - name: vars
       include_vars: vars.yml
+      tags: always
 
     - name: verify that repository was created
       file:
