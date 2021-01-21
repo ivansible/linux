@@ -5,7 +5,4 @@
 - src: https://github.com/ivansible/lin-core
   name: ivansible.lin_core
   scm: git
-- src: https://github.com/ivansible/lin-ferm
-  name: ivansible.lin_ferm
-  scm: git
 ...
