@@ -1,7 +1,6 @@
 # ivansible.srv_openvpn
 
-[![Github Test Status](https://github.com/ivansible/srv-openvpn/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/srv-openvpn/actions)
-[![Travis Test Status](https://travis-ci.org/ivansible/srv-openvpn.svg?branch=master)](https://travis-ci.org/ivansible/srv-openvpn)
+[![Github Test Status](https://github.com/ivansible/srv-openvpn/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/srv-openvpn/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.srv__openvpn-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/srv_openvpn/)
 
 This role will:
@@ -49,4 +48,4 @@ MIT
 
 ## Author Information
 
-Created in 2020 by [IvanSible](https://github.com/ivansible)
+Created in 2020-2021 by [IvanSible](https://github.com/ivansible)

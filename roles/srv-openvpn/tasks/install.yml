@@ -82,6 +82,8 @@
   copy:
     src: openvz-service-template.conf
     dest: /etc/systemd/system/openvpn@.service
+    force: true
+    mode: 0644
   notify: restart openvpn servers
   when: srv_ovpn_openvz_quirks |bool
 ...
