@@ -67,6 +67,7 @@
   file:
     path: /etc/systemd/system/keepalived.service.d
     state: directory
+    mode: 0755
   tags: lin_kad_service
 
 - name: cleanup live routes on service stop

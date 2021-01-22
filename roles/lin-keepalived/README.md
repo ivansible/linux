@@ -1,7 +1,6 @@
 # ivansible.lin_keepalived
 
-[![Github Test Status](https://github.com/ivansible/lin-keepalived/workflows/Molecule%20test/badge.svg?branch=master)](https://github.com/ivansible/lin-keepalived/actions)
-[![Travis Test Status](https://travis-ci.org/ivansible/lin-keepalived.svg?branch=master)](https://travis-ci.org/ivansible/lin-keepalived)
+[![Github Test Status](https://github.com/ivansible/lin-keepalived/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-keepalived/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__keepalived-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_keepalived/)
 
 This role will:
@@ -49,4 +48,4 @@ MIT
 
 ## Author Information
 
-Created in 2020 by [IvanSible](https://github.com/ivansible)
+Created in 2020-2021 by [IvanSible](https://github.com/ivansible)
