@@ -22,13 +22,13 @@
 - block:
     - name: install core development packages (ok to fail once, log hidden)
       apt:
-        name: "{{ lin_core_packages_devel }}"
+        name: "{{ lin_core_packages_devel |select |list }}"
         state: present
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: update apt lists and install core development packages
       apt:
-        name: "{{ lin_core_packages_devel }}"
+        name: "{{ lin_core_packages_devel |select |list }}"
         state: present
         update_cache: true
 
