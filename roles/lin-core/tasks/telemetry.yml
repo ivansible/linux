@@ -10,6 +10,7 @@
     # see https://github.com/ansible/ansible/issues/13981
     # see https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
     unsafe_writes: "{{ ansible_virtualization_type == 'docker' }}"
+  tags: etc_hosts
 
 - name: remove telemetry packages
   apt:

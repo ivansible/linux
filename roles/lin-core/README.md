@@ -91,6 +91,7 @@ Enables rsyslog.
 
 ## Tags
 
+- `etc_hosts` -- modify `/etc/hosts`
 - `lin_core_apt` -- adjust apt settings
 - `lin_core_packages` -- install common software
 - `lin_core_telemetry` -- disable telemetry on bionic
