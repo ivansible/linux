@@ -4,7 +4,8 @@ lin_motd_banner: true
 
 lin_ssh_known_hosts:
   - github.com
-  - gitlab.com
+  ## I'm not using gitlab.com widely a.t.m.
+  # - gitlab.com
 
 lin_ssh_settings:
   ## fix ssh port
