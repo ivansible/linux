@@ -68,7 +68,7 @@
         state: latest
       notify: restart openvpn servers
 
-    - name: install libssl 1.1.1+ from ondrey sury ppa on xenial
+    - name: install libssl 1.1.1+ from ondrej sury ppa on xenial
       ## https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
       apt:
         deb: "{{ item }}"

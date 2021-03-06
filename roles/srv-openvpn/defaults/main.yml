@@ -68,10 +68,10 @@ srv_ovpn_dns_servers:
   - 1.1.1.1
   - 8.8.8.8
 
-srv_ovpn_libssl111_xenial_debs:
-  - "{{ _srv_ovpn_libssl111_ppa_url }}/+files/libssl1.1_1.1.1g-1+ubuntu16.04.1+deb.sury.org+1_amd64.deb"
-  # "{{ _srv_ovpn_libssl111_ppa_url }}/+files/libssl-dev_1.1.1g-1+ubuntu16.04.1+deb.sury.org+1_amd64.deb"
-_srv_ovpn_libssl111_ppa_url: https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
+srv_ovpn_libssl111_xenial_debs: ["{{ _ovpn_ssl111_ppa_deb }}"]
+_ovpn_ssl111_ppa_deb: "{{ _ovpn_ssl111_ppa_url }}/+files/libssl1.1_{{ _ovpn_ssl111_ppa_ver }}_amd64.deb"
+_ovpn_ssl111_ppa_url: https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
+_ovpn_ssl111_ppa_ver: 1.1.1k-1+ubuntu16.04.1+deb.sury.org+0
 
 ## Settings below this line must be synchronized between openvpn roles
 
