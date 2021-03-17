@@ -26,7 +26,8 @@
 
     use4: "{{ vip4 and rid4 and targets4 != '-' and kad_router_use_ip4 |bool }}"
     use6: "{{ vip6 and rid6 and targets6 != '-' and kad_router_use_ip6 |bool }}"
-    enabled: "{{ beacons and (use4 or use6) }}"
+    enabled: "{{ beacons and (use4 or use6) and not disable }}"
+    disable: "{{ item.disable |d(false) |bool }}"
 
     random_seed: "{{ '%s@%s' |format(name, inventory_hostname) }}"
     random_ping_max: "{{ kad_ping_randomize |int + 1 }}"
