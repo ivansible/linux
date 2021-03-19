@@ -1,5 +1,6 @@
 #!/bin/bash
 set -o pipefail
+{% set nice_restic_binary = 'nice ' + lin_restic_binary %}
 {{ lin_restic_binary }} version
 {% if lin_restic_prune_pre_command %}
 echo '== pre-actions =='
@@ -8,15 +9,14 @@ echo '== pre-actions =='
 echo '== unlock =='
 {{ lin_restic_binary }} unlock
 echo '== check =='
-{{ lin_restic_binary }} check
+{{ nice_restic_binary }} check
 echo '== forget =='
-{{ lin_restic_binary }} forget {{ verb_opts }}--prune --group-by=host,paths,tags {{ forget_opts }}{{ hide_stream_reset_clause }}
-echo '== cleanup =='
-{{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
-echo '== about =='
-{{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
+{{ nice_restic_binary }} forget {{ verb_opts }}--prune --group-by=host,paths,tags {{ forget_opts }}{{ hide_stream_reset_clause }}
 echo '== size =='
 {{ lin_rclone_binary }} size {{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}
+echo '== about =='
+{{ lin_rclone_binary }} cleanup {{ lin_restic_rclone_remote }}:
+{{ lin_rclone_binary }} about {{ lin_restic_rclone_remote }}:
 echo '== cache cleanup =='
 {{ lin_restic_binary }} cache --cleanup
 {% if lin_restic_prune_post_command %}
