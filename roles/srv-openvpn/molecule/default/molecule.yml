@@ -37,6 +37,9 @@ provisioner:
     group_vars:
       molecule:
         ansible_user: ansible
+  config_options:
+    defaults:
+      verbosity: 1
   lint:
     name: ansible-lint
 verifier:
