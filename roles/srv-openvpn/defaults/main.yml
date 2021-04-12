@@ -68,7 +68,8 @@ srv_ovpn_dns_servers:
   - 1.1.1.1
   - 8.8.8.8
 
-srv_ovpn_libssl111_xenial_debs: ["{{ _ovpn_ssl111_ppa_deb }}"]
+srv_ovpn_libssl111_xenial_debs: ["{{ _ovpn_ssl111_ppa_deb_backup }}"]
+_ovpn_ssl111_ppa_deb_backup: "https://www.dropbox.com/s/b5vm69ntqc0qmm7/libssl1.1_1.1.1k-1+ubuntu16.04.1+deb.sury.org+0_amd64.deb?dl=1"
 _ovpn_ssl111_ppa_deb: "{{ _ovpn_ssl111_ppa_url }}/+files/libssl1.1_{{ _ovpn_ssl111_ppa_ver }}_amd64.deb"
 _ovpn_ssl111_ppa_url: https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
 _ovpn_ssl111_ppa_ver: 1.1.1k-1+ubuntu16.04.1+deb.sury.org+0
