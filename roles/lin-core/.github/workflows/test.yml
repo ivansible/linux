@@ -60,6 +60,12 @@ jobs:
           sudo -H pip3 install -U pip==20.3.3 setuptools==50.3.2 wheel==0.36.2
           sudo -H pip3 install cryptography==2.9 pyyaml==5.3.1
 
+      - name: fix pip issues on bionic
+        if: ${{ matrix.os == 'ubuntu-18.04' }}
+        run: |
+          # fix "cannot uninstall pexpect, it is a distutils installed project"
+          sudo apt-get remove -qy python3-pexpect
+
       - name: upgrade pip
         if: ${{ matrix.os != 'ubuntu-16.04' }}
         run: |
