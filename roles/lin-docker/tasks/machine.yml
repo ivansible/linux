@@ -31,7 +31,7 @@
     - docker-machine-prompt
     - docker-machine-wrapper
   ## stuff of low importance, so ok to fail
-  ignore_errors: true
+  failed_when: false
   when:
     - docker_bash_completion_extras |bool
     - not ansible_check_mode  # avoid false change result from get_url

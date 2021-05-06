@@ -21,7 +21,7 @@
         name: python{{ ver }}-openssl
         state: latest
         update_cache: true
-      ignore_errors: true
+      failed_when: false
       no_log: "{{ hide_secrets |bool }}"
 
     ## https://stackoverflow.com/questions/45188413/python-pip-install-is-failing-with-attributeerror-module-object-has-no-att
