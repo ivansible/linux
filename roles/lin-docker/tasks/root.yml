@@ -10,21 +10,7 @@
 
 
 - name: install ansible docker bindings
-  apt:
-    name: "{{ lin_use_python2 |bool |ternary(packages_pythons, packages_python3) }}"
-  vars:
-    packages_pythons: python3-docker,python-docker
-    packages_python3: python3-docker
-  tags: lin_docker_ansible
-
-- name: upgrade python sdk for new swarm features
-  pip:
-    name: docker>4
-    executable: "{{ item }}"
-  loop: "{{ lin_use_python2 |bool |ternary(['pip','pip3'], ['pip3']) }}"
-  when:
-    - _swarm_role == 'manager_master'
-    - docker_swarm_overlay_pool4 |d('')
+  import_tasks: ansible-docker.yml
   tags: lin_docker_ansible
 
 

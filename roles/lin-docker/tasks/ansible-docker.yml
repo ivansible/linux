@@ -1,0 +1,23 @@
+---
+- name: install ansible docker bindings
+  apt:
+    name: "{{ lin_use_python2 |bool |ternary(packages_pythons, packages_python3) }}"
+    ## old xenial deb package prevents use of modern pip package
+    state: "{{ xenial |ternary('absent', 'present') }}"
+  vars:
+    xenial: "{{ ansible_lsb.codename == 'xenial' }}"
+    packages_pythons: python3-docker,python-docker
+    packages_python3: python3-docker
+  tags: lin_docker_ansible
+
+- name: upgrade python sdk for new features (e.g. swarm)
+  pip:
+    name: docker>4
+    executable: "{{ item }}"
+  loop: "{{ lin_use_python2 |bool |ternary(['pip','pip3'], ['pip3']) }}"
+  tags: lin_docker_ansible
+  register: _upgrade_python_sdk
+  changed_when:
+    - _upgrade_python_sdk is changed
+    - ansible_lsb.codename != 'xenial'  # mitigate pip bug on xenial
+...
