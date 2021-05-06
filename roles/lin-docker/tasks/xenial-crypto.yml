@@ -6,6 +6,10 @@
     ## only cryptography v2.9 has sane wheels for both python 2 and 3 on xenial
     name: cryptography == 2.9
     executable: "pip{{ ver }}"
+  register: _pip_cryptography
+  changed_when:
+    - _pip_cryptography is changed
+    - ansible_lsb.codename != 'xenial'  # mitigate pip bug on xenial
 
 - name: fix broken ansible to python{{ ver }}-openssl bindings on xenial
   block:
