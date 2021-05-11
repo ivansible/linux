@@ -44,7 +44,7 @@
     name: ferm
     state: stopped
     enabled: false
-  ignore_errors: true
+  failed_when: false
 
 - name: activate ufw firewall
   ufw:

@@ -33,7 +33,7 @@
   ## so we don't have to stop/start ntp service
   command: ntpdate -t 10 -u "{{ lin_core_time_server }}"
   changed_when: not lin_core_hide_changes |bool
-  ignore_errors: true
+  failed_when: false
   when: lin_core_resync |bool
   tags: lin_core_resync
 ...
