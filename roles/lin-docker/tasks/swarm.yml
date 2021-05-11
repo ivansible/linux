@@ -107,6 +107,8 @@
       hostname: "{{ inventory_hostname }}"
       memsize: "{{ 'normal' if ansible_memtotal_mb > docker_swarm_ram_threshold_mb else 'small' }}"
   delegate_to: "{{ _swarm_master }}"
+  register: _configure_swarm_node
+  until: _configure_swarm_node is not failed  # until swarm status propagates
   when:
     - _swarm_role != 'none'
     - _swarm_master != 'none'
