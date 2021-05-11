@@ -29,9 +29,10 @@
 
 
 - name: login target user into docker hub
-  when: is_permitted |default(false) |bool
-        and docker_hub_username |default('',true)
-        and docker_hub_password |default('',true)
+  when:
+    - is_permitted |default(false) |bool
+    - docker_hub_username |default('',true)
+    - docker_hub_password |default('',true)
   block:
     - name: attempt to login into docker hub as user (will rescue if it fails)
       command:
