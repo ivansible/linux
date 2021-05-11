@@ -67,6 +67,7 @@ lin_core_packages_core:
   - ufw
   - rsync
   # utilities
+  - "{{ 'gpg' if ansible_lsb.codename != 'xenial' else 'gnupg' }}"
   - at
   - git
   - vim
