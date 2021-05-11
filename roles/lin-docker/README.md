@@ -32,12 +32,9 @@ Enables nightly docker garbage collector. Can be `true` or `false`. By default, 
 Garbage collector setup will be skipped if this setting is `none`.
 
     docker_from_docker_io: true
-    docker_focal_fix: true
 If true (the default), install `docker engine` from the docker.io
 repository and install `docker compose` from github.
 If false, install docker engine and compose from native ubuntu repository.
-As of May 2020, docker.io repository lacks a branch for `focal`,
-and codename `eoan` is used as a temporary workaround.
 
     docker_compose_github_enable: depends on docker_from_docker_io
     docker_compose_release: latest

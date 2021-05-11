@@ -42,9 +42,7 @@
   until: add_docker_repo_result is successful
   when: docker_from_docker_io |bool
   vars:
-    ## workaround for docker repo not yet ready on focal
-    codename: "{{ 'eoan' if _codename == 'focal' and docker_focal_fix |bool else _codename }}"
-    _codename: "{{ ansible_lsb.codename }}"
+    codename: "{{ ansible_lsb.codename }}"
 
 - block:
     - name: install docker and friends

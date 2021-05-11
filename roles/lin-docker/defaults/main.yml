@@ -4,12 +4,10 @@
 is_permitted: false
 docker_permit_user: false
 
-docker_from_docker_io: "{{ ansible_lsb.release is version('20.04','<') or docker_focal_fix |bool }}"
-docker_focal_fix: true
-
 docker_upgrade: false
 docker_reset: false
 docker_extras: false
+docker_from_docker_io: true
 ## bash completion scripts for docker-compose and docker-machine
 docker_bash_completion_extras: false
 
