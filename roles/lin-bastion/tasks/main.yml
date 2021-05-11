@@ -1,9 +1,10 @@
 ---
-- name: refresh target facts before doing forwards
+- name: refresh target facts before doing forwards (may fail with mitogen)
   setup:
   delegate_to: "{{ lin_bastion_target }}"
   delegate_facts: true
   run_once: true
+  failed_when: false
   when: lin_bastion_target is defined
   tags:
     - lin_bastion_forwards
