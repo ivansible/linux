@@ -69,11 +69,14 @@ jobs:
       - name: upgrade pip
         if: ${{ matrix.os != 'ubuntu-16.04' }}
         run: |
-          sudo apt-get remove -q -y python3-yaml
+          # upgrade pip, remove incompatible pyYAML
+          sudo apt-get remove -qy python3-yaml
           sudo -H pip3 install -U pip setuptools wheel
 
       - name: install requisites
         run: |
+          # remove incompatible ansible preinstalled on github
+          sudo rm -f /opt/pipx_bin/ansible*
           # postpone ansible 2.10 and molecule 3.2
           sudo -H pip3 install ansible==2.9.21 mitogen==0.2.9
           sudo -H pip3 install "molecule[docker]<3.2"
