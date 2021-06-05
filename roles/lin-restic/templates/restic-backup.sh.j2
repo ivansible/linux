@@ -2,8 +2,7 @@
 set -o pipefail
 {{ lin_restic_binary }} version
 {% for job in lin_restic_jobs %}
-{%   set pg_tag = 'pg_' + job.database if job.database is defined else '' %}
-{%   set auto_tags = [job.name, job.type, inventory_hostname, pg_tag] %}
+{%   set auto_tags = [job.name, inventory_hostname] %}
 {%   set augment_tags = auto_tags + job.tags |default([]) %}
 {%   set tag_opts = augment_tags |select |map('regex_replace', '^', '--tag=') |list %}
 {%   set exclude_opts = job.excludes |default([]) |select |map('regex_replace', '^', '-e ') |list %}
