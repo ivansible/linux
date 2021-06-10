@@ -8,6 +8,7 @@ docker_upgrade: false
 docker_reset: false
 docker_extras: false
 docker_from_docker_io: true
+docker_use_rsyslog: "{{ lin_use_rsyslog |bool }}"
 ## bash completion scripts for docker-compose and docker-machine
 docker_bash_completion_extras: false
 

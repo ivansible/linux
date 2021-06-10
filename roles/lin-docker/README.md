@@ -133,6 +133,7 @@ By default watchtower runs every midnight.
 
 - `lin_docker_engine`  -- install docker engine
 - `lin_docker_daemon`  -- configure docker daemon
+- `lin_docker_syslog`  -- setup syslog logging
 - `lin_docker_gwbridge`  -- configure gwbridge network
 - `lin_docker_ansible` -- install ansible docker bindings
 - `lin_docker_compose` -- install docker-compose

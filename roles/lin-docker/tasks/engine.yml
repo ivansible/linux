@@ -93,6 +93,11 @@
   import_tasks: daemon.yml
   tags: lin_docker_daemon
 
+- name: configure docker engine logging
+  import_tasks: syslog.yml
+  when: docker_use_rsyslog |bool
+  tags: lin_docker_syslog
+
 - name: enable docker service
   systemd:
     name: docker

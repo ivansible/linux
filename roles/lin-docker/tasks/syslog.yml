@@ -1,0 +1,40 @@
+---
+- name: configure syslog for docker engine
+  copy:
+    dest: /etc/rsyslog.d/34-docker.conf
+    content: |
+      :programname,isequal,"dockerd" /var/log/docker.log
+      & stop
+      :programname,isequal,"containerd" /var/log/docker.log
+      & stop
+      :programname,isequal,"systemd-udevd" /var/log/docker.log
+      & stop
+      :msg,ereregex,".*(veth[0-9]|[( ]veth|br[01]|vxlan[01]|docker_gwbridge).*" /var/log/docker.log
+      & stop
+    force: true
+    mode: 0644
+  notify: restart syslog service
+
+- name: rotate docker log file
+  copy:
+    dest: /etc/logrotate.d/docker
+    content: |
+      /var/log/docker.log {
+          weekly
+          maxsize 1M
+          missingok
+          rotate 4
+          notifempty
+          {{ commentout }}compress
+          {{ commentout }}delaycompress
+          sharedscripts
+          postrotate
+              invoke-rc.d rsyslog rotate > /dev/null 2> /dev/null
+          endscript
+      }
+    force: true
+    mode: 0644
+  vars:
+    commentout: "{{ compress |ternary('','#') }}"
+    compress: "{{ lin_compress_logs |bool or lin_compress_logs is none }}"
+...
