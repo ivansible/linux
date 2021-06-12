@@ -1,0 +1,7 @@
+# ansible-managed
+[Unit]
+Description=Restic backup
+[Timer]
+OnCalendar={{ lin_restic_cron_time_backup }}
+[Install]
+WantedBy=timers.target

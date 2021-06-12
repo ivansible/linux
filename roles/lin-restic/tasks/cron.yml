@@ -1,18 +1,8 @@
 ---
 - name: restic environment variables for cron
   blockinfile:
-    dest: /etc/default/restic
-    content: |
-      RESTIC_REPOSITORY={{ lin_restic_repository }}
-      RESTIC_PASSWORD={{ lin_restic_password }}
-      RCLONE_CONFIG={{ lin_rclone_config }}
-      {% if proxy %}
-      http_proxy={{ proxy }}
-      https_proxy={{ proxy }}
-      {% endif %}
-      {% for key, val in cmd_vars %}
-      {{ key }}={{ val }}
-      {% endfor %}
+    path: /etc/default/restic
+    block: "{{ lookup('template', 'defaults.j2') }}"
     marker: '# RESTIC {mark}'
     owner: root
     group: rclone
@@ -46,35 +36,17 @@
   notify: reload systemd daemon
 
 - name: setup restic backup service
-  copy:
+  template:
+    src: restic-backup.service.j2
     dest: /etc/systemd/system/restic-backup.service
-    content: |
-      # ansible-managed
-      [Unit]
-      Description=Restic backup
-      [Service]
-      Type=oneshot
-      User=restic
-      Group=rclone
-      EnvironmentFile=/etc/default/restic
-      ExecStart=/etc/systemd/system/restic-backup.sh
-    force: true
     mode: 0644
   register: restic_backup_service_result
   notify: reload systemd daemon
 
 - name: configure restic backup timer
-  copy:
+  template:
+    src: restic-backup.timer.j2
     dest: /etc/systemd/system/restic-backup.timer
-    content: |
-      # ansible-managed
-      [Unit]
-      Description=Restic backup
-      [Timer]
-      OnCalendar={{ lin_restic_cron_time_backup }}
-      [Install]
-      WantedBy=timers.target
-    force: true
     mode: 0644
   register: restic_backup_timer_result
   notify: reload systemd daemon
@@ -113,38 +85,17 @@
   notify: reload systemd daemon
 
 - name: setup restic weekly prune service
-  copy:
+  template:
+    src: restic-prune.service.j2
     dest: /etc/systemd/system/restic-prune.service
-    content: |
-      # ansible-managed
-      [Unit]
-      Description=Restic prune
-      {% if lin_restic_cron_ordering |bool %}
-      After=restic-backup.service
-      {% endif %}
-      [Service]
-      Type=oneshot
-      User=restic
-      Group=rclone
-      EnvironmentFile=/etc/default/restic
-      ExecStart=/etc/systemd/system/restic-prune.sh
-    force: true
     mode: 0644
   register: restic_prune_service_result
   notify: reload systemd daemon
 
 - name: configure restic weekly prune timer
-  copy:
+  template:
+    src: restic-prune.timer.j2
     dest: /etc/systemd/system/restic-prune.timer
-    content: |
-      # ansible-managed
-      [Unit]
-      Description=Restic prune
-      [Timer]
-      OnCalendar={{ day }} {{ time }}
-      [Install]
-      WantedBy=timers.target
-    force: true
     mode: 0644
   register: restic_prune_timer_result
   notify: reload systemd daemon

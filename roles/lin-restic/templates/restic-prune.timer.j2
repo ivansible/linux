@@ -1,0 +1,7 @@
+# ansible-managed
+[Unit]
+Description=Restic prune
+[Timer]
+OnCalendar={{ day }} {{ time }}
+[Install]
+WantedBy=timers.target

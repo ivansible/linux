@@ -1,0 +1,12 @@
+# ansible-managed
+[Unit]
+Description=Restic prune
+{% if lin_restic_cron_ordering |bool %}
+After=restic-backup.service
+{% endif %}
+[Service]
+Type=oneshot
+User=restic
+Group=rclone
+EnvironmentFile=/etc/default/restic
+ExecStart=/etc/systemd/system/restic-prune.sh

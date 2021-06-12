@@ -1,0 +1,10 @@
+RESTIC_REPOSITORY={{ lin_restic_repository }}
+RESTIC_PASSWORD={{ lin_restic_password }}
+RCLONE_CONFIG={{ lin_rclone_config }}
+{% if proxy %}
+http_proxy={{ proxy }}
+https_proxy={{ proxy }}
+{% endif %}
+{% for key, val in cmd_vars %}
+{{ key }}={{ val }}
+{% endfor %}

@@ -1,0 +1,9 @@
+# ansible-managed
+[Unit]
+Description=Restic backup
+[Service]
+Type=oneshot
+User=restic
+Group=rclone
+EnvironmentFile=/etc/default/restic
+ExecStart=/etc/systemd/system/restic-backup.sh
