@@ -71,7 +71,7 @@
     path: "{{ lin_restic_binary }}"
     capability: cap_dac_read_search=+ep
     state: present
-  ignore_errors: "{{ ansible_check_mode |bool }}"
+  failed_when: not ansible_check_mode
   ## workaround for buggy setcap, which is always "changed"
   when: _restic_release is changed
      or _restic_binary_mode is changed
