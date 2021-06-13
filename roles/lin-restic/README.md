@@ -103,6 +103,7 @@ Optional array of records. Each record must contain the following fields:
 - `lin_restic_rclone` -- setup rclone remote
 - `lin_restic_repo` -- setup restic repository
 - `lin_restic_cron` -- activate restic cron jobs
+- `lin_restic_mount` -- setup restic mount
 - `lin_restic_all` -- all actions
 
 

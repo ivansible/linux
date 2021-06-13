@@ -1,0 +1,20 @@
+#!/bin/bash
+#set -x
+
+mountpoint="${2%%/}"
+shift 2
+while getopts :o: opts; do
+    [[ $opts = o ]] || continue
+    for opt in ${OPTARG//,/ }; do
+        case "$opt" in
+          service=*)
+	    systemctl start --no-block "${opt#*=}"
+	    ;;
+        esac
+    done
+done
+
+for _ in {1..30}; do
+    grep -Eq "[a-z] ${mountpoint} fuse[.a-z]* " /proc/mounts && break
+    sleep 1
+done

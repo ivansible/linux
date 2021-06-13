@@ -7,16 +7,6 @@
   import_tasks: user.yml
   tags: lin_restic_user
 
-- name: create directory for restic mounts
-  file:
-    path: "{{ lin_restic_mount_dir }}"
-    state: directory
-    owner: root
-    group: rclone
-    mode: 0750
-  when: lin_restic_mount_dir |default('')
-  tags: lin_restic_rclone
-
 - name: setup rclone remote for restic
   include_role:
     name: ivansible.lin_rclone
@@ -52,6 +42,11 @@
     RCLONE_CONFIG: "{{ lin_rclone_config }}"
   when: restic_repo_check is changed
   tags: lin_restic_repo
+
+- name: setup restic mount
+  import_tasks: mount.yml
+  when: lin_restic_mount_dir |d('')
+  tags: lin_restic_mount
 
 - name: activate restic cron jobs
   import_tasks: cron.yml

@@ -2,8 +2,7 @@
 - name: create dedicated restic user
   user:
     name: restic
-    groups:
-      - rclone
+    groups: [rclone]
     append: true
     shell: /bin/bash
     ## no password, login with ssh keys only

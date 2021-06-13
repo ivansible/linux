@@ -1,0 +1,39 @@
+---
+- name: unmount old restic mount, if any
+  command: umount -l {{ lin_restic_mount_dir }}
+  failed_when: false
+  changed_when: false
+
+- name: create directory for restic mounts
+  file:
+    path: "{{ lin_restic_mount_dir }}"
+    state: directory
+    owner: restic
+    group: rclone
+    mode: 0750
+
+- name: make dummy mount executable
+  template:
+    src: mount.dummy.sh.j2
+    dest: /sbin/mount.dummy
+    mode: 0755
+
+- name: enable fuse allow_other
+  lineinfile:
+    dest: /etc/fuse.conf
+    line: user_allow_other
+
+- name: setup restic mount service
+  template:
+    src: restic-mount.service.j2
+    dest: /etc/systemd/system/restic-mount.service
+    mode: 0644
+  notify: reload systemd daemon
+
+- name: setup restic mount unit
+  template:
+    src: mnt-restic.mount.j2
+    dest: /etc/systemd/system/{{ lin_restic_mount_dir.strip('/').replace('/','-') }}.mount
+    mode: 0644
+  notify: reload systemd daemon
+...

@@ -1,0 +1,10 @@
+[Unit]
+After=network-online.target
+After=restic-mount.service
+BindsTo=restic-mount.service
+Conflicts=restic-backup.service
+Conflicts=restic-prune.service
+[Mount]
+Where={{ lin_restic_mount_dir }}
+What=nil
+Type=dummy
