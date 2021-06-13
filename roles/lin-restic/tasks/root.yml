@@ -26,16 +26,24 @@
   tags: lin_restic_rclone
 
 - name: verify that restic repository is already created
-  command: rclone ls "{{ lin_restic_rclone_remote }}:{{ lin_restic_reponame }}/config"
+  command: restic cat config
   register: restic_repo_check
-  changed_when: restic_repo_check.stderr |default('') is search('directory not found')
+  changed_when: not restic_repo_check.stdout |d('')
   failed_when: false
   environment:
+    RESTIC_REPOSITORY: "{{ lin_restic_repository }}"
+    RESTIC_PASSWORD: "{{ lin_restic_password }}"
     RCLONE_CONFIG: "{{ lin_rclone_config }}"
   tags: lin_restic_repo
 
 - name: setup new restic repository
-  command: restic init
+  ## hide real hostname from repo keys
+  shell: |
+    name=$(hostname)
+    hostname host
+    restic init && ok=1 || ok=0
+    hostname $name
+    test $ok = 1
   environment:
     RESTIC_REPOSITORY: "{{ lin_restic_repository }}"
     RESTIC_PASSWORD: "{{ lin_restic_password }}"
