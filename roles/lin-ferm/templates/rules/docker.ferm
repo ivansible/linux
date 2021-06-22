@@ -28,7 +28,8 @@ domain $ip_all table filter {
     @if $docker_ingress_jail
     chain FERM-INGRESS-JAIL {
         mod conntrack ctstate (ESTABLISHED RELATED) RETURN;
-        mod set ! set $int_hosts src DROP;
+        jump $FORWARD;
+        outerface $docker_bridges DROP;
     }
 
     chain DOCKER-USER {
@@ -37,6 +38,20 @@ domain $ip_all table filter {
             interface $public_interface
             outerface $docker_bridges
             jump FERM-INGRESS-JAIL;
+
+            @if @eq($DOMAIN,ip)
+            @if $docker_ingress_subnet4
+                proto (tcp udp)
+                interface $public_interface
+                destination $docker_ingress_subnet4
+                jump FERM-INGRESS-JAIL;
+
+            @if @eq($DOMAIN,ip6)
+            @if $docker_ingress_subnet6
+                proto (tcp udp)
+                interface $public_interface
+                destination $docker_ingress_subnet6
+                jump FERM-INGRESS-JAIL;
         }
         RETURN;
     }

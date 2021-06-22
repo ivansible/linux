@@ -34,6 +34,8 @@ ferm_openvz: false
 ferm_docker_user_chain: true
 ferm_docker_ingress_jail: true
 ferm_docker_subnet4: 172.17.0.0/16
+ferm_docker_ingress_subnet4: "{{ docker_bridge_pool4 |default('') }}"
+ferm_docker_ingress_subnet6: "{{ docker_bridge_subnet6 |default('') }}"
 
 ferm_dir: /etc/ferm
 ferm_bindir: /usr/local/sbin

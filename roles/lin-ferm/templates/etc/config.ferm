@@ -15,6 +15,8 @@
 @def $docker_bridges = (docker0 docker_gwbridge);
 @def $docker_user_chain = {{ ferm_docker_user_chain |bool |ternary(1,0) }};
 @def $docker_ingress_jail = {{ ferm_docker_ingress_jail |bool |ternary(1,0) }};
+@def $docker_ingress_subnet4 = {{ ferm_docker_ingress_subnet4 |default(0,true) }};
+@def $docker_ingress_subnet6 = {{ ferm_docker_ingress_subnet6 |default(0,true) }};
 @def $docker_subnet4 = {{ ferm_docker_subnet4 }};
 @def $public_interface = {{ ferm_public_interface }};
 
