@@ -14,15 +14,35 @@ domain $ip_all table filter chain ($INPUT FERM-HOSTS-EXTERNAL) {
     }
 }
 
+# note: internal hosts also accept media ports
 domain $ip_all table filter chain FERM-HOSTS-INTERNAL {
     @if $openvz {
         @if $ferm_ports_int_tcp
             proto tcp  dports $ferm_ports_int_tcp  ACCEPT;
         @if $ferm_ports_int_udp
             proto udp  dports $ferm_ports_int_udp  ACCEPT;
+        @if $ferm_ports_media_tcp
+            proto tcp  dports $ferm_ports_media_tcp  ACCEPT;
+        @if $ferm_ports_media_udp
+            proto udp  dports $ferm_ports_media_udp  ACCEPT;
     }
     @else {
         proto tcp  mod set  set ferm-ports-int-tcp dst  ACCEPT;
         proto udp  mod set  set ferm-ports-int-udp dst  ACCEPT;
+        proto tcp  mod set  set ferm-ports-media-tcp dst  ACCEPT;
+        proto udp  mod set  set ferm-ports-media-udp dst  ACCEPT;
+    }
+}
+
+domain $ip_all table filter chain FERM-HOSTS-MEDIA {
+    @if $openvz {
+        @if $ferm_ports_media_tcp
+            proto tcp  dports $ferm_ports_media_tcp  ACCEPT;
+        @if $ferm_ports_media_udp
+            proto udp  dports $ferm_ports_media_udp  ACCEPT;
+    }
+    @else {
+        proto tcp  mod set  set ferm-ports-media-tcp dst  ACCEPT;
+        proto udp  mod set  set ferm-ports-media-udp dst  ACCEPT;
     }
 }

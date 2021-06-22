@@ -56,10 +56,12 @@ ferm_dependent_services:
 ferm_ipset_files:
   - ports.ext
   - ports.int
+  - ports.media
   - ports.block
   - hosts.int
-  - hosts.block
+  - hosts.media
   - hosts.nat
+  - hosts.block
 
 ferm_rule_hooks:
   - custom

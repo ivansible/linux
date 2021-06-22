@@ -26,6 +26,7 @@ ZONES = {
     'blocked': 'block',
     'block': 'block',
     'nat': 'nat',
+    'media': 'media',
 }
 
 PROTO_CHOICES = [

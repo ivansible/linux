@@ -1,8 +1,9 @@
-# Block Ports
+# Triage Hosts and Block Ports
 # core rule
 
 domain $ip_all table filter {
     chain FERM-HOSTS-INTERNAL;
+    chain FERM-HOSTS-MEDIA;
 
     chain FERM-HOSTS-EXTERNAL {
         # goto outta here if host is internal
@@ -19,6 +20,22 @@ domain $ip_all table filter {
                 mod set  set ferm-hosts-int-ipv4 src  goto FERM-HOSTS-INTERNAL;
             @if @eq($DOMAIN,ip6)
                 mod set  set ferm-hosts-int-ipv6 src  goto FERM-HOSTS-INTERNAL;
+        }
+
+        # handle media hosts
+        @if $openvz {
+            @if @eq($DOMAIN,ip)
+            @if $ferm_hosts_media_ipv4
+                saddr $ferm_hosts_media_ipv4  goto FERM-HOSTS-MEDIA;
+            @if @eq($DOMAIN,ip6)
+            @if $ferm_hosts_media_ipv6
+                saddr $ferm_hosts_media_ipv6  goto FERM-HOSTS-MEDIA;
+        }
+        @else {
+            @if @eq($DOMAIN,ip)
+                mod set  set ferm-hosts-media-ipv4 src  goto FERM-HOSTS-MEDIA;
+            @if @eq($DOMAIN,ip6)
+                mod set  set ferm-hosts-media-ipv6 src  goto FERM-HOSTS-MEDIA;
         }
 
         # rules for external hosts below
