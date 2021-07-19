@@ -4,3 +4,4 @@ pytestdebug.log
 *~
 *.pyc
 *.pyo
+.cache

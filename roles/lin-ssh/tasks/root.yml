@@ -126,4 +126,22 @@
     state: started
     enabled: true
   tags: lin_ssh_install
+
+- name: unlock remote user
+  shell:
+    cmd: |
+      set -eo pipefail
+      user={{ ansible_user_id }}
+      unlock="$(LANG=C usermod -U "$user" 2>&1 ||:)"
+      nopass=$(grep -c "should set a pass" <<< "$unlock" ||:)
+      if [[ $nopass = 1 ]]; then
+        echo "setpass"
+        pass="$(head /dev/urandom | md5sum | cut -c-32)"
+        echo "$user:$pass" | chpasswd
+      fi
+      usermod -U "$user"
+    executable: bash
+  register: _user_unlock_result
+  changed_when: _user_unlock_result.stdout is search('setpass')
+  tags: lin_ssh_unlock_user
 ...
