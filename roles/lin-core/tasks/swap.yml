@@ -15,6 +15,7 @@
   file:
     path: "{{ lin_core_swap_file }}"
     mode: 0600
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: format swap file
   command: mkswap "{{ lin_core_swap_file }}"

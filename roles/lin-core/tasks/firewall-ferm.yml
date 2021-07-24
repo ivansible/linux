@@ -14,6 +14,7 @@
     zone: "{{ lin_core_open_ntp |bool |ternary('external','internal') }}"
     solo_zone: true
     comment: ntp
+  ignore_errors: "{{ ansible_check_mode }}"
   tags: skip_ansible_lint
 
 - name: fix ssh port in ferm firewall
@@ -23,12 +24,14 @@
         port: 22
         proto: tcp
         state: absent
+      ignore_errors: "{{ ansible_check_mode }}"
       tags: skip_ansible_lint
 
     - name: close port 22 (tcp+udp) in ferm, if not used
       ferm_port:
         port: 22
         state: absent
+      ignore_errors: "{{ ansible_check_mode }}"
       tags: skip_ansible_lint
   when:
     - lin_use_ssh |bool
