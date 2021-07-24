@@ -22,7 +22,9 @@
     replace: 'deb [arch=amd64] http'
     backup: true
   register: apt_disable_32bit
-  when: lin_core_apt_disable_32bit |bool
+  when:
+    - lin_core_apt_disable_32bit |bool
+    - lin_apt_arch == 'amd64'
 
 - name: update apt caches
   apt:
