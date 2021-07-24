@@ -5,7 +5,10 @@
     release: latest
     creates: /usr/local/sbin/watchtower
     reinstall: "{{ docker_watchtower_upgrade |bool }}"
-    template: '{download_url}/watchtower_linux_amd64.tar.gz'
+    template: "{download_url}/watchtower_linux_{{ arch }}.tar.gz"
+  vars:
+    arch: "{{ 'arm64v8' if lin_apt_arch == 'arm64' else 'amd64' }}"
+  when: lin_apt_arch in ['amd64','arm64']
   tags: skip_ansible_lint
   register: latest_watchtower_release
 

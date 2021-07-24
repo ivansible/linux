@@ -35,13 +35,14 @@
 
 - name: add docker repository
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ codename }} stable"
+    repo: "deb [arch={{ lin_apt_arch }}] {{ url }} {{ codename }} stable"
     filename: docker-ce
     mode: 0644
   register: add_docker_repo_result
   until: add_docker_repo_result is successful
   when: docker_from_docker_io |bool
   vars:
+    url: https://download.docker.com/linux/ubuntu
     codename: "{{ ansible_lsb.codename }}"
 
 - block:
