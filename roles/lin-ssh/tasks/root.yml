@@ -31,6 +31,7 @@
     zone: external
     ## Usually this comment is set by ferm core
     # comment: ssh
+  ignore_errors: "{{ ansible_check_mode }}"
   when: lin_firewall == 'ferm'
   tags:
     - skip_ansible_lint
@@ -45,6 +46,7 @@
       proto tcp syn dport {{ real_ssh_port }} {{ match_limit }} DROP;
     hook: custom
     prio: 21
+  ignore_errors: "{{ ansible_check_mode }}"
   vars:
     match_limit: >-
       mod hashlimit

@@ -15,6 +15,7 @@
     owner: root
     group: root
     mode: 0644
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: enable public keys of known hosts
   known_hosts:
