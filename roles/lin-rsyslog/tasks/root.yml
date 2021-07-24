@@ -162,6 +162,7 @@
     comment: rsyslog
     zone: internal
     state: "{{ lin_rsyslog_remote_enable |bool |ternary('present','absent') }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   when: lin_firewall == 'ferm'
   tags:
     - skip_ansible_lint
