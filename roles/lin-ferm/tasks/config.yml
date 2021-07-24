@@ -51,6 +51,7 @@
     group: root
     mode: 0640
   with_flattened: "{{ ['config.ferm', ferm_ipset_files] }}"
+  ignore_errors: "{{ ansible_check_mode }}"
 
 - name: setup core ferm rules before start
   ferm_rule:
@@ -60,6 +61,7 @@
     rule: "{{ lookup('template', 'rules/%s.ferm' % item.name) }}"
     reload: false
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   tags: skip_ansible_lint
   notify: reload ferm service
   loop: "{{ ferm_core_rules }}"
@@ -73,6 +75,7 @@
     comment: ferm core
     reload: false
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   tags: skip_ansible_lint
   notify: reload ferm service
 ...

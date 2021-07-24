@@ -5,6 +5,7 @@
     comment: ferm core
     zone: external
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   tags: skip_ansible_lint
 
 - name: open internal ports in ferm
@@ -13,6 +14,7 @@
     comment: ferm core
     zone: internal
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   tags: skip_ansible_lint
 
 - name: block ports in ferm
@@ -21,6 +23,7 @@
     comment: ferm core
     zone: blocked
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   tags: skip_ansible_lint
 
 - name: add internal hosts in ferm
@@ -29,6 +32,7 @@
     comment: ferm core
     zone: internal
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   vars:
     var_hosts_internal: "{{ ferm_hosts_internal |default([],true) |flatten }}"
     cli_hosts_internal: "{{ ferm_cli_hosts_internal |default('',true) |regex_findall('([^,]+)') }}"
@@ -43,6 +47,7 @@
     comment: ferm core
     zone: blocked
     ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
   vars:
     var_hosts_block: "{{ ferm_hosts_block |default([],true) |flatten }}"
     cli_hosts_block: "{{ ferm_cli_hosts_block |default('',true) |regex_findall('([^,]+)') }}"
