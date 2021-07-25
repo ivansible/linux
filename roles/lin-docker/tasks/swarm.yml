@@ -28,7 +28,7 @@
 
 - name: verify swarm role
   assert:
-    that: _swarm_role in ['worker', 'manager_worker', 'manager_master', 'manager_only', 'none']
+    that: _swarm_role in ['worker', 'manager_worker', 'manager_master', 'manager_only', 'reserve', 'none']
 
 - name: group hosts by swarm_role
   group_by:
@@ -93,16 +93,16 @@
   vars:
     master_vars: "{{ hostvars[_swarm_master] }}"
     tokens: "{{ master_vars._swarm_init.swarm_facts.JoinTokens }}"
-    join_token: "{{ tokens.Worker if _swarm_role == 'worker' else tokens.Manager }}"
+    join_token: "{{ tokens.Worker if _swarm_role in ['worker','reserve'] else tokens.Manager }}"
   when:
-    - _swarm_role in ['worker', 'manager_worker', 'manager_only']
+    - _swarm_role in ['worker','manager_worker','manager_only','reserve']
     - _swarm_master != 'none'
 
 - name: configure swarm nodes
   docker_node:
     hostname: "{{ inventory_hostname }}"
-    role: "{{ 'worker' if _swarm_role == 'worker' else 'manager' }}"
-    availability: "{{ 'drain' if _swarm_role == 'manager_only' else 'active' }}"
+    role: "{{ 'worker' if _swarm_role in ['worker','reserve'] else 'manager' }}"
+    availability: "{{ 'drain' if _swarm_role in ['manager_only','reserve'] else 'active' }}"
     labels:
       hostname: "{{ inventory_hostname }}"
       memsize: "{{ 'normal' if ansible_memtotal_mb > docker_swarm_ram_threshold_mb else 'small' }}"

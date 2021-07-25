@@ -61,7 +61,7 @@ docker_tls_server_cnames: dockerd.example.com
 docker_tls_client_cname: docker-cli.example.com
 
 ## docker swarm settings
-## role: worker, manager-worker, manager-only, manager-master, none
+## role: worker, manager-worker, manager-only, manager-master, reserve, none
 docker_swarm_role: none
 docker_swarm_reset: "{{ docker_reset }}"
 docker_swarm_destroy: false

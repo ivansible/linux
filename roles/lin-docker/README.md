@@ -23,6 +23,7 @@ The node role in the docker swarm:
 - `manager-worker` - manager node that runs tasks
 - `manager-only` - manager node without tasks
 - `manager-master` - first manager node in the swarm, runs tasks
+- `reserve` - worker node without tasks
 - `none` - the node does not participate in swarm
 
 ```
