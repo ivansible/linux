@@ -1,77 +1,65 @@
 ---
 ## defaults for ivansible.lin_yggdrasil
 
-lin_ygg_enable: true
-lin_ygg_ifname: ygg0
-lin_ygg_mtu: 65535
+ygg_enable: true
+ygg_upgrade: false
+ygg_backups: false
 
-## socks HOST:PORT for peer connections, optional
-lin_ygg_socks: ~
-lin_ygg_peer_catalog: false
+ygg_ifname: tun0
+ygg_mtu: 65535
+
+## socks tuple HOST:PORT for peer connections, optional
+ygg_socks: ~
 
 ## public address is used by other peers to construct connection string
 ## local peer always listens on all interfaces
-lin_ygg_host: 127.0.0.1
-lin_ygg_host6: ::1
+ygg_host: 127.0.0.1
+ygg_host6: ::1
 
 ## tcp port will be open in firewall for internal hosts only
 ## tls port will be open in firewall for everyone
-lin_ygg_tcp_port: 0
-lin_ygg_tls_port: 0
+ygg_tcp_port: 0
+ygg_tls_port: 0
 
 ## admin port will listen on local interface only
-lin_ygg_admin_port: 9001
+ygg_admin_port: 9001
 
-lin_ygg_pub: xxx
-lin_ygg_key: xxx
+ygg_pub: xxx
+ygg_key: xxx
 
 ## name of inventory group to collect peer definitions:
 ##   - allowed public keys
 ##   - remote subnets for routing
-lin_ygg_peer_group: ~
+ygg_peer_group: ~
 
-lin_ygg_peers: []
+ygg_local_peers: []
 #  - name: PEER     - required
 #    socks: false   - optional flag, enable socks
 #    tls: true      - optional flag, select tls
 #    ipv6: false    - optional flag, select host6 address
 
-## either list of public keys as strings
-## or list of objects {pub: PUBLIC_KEY, comment: COMMENT}
-lin_ygg_allowed_pubs: []
+ygg_public_peers: []
+#  - conn: tcp://HOST or tls://HOST (required)
+#    addr: YGG_IPV6
+#    host: IPV4
+#    desc: STRING
 
-lin_ygg_routing: false
-## local ipv4 and ipv6 subnets to route
-lin_ygg_subnets: []
-
-## signing keys are normally ephemeral and not needed
-lin_ygg_sig_enable: true
-lin_ygg_sig_pub: ~
-lin_ygg_sig_key: ~
-
-lin_ygg_tree_id: ~
+## also make configurations for windows and mobile hosts
+ygg_slave_peers: []
 
 ## node IPv6 can be added to DNS service
-lin_ygg_ipv6: ~
+ygg_ipv6: ~
 
 ## cloudflare credentials to add node IPv6 addresses in DNS
-lin_ygg_cloudflare_enable: false
-lin_ygg_cloudflare_email: ~
-lin_ygg_cloudflare_token: ~
-lin_ygg_cloudflare_zone: ~
-lin_ygg_cloudflare_subdomain: ~
+ygg_cf_enable: false
+ygg_cf_email: ~
+ygg_cf_token: ~
+ygg_cf_zone: ~
+ygg_cf_suffix: ~
 
 ## add yggdrasil peer IPs to the list of internal ferm hosts?
-lin_ygg_internal_hosts: false
-
-## node ID is not used in configuration, it's purely for documentation purposes
-lin_ygg_node_id: ~
+ygg_internal_hosts: false
 
 ## short peer name to use as a comment in config files
-lin_ygg_alias: ~
-
-lin_ygg_release: latest
-lin_ygg_upgrade: false
-
-lin_ygg_backups: false
+ygg_alias: ~
 ...

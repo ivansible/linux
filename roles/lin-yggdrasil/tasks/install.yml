@@ -1,0 +1,21 @@
+---
+- name: add package signing key for yggdrasil
+  apt_key:
+    url: https://neilalexander.s3.dualstack.eu-west-2.amazonaws.com/deb/key.txt
+    id: 569130E8CA20FBC4CB3FDE555898470A764B32C9
+
+- name: add yggdrasil apt repository
+  apt_repository:
+    repo: "deb http://neilalexander.s3.dualstack.eu-west-2.amazonaws.com/deb/ debian yggdrasil"
+    filename: yggdrasil
+    mode: 0644
+    update_cache: true
+  register: _ygg_repo_result
+  until: _ygg_repo_result is successful
+
+- name: install yggdrasil package
+  apt:
+    name: yggdrasil
+    state: "{{ ygg_upgrade |bool |ternary('latest', 'present') }}"
+  register: _ygg_dpkg_result
+...

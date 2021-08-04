@@ -1,0 +1,91 @@
+{
+{% set vars = hostvars[name] %}
+  # {{ vars.ygg_alias |d(name, true) }} yggdrasil
+  # {{ vars.ygg_ipv6 |d('::') }}
+  PublicKey: {{ vars.ygg_pub }}
+  PrivateKey: {{ vars.ygg_key }}
+
+  Peers: [
+{% set local_peers = vars.ygg_local_peers |d([],true) %}
+{# ==== PUBLIC PEERS ==== #}
+{% for _peer in vars.ygg_public_peers |d([],true) %}
+{%   set _conn = _peer.conn |d('',true) %}
+{%   set _desc = '"%s"' |format(_peer.desc |d('-') |string) %}
+{%   set _addr = _peer.addr |d('::') |ipwrap %}
+{%   set _host = '{%s}' |format(_peer.host |d('-') |string) %}
+{%   set _comment = '%-40s %-17s %s' |format(_addr, _host, _desc) %}
+{%   if _conn %}
+    # {{ _comment }}
+    {{ _conn }}
+{% if not loop.last or local_peers |length %}
+
+{% endif %}
+{%   endif %}
+{% endfor %}
+{# ==== LOCAL PEERS ==== #}
+{% for _item in local_peers %}
+{%   set _name = _item.name |d(name, true) %}
+{%   if _name != name %}{# skip if current host or undefined #}
+{%     set _peer = hostvars[_name] %}
+{%     set _socks = _item.socks |d(false) |bool |ternary(vars.ygg_socks, '') |d('',true) %}
+{%     set _tls = _item.tls |d(true) |bool %}
+{%     set _alias = _peer.ygg_alias |d(_name, true) %}
+{%     set _host4 = _peer.ygg_host  |d('',true) |string %}
+{%     set _host6 = _peer.ygg_host6 |d('',true) |string %}
+{%     set _host = _item.ipv6 |d(false) |bool |ternary(_host6, _host4) %}
+{%     set _tcp_port = _peer.ygg_tcp_port |d(0,true) |int %}
+{%     set _tls_port = _peer.ygg_tls_port |d(0,true) |int %}
+{%     if _host and _socks and _tcp_port |int %}
+    # {{ _alias }}
+    socks://{{ _socks }}/{{ _host |ipwrap }}:{{ _tcp_port }}
+{%     elif _host and _tls and _tls_port |int %}
+    # {{ _alias }}
+    tls://{{ _host |ipwrap }}:{{ _tls_port }}
+{%     elif _host and _tcp_port |int %}
+    # {{ _alias }}
+    tcp://{{ _host |ipwrap }}:{{ _tcp_port }}
+{%     else %}
+    # ERROR! Cannot determine peer address: {{ _alias }}
+{%     endif %}
+{%   endif %}
+{% endfor %}
+  ]
+
+  AllowedPublicKeys: [
+{# ==== ALLOWED LOCAL HOSTS ==== #}
+{% set group_name = vars.ygg_peer_group |d('') %}
+{% if group_name %}
+{%   for _name in groups[group_name] |d([]) |sort %}
+{%     set _peer = hostvars[_name] %}
+{%     set _alias = _peer.ygg_alias |d(_name, true) %}
+{%     set _pub = _peer.ygg_pub |d('',true) %}
+{%     if _pub %}
+    # {{ _alias }}
+    {{ _pub }}
+{%     endif %}
+{%   endfor %}
+{% endif %}
+{# ==== END OF ALLOWED HOSTS ==== #}
+  ]
+
+{# ==== LISTENER ==== #}
+  Listen: [
+{% set tcp_port = vars.ygg_tcp_port |d(0,true) |int %}
+{% if tcp_port %}
+    tcp://[::]:{{ tcp_port }}
+{% endif %}
+{% set tls_port = vars.ygg_tls_port |d(0,true) |int %}
+{% if tls_port %}
+    tls://[::]:{{ tls_port }}
+{% endif %}
+  ]
+
+{# ==== SETTINGS ==== #}
+  AdminListen: tcp://127.0.0.1:{{ vars.ygg_admin_port |d(9001) |int }}
+  IfName: {{ vars.ygg_ifname |d('tun0', true) |string }}
+  IfMTU: {{ vars.ygg_mtu |d(65535) | int }}
+  InterfacePeers: {}
+  MulticastInterfaces: []
+  NodeInfoPrivacy: false
+  NodeInfo: {}
+}

@@ -1,0 +1,21 @@
+---
+- name: add yggdrasil peers as internal hosts in ferm
+  ferm_host:
+    host: "{{ ipv6 }}"
+    comment: "yggdrasil ({{ alias }})"
+    zone: internal
+  tags: skip_ansible_lint
+  vars:
+    peer_names: "{{ groups[ygg_peer_group] |d([]) |sort }}"
+    peer: "{{ hostvars[name] |d({}) }}"
+    ipv6: "{{ peer.ygg_ipv6 |d('',true) }}"
+    alias: "{{ peer.ygg_alias |d(name, true) }}"
+  loop: "{{ peer_names }}"
+  loop_control:
+    loop_var: name
+    label: "{{ alias }} - {{ ipv6 }}"
+  when:
+    - ygg_peer_group |d('')
+    - peer_names |d([])
+    - ipv6 |d('')
+...

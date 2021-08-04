@@ -1,0 +1,43 @@
+---
+- name: directory for yggdrasil configs
+  file:
+    path: /etc/yggdrasil
+    state: directory
+    owner: root
+    group: proxy
+    mode: 0750
+
+- name: update yggdrasil configuration
+  template:
+    src: yggdrasil.conf.j2
+    dest: /etc/yggdrasil/yggdrasil.conf
+    owner: root
+    group: proxy
+    mode: 0640
+    backup: "{{ ygg_backups |bool }}"
+  vars:
+    name: "{{ inventory_hostname }}"
+  notify: restart yggdrasil service
+
+- name: make symbolic link to config for yggdrasilctl
+  file:
+    state: link
+    src: ./yggdrasil/yggdrasil.conf
+    dest: /etc/yggdrasil.conf
+    force: true
+
+- name: make yggdrasil configuration for connected peers
+  template:
+    src: yggdrasil.conf.j2
+    dest: /etc/yggdrasil/yggdrasil.{{ alias }}
+    owner: root
+    group: proxy
+    mode: 0640
+    backup: "{{ ygg_backups |bool }}"
+  vars:
+    name: "{{ item }}"
+    alias: "{{ hostvars[item].ygg_alias |d(name) }}"
+  loop: "{{ ygg_slave_peers |d([],true) }}"
+  loop_control:
+    label: "{{ alias }}"
+...

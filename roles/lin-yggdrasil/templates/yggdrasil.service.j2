@@ -1,0 +1,22 @@
+[Unit]
+Description=yggdrasil
+Wants=network.target
+After=network.target
+
+[Service]
+{# Group=yggdrasil #}
+{% set comment = ferm_openvz |default(false) |bool |ternary('#','') %}
+{% set as_root = '-' if ansible_lsb.codename == 'xenial' else '+-' %}
+Group=proxy
+SyslogIdentifier=yggdrasil
+{{ comment }}ProtectHome=true
+{{ comment }}ProtectSystem=true
+{{ comment }}CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
+{{ comment }}ExecStartPre={{ as_root }}/sbin/modprobe tun
+ExecStart=/usr/bin/yggdrasil -useconffile /etc/yggdrasil/yggdrasil.conf
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=always
+TimeoutStopSec=5
+
+[Install]
+WantedBy=multi-user.target

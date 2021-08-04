@@ -1,0 +1,44 @@
+---
+- name: open yggdrasil tls port for all in ufw
+  ufw:
+    rule: allow
+    port: "{{ ygg_tls_port |string }}"
+    proto: tcp
+  no_log: "{{ hide_secrets |bool }}"
+  when: lin_firewall == 'ufw' and ygg_tls_port |int
+
+- name: open yggdrasil tls port for all in ferm
+  ferm_port:
+    port: "{{ ygg_tls_port }}"
+    proto: tcp
+    zone: external
+    solo_zone: true
+    comment: yggdrasil tls
+  when: lin_firewall == 'ferm' and ygg_tls_port |int
+  tags: skip_ansible_lint
+
+- name: open yggdrasil tcp port for internal hosts in ferm
+  ferm_port:
+    port: "{{ ygg_tcp_port }}"
+    proto: tcp
+    zone: internal
+    solo_zone: true
+    comment: yggdrasil tcp
+  when: lin_firewall == 'ferm' and ygg_tcp_port |int
+  tags: skip_ansible_lint
+
+- name: make yggdrasil peers internal (need ygg_internal_hosts=1)
+  ## task is included to fully skip it in most cases as it's slow
+  include_tasks: ferm-hosts.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_ygg_internal
+        - lin_ygg_all
+        - lin_yggdrasil_all
+  when:
+    - ygg_internal_hosts |bool
+    - lin_firewall == 'ferm'
+  tags: lin_ygg_internal
+...
