@@ -1,6 +1,4 @@
-.galaxy_install_info
+meta/.galaxy_install_info
 __pycache__
-pytestdebug.log
+.cache
 *~
-*.pyc
-*.pyo
