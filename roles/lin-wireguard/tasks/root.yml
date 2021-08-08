@@ -153,17 +153,21 @@
     - peer.name |d('')
     - active |bool
     - client_config |bool
-  loop: "{{ lin_wg_nets |d([],true) |flatten |subelements('peers', skip_missing=true) }}"
+  loop: "{{ clients }}"
   loop_control:
-    label: "{{ peer.name |d('none') }}/{{ net.name |d('none') }}"
+    label: "{{ label }}"
   vars:
+    networks: "{{ lin_wg_nets |d([],true) |flatten }}"
+    clients: "{{ networks |subelements('peers', skip_missing=true) }}"
     net: "{{ item.0 }}"
     peer: "{{ item.1 }}"
-    server: "{{ inventory_hostname }}"
-    host: "{{ peer.host |d(net_host4, true) |d(lin_wg_host) |d('',true) }}"
+    label: "{{ peer.name |d('none') }}{% if peer.via |d('') %}@{{ peer.via }}{% endif %}/{{ net.name |d('none') }}"
+    server_name: "{{ peer.via |d(inventory_hostname) }}"
+    server_host: "{{ peer.host |d(net_host4, true) |d(lin_wg_host) |d('',true) }}"
+    server_port: "{{ peer.port |d(net.port) |d(0,true) |int }}"
     active: "{{ peer.active |d(true) |bool }}"
     client_config: "{{ peer.client_config |d(false) |bool }}"
-    filename: "{{ peer.name |d('peer') }}-{{ server }}-{{ net.name |d('net') }}"
+    filename: "{{ peer.name |d('peer') }}-{{ peer.via |d(server_name) }}-{{ net.name |d('net') }}"
     addr: "{{ peer.client_ips |d(peer.ips) |d([],true) }}"
     ips: "{{ peer.server_ips |d(net.addr) |d([],true) }}"
     mtu: "{{ peer.mtu |d(net.mtu, true) |d(0) |int }}"
