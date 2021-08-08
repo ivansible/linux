@@ -4,15 +4,15 @@ domain ($ip_all) table filter chain $FORWARD
 {% endif %}
 {% for net in wg_nets %}
 {%   set iface = 'wg%d' % loop.index0 %}
-{%   for peer in net.peers |default([],true) |flatten %}
-{%     set active = peer.active |default(true) |bool %}
-{%     set _redirect_val = peer.redirect_gateway |default(false,true) |string |lower %}
+{%   for peer in net.peers |d([],true) |flatten %}
+{%     set active = peer.active |d(true) |bool %}
+{%     set _redirect_val = peer.redirect_gateway |d(false,true) |string |lower %}
 {%     set redirect_ipv4 = _redirect_val in 'ipv4 true yes on 1' %}
 {%     set redirect_ipv6 = _redirect_val in 'ipv6 true yes on 1' %}
-{%     set peer_ips = peer.client_ips |default(peer.ips) |default([],true) |flatten %}
+{%     set peer_ips = peer.client_ips |d(peer.ips) |d([],true) |flatten %}
 {%     if active and (redirect_ipv4 or redirect_ipv6) and public_iface and peer_ips %}
 
-## {{ peer.name |default('peer %d' % loop.index, true) }}
+## {{ peer.name |d('peer %d' % loop.index, true) }}
 {%       for ip in peer_ips %}
 {%         set addr = ip |ipaddr('address') or ip %}
 {%         set ipv6 = ':' in ip %}

@@ -47,18 +47,18 @@
     mode: 0600
   vars:
     iface: "wg{{ idx }}"
-    mtu: "{{ net.mtu |default(0) |int }}"
+    mtu: "{{ net.mtu |d(0) |int }}"
     addr: "{{ net.addr }}"
-    port: "{{ net.port |default(0) |int }}"
+    port: "{{ net.port |d(0) |int }}"
     key: "{{ net.key }}"
-    metric: "{{ net.metric |default(none) }}"
-    peers: "{{ net.peers |default([],true) |flatten }}"
-    keepalive: "{{ net.keepalive |default(0) |int }}"
-  loop: "{{ lin_wg_nets |default([],true) |flatten }}"
+    metric: "{{ net.metric |d(none) }}"
+    peers: "{{ net.peers |d([],true) |flatten }}"
+    keepalive: "{{ net.keepalive |d(0) |int }}"
+  loop: "{{ lin_wg_nets |d([],true) |flatten }}"
   loop_control:
     loop_var: net
     index_var: idx
-    label: "{{ net.name |default(iface) }}"
+    label: "{{ net.name |d(iface) }}"
   register: wg_conf_result
   notify: restart wireguard service
   tags: lin_wg_config
@@ -66,16 +66,16 @@
 
 - name: open wireguard port in ufw
   ufw:
-    port: "{{ item.port |default(0) |string }}"
+    port: "{{ item.port |d(0) |string }}"
     proto: udp
   no_log: "{{ hide_secrets |bool }}"
   loop: "{{ lin_wg_nets }}"
   loop_control:
     index_var: idx
-    label: "{{ item.name |default('wg%d' % idx) }}"
+    label: "{{ item.name |d('wg%d' % idx) }}"
   when:
     - lin_firewall == 'ufw'
-    - item.port |default(0) |int
+    - item.port |d(0) |int
   tags: lin_wg_firewall
 
 - name: configure ferm firewall for wireguard
@@ -140,7 +140,7 @@
     path: /etc/wireguard/clients
     state: directory
     mode: 0750
-  when: lin_wg_nets |default([],true) |json_query('[].peers[]|[?client_config]') |length >0
+  when: lin_wg_nets |d([],true) |json_query('[].peers[]|[?client_config]') |length >0
   tags: lin_wg_clients
 
 - name: create wireguard client config files
@@ -149,29 +149,29 @@
     dest: /etc/wireguard/clients/{{ filename }}.conf
     mode: 0600
   when:
-    - net.name |default('')
-    - peer.name |default('')
+    - net.name |d('')
+    - peer.name |d('')
     - active |bool
     - client_config |bool
-  loop: "{{ lin_wg_nets |default([],true) |flatten |subelements('peers', skip_missing=true) }}"
+  loop: "{{ lin_wg_nets |d([],true) |flatten |subelements('peers', skip_missing=true) }}"
   loop_control:
-    label: "{{ peer.name |default('none') }}/{{ net.name |default('none') }}"
+    label: "{{ peer.name |d('none') }}/{{ net.name |d('none') }}"
   vars:
     net: "{{ item.0 }}"
     peer: "{{ item.1 }}"
     server: "{{ inventory_hostname }}"
-    host: "{{ peer.host |default(net_host4, true) |default(lin_wg_host) |default('',true) }}"
-    active: "{{ peer.active |default(true) |bool }}"
-    client_config: "{{ peer.client_config |default(false) |bool }}"
-    filename: "{{ peer.name |default('peer') }}-{{ server }}-{{ net.name |default('net') }}"
-    addr: "{{ peer.client_ips |default(peer.ips) |default([],true) }}"
-    ips: "{{ peer.server_ips |default(net.addr) |default([],true) }}"
-    mtu: "{{ peer.mtu |default(net.mtu, true) |default(0) |int }}"
-    keepalive: "{{ peer.keepalive |default(0) |int }}"
-    _redirect_val: "{{ peer.redirect_gateway |default(false,true) |string |lower }}"
+    host: "{{ peer.host |d(net_host4, true) |d(lin_wg_host) |d('',true) }}"
+    active: "{{ peer.active |d(true) |bool }}"
+    client_config: "{{ peer.client_config |d(false) |bool }}"
+    filename: "{{ peer.name |d('peer') }}-{{ server }}-{{ net.name |d('net') }}"
+    addr: "{{ peer.client_ips |d(peer.ips) |d([],true) }}"
+    ips: "{{ peer.server_ips |d(net.addr) |d([],true) }}"
+    mtu: "{{ peer.mtu |d(net.mtu, true) |d(0) |int }}"
+    keepalive: "{{ peer.keepalive |d(0) |int }}"
+    _redirect_val: "{{ peer.redirect_gateway |d(false,true) |string |lower }}"
     redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' }}"
     redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' }}"
-    public_iface: "{{ lin_wg_public_interface |default('') }}"
-    has_metric: "{{ peer.metric |default('') and peer.device |default('') }}"
+    public_iface: "{{ lin_wg_public_interface |d('') }}"
+    has_metric: "{{ peer.metric |d('') and peer.device |d('') }}"
   tags: lin_wg_clients
 ...

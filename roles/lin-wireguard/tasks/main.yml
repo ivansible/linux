@@ -2,7 +2,7 @@
 - name: install wireguard as root
   import_tasks: root.yml
   become: true
-  when: lin_wg_nets |default([])
+  when: lin_wg_nets |d([])
   tags:
     - lin_wg_all
     - lin_wireguard_all
