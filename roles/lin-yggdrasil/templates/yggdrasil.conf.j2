@@ -1,14 +1,15 @@
 {
 {% set vars = hostvars[name] %}
-  # {{ vars.ygg_alias |d(name, true) }} yggdrasil
-  # {{ vars.ygg_ipv6 |d('::') }}
+{% set isolate = isolate |d(false) |bool %}
+  # {{ vars.ygg_alias |d(name, true) }}{% if isolate %} (isolated){% endif %} - {{ vars.ygg_ipv6 |d('::') }}
   PublicKey: {{ vars.ygg_pub }}
   PrivateKey: {{ vars.ygg_key }}
 
   Peers: [
+{% set public_peers = vars.ygg_public_peers |d([],true) %}
 {% set local_peers = vars.ygg_local_peers |d([],true) %}
 {# ==== PUBLIC PEERS ==== #}
-{% for _peer in vars.ygg_public_peers |d([],true) %}
+{% for _peer in isolate |ternary([], public_peers) %}
 {%   set _conn = _peer.conn |d('',true) %}
 {%   set _desc = '"%s"' |format(_peer.desc |d('-') |string) %}
 {%   set _addr = _peer.addr |d('::') |ipwrap %}

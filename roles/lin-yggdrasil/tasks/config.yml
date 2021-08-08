@@ -26,7 +26,7 @@
     dest: /etc/yggdrasil.conf
     force: true
 
-- name: make yggdrasil configuration for connected peers
+- name: make yggdrasil configs for connected slaves
   template:
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.{{ alias }}
@@ -37,6 +37,22 @@
   vars:
     name: "{{ item }}"
     alias: "{{ hostvars[item].ygg_alias |d(name) }}"
+  loop: "{{ ygg_slave_peers |d([],true) }}"
+  loop_control:
+    label: "{{ alias }}"
+
+- name: make yggdrasil configs for isolated slaves
+  template:
+    src: yggdrasil.conf.j2
+    dest: /etc/yggdrasil/yggdrasil.{{ alias }}-isolate
+    owner: root
+    group: proxy
+    mode: 0640
+    backup: "{{ ygg_backups |bool }}"
+  vars:
+    name: "{{ item }}"
+    alias: "{{ hostvars[item].ygg_alias |d(name) }}"
+    isolate: true
   loop: "{{ ygg_slave_peers |d([],true) }}"
   loop_control:
     label: "{{ alias }}"
