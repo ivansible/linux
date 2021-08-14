@@ -28,6 +28,14 @@
   when: _ufw_status.stdout |d('') is search('Status[:] active')
   register: _ufw_disable
 
+- name: disable ip(6)tables on oracle cloud, if active
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: [iptables, ip6tables]
+  failed_when: false
+
 - name: activate ferm (restart if ufw was active or old dirs were found)
   systemd:
     name: ferm

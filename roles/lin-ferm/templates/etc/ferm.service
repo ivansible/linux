@@ -8,6 +8,9 @@ Before=network.target
 {% for service in ferm_dependent_services %}
 Before={{ service }}.service
 {% endfor %}
+{# override ip(6)tables on oracle cloud #}
+After=iptables.service
+After=ip6tables.service
 
 [Service]
 Type=oneshot

@@ -47,6 +47,9 @@
 # Setup chains
 
 @if $do_ipv4 domain ip {
+    # hook for oracle cloud
+    table filter chain InstanceServices @preserve;
+
     table raw {
         &CHAIN_HOOK(PREROUTING, ACCEPT);
         &CHAIN_HOOK(OUTPUT, ACCEPT);
