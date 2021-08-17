@@ -27,13 +27,44 @@
     enabled: true
   changed_when: not lin_core_hide_changes |bool
 
-- name: step-sync local time
+- name: step-sync time now
   ## "-u" = use unprivileged port for outgoing packets,
   ## helps when ntp service is running (or against firewalls),
   ## so we don't have to stop/start ntp service
   command: ntpdate -t 10 -u "{{ lin_core_time_server }}"
   changed_when: not lin_core_hide_changes |bool
   failed_when: false
-  when: lin_core_resync |bool
+  when: lin_core_resync_once |bool
   tags: lin_core_resync
+
+- name: make service to step-sync time on every boot
+  copy:
+    dest: /etc/systemd/system/step-sync.service
+    content: |
+      # ansible-managed
+      [Unit]
+      Description=step-sync local time
+      Requires=network-online.target
+      After=network-online.target
+      {% for service in lin_core_resync_services %}
+      Before={{ service }}.service
+      {% endfor %}
+      [Service]
+      Type=oneshot
+      ExecStart=-/usr/sbin/ntpdate -t 10 -u {{ lin_core_time_server }}
+      RemainAfterExit=yes
+      [Install]
+      WantedBy=multi-user.target
+    force: true
+    mode: 0644
+  register: _step_sync_service_file
+  when: lin_core_resync_onboot |bool
+
+- name: activate service to step-sync time on every boot
+  systemd:
+    name: step-sync
+    state: started
+    enabled: true
+    daemon_reload: "{{ _step_sync_service_file is changed }}"
+  when: lin_core_resync_onboot |bool
 ...

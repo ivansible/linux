@@ -9,7 +9,9 @@ lin_core_sysctl: {}
 
 lin_core_time_sync: true
 lin_core_open_ntp: false
-lin_core_resync: false  # enable step-syncing system time
+lin_core_resync_once: false
+lin_core_resync_onboot: false
+lin_core_resync_services: [nginx, sslh, docker]  # services that need precise time
 lin_core_time_server: 2.pool.ntp.org  # note: supports both ipv4/ipv6
 
 lin_cron_adjust: false
