@@ -53,6 +53,7 @@
     new_cfg: "{{ old_cfg
                | combine(base_cfg, recursive=recursive_merge)
                | combine({'labels': new_labels})
+               | combine({'insecure-registries': docker_daemon_insecure_registries})
                | combine(user_cfg, recursive=recursive_merge)
                | dict2items
                | selectattr('value','ne','-')   |list

@@ -83,6 +83,7 @@ docker_swarm_ram_threshold_mb: 984
 ## labels should be provided as a map
 docker_daemon_user_settings: {}
 docker_daemon_user_labels: {}
+docker_daemon_insecure_registries: ['localhost:5000']
 docker_daemon_reset: "{{ docker_reset }}"
 docker_daemon_backup: false
 
