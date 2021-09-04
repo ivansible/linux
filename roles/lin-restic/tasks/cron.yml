@@ -100,8 +100,8 @@
   register: restic_prune_timer_result
   notify: reload systemd daemon
   vars:
-    day: "{{ lin_restic_cron_day_prune |default('Mon', true) }}"
-    time: "{{ lin_restic_cron_time_prune |default('7:30', true) }}"
+    day: "{{ lin_restic_cron_day_prune |d('Mon', true) }}"
+    time: "{{ lin_restic_cron_time_prune |d('7:30', true) }}"
 
 - name: (de)activate restic weekly prune job
   systemd:
@@ -110,8 +110,8 @@
     enabled: "{{ active }}"
     daemon_reload: "{{ script_changed or service_changed or timer_changed }}"
   vars:
-    day: "{{ lin_restic_cron_day_prune |default('',true) }}"
-    time: "{{ lin_restic_cron_time_prune |default('',true) }}"
+    day: "{{ lin_restic_cron_day_prune |d('',true) }}"
+    time: "{{ lin_restic_cron_time_prune |d('',true) }}"
     active: "{{ true if day and time else false }}"
 
     script_changed: "{{ restic_prune_script_result is changed }}"

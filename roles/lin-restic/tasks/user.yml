@@ -20,7 +20,7 @@
     keygen_cmd: 'chmod 600 "{{ item }}" && ssh-keygen -y -f "{{ item }}"'
   when:
     - not ansible_check_mode
-    - item |default('')
+    - item |d('')
   loop: "{{ lin_restic_authorized_keys }}"
   loop_control:
     label: "{{ item |basename }}"
@@ -71,10 +71,10 @@
   file:
     state: directory
     path: "{{ item.dir }}"
-    owner: "{{ item.owner |default('root') }}"
-    group: "{{ item.group |default('rclone') }}"
-    mode: "{{ item.mode |default('0750') }}"
-  loop: "{{ lin_restic_job_dirs |default([],true) |flatten }}"
+    owner: "{{ item.owner |d('root') }}"
+    group: "{{ item.group |d('rclone') }}"
+    mode: "{{ item.mode |d('0750') }}"
+  loop: "{{ lin_restic_job_dirs |d([],true) |flatten }}"
   loop_control:
     label: "{{ item.dir }}"
 
@@ -85,11 +85,11 @@
     path: "{{ home }}/.ssh"
     owner: "{{ owner }}"
     mode: 0700
-  loop: "{{ lin_restic_ssh_configs |default([],true) |flatten }}"
+  loop: "{{ lin_restic_ssh_configs |d([],true) |flatten }}"
   loop_control:
     label: "{{ home }}/.ssh"
   vars:
-    owner: "{{ item.owner |default('restic') }}"
+    owner: "{{ item.owner |d('restic') }}"
     home: "{{ '/root' if owner == 'root'
               else restic_user_result.home if owner == 'restic'
               else '/home/%s' % owner }}"
@@ -102,24 +102,24 @@
     block: |
       Host {{ alias }}
         Hostname {{ item.host }}
-        Port {{ item.port |default(22) }}
-        User {{ item.user |default(owner) }}
+        Port {{ item.port |d(22) }}
+        User {{ item.user |d(owner) }}
       {% if filename %}
         IdentityFile ~/.ssh/{{ filename }}
         StrictHostKeyChecking no
       {% endif %}
-    marker: "# RESTIC {mark} {{ item.section |default(alias) }}"
+    marker: "# RESTIC {mark} {{ item.section |d(alias) }}"
     create: true
-  loop: "{{ lin_restic_ssh_configs |default([],true) |flatten }}"
+  loop: "{{ lin_restic_ssh_configs |d([],true) |flatten }}"
   loop_control:
     label: "{{ owner }} / {{ alias }}"
   vars:
-    owner: "{{ item.owner |default('restic') }}"
+    owner: "{{ item.owner |d('restic') }}"
     home: "{{ '/root' if owner == 'root'
               else restic_user_result.home if owner == 'restic'
               else '/home/%s' % owner }}"
-    alias: "{{ item.alias |default(item.host) }}"
-    keyfile: "{{ item.keyfile |default('',true) }}"
+    alias: "{{ item.alias |d(item.host) }}"
+    keyfile: "{{ item.keyfile |d('',true) }}"
     filename: "{{ keyfile |basename }}"
 
 - name: install ssh keys for restic jobs
@@ -129,15 +129,15 @@
     owner: "{{ owner }}"
     mode: 0600
     force: false
-  loop: "{{ lin_restic_ssh_configs |default([],true) |flatten }}"
-  when: keyfile |default('')
+  loop: "{{ lin_restic_ssh_configs |d([],true) |flatten }}"
+  when: keyfile |d('')
   loop_control:
     label: "{{ owner }} / {{ filename }}"
   vars:
-    owner: "{{ item.owner |default('restic') }}"
+    owner: "{{ item.owner |d('restic') }}"
     home: "{{ '/root' if owner == 'root'
               else restic_user_result.home if owner == 'restic'
               else '/home/%s' % owner }}"
-    keyfile: "{{ item.keyfile |default('',true) }}"
+    keyfile: "{{ item.keyfile |d('',true) }}"
     filename: "{{ keyfile |basename }}"
 ...

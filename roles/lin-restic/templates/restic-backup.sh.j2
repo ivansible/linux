@@ -3,18 +3,18 @@ set -o pipefail
 {{ lin_restic_binary }} version
 {% for job in lin_restic_jobs |d([],true) %}
 {%   set auto_tags = [job.name, inventory_hostname] %}
-{%   set augment_tags = auto_tags + job.tags |default([]) %}
+{%   set augment_tags = auto_tags + job.tags |d([]) %}
 {%   set tag_opts = augment_tags |select |map('regex_replace', '^', '--tag=') |list %}
-{%   set exclude_opts = job.excludes |default([]) |select |map('regex_replace', '^', '-e ') |list %}
-{%   set other_opts = job.options |default([]) %}
+{%   set exclude_opts = job.excludes |d([]) |select |map('regex_replace', '^', '-e ') |list %}
+{%   set other_opts = job.options |d([]) %}
 {%   set all_opts = verb_opts + tag_opts + exclude_opts + other_opts %}
 {%   set all_opts_str = all_opts |select |sort |unique |join(' ') %}
 {%   set restic_cmd = '%s backup %s' |format(lin_restic_binary, all_opts_str) %}
 {%   set restic_short = restic_cmd |regex_replace('^/usr/bin/') %}
 {%   set pg_run = 'sudo -u postgres ' %}
 {%   set pg_port = '-p %s' |format(lin_restic_postgres_port) %}
-{%   set pg_stdin = '--stdin --stdin-filename=/pg_%s.sql' |format(job.database |default('')) %}
-{%   set disable = job.disable |default(false) |bool %}
+{%   set pg_stdin = '--stdin --stdin-filename=/pg_%s.sql' |format(job.database |d('')) %}
+{%   set disable = job.disable |d(false) |bool %}
 {%   if disable %}
 echo '== {{ job.name }} ({{ job.type }}, disabled) =='
 {%   else %}

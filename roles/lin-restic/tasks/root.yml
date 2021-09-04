@@ -22,7 +22,7 @@
       token: "{{ lin_restic_rclone_token }}"
       reuse_token: "{{ lin_restic_rclone_reuse_token }}"
       fstab_default: false
-  when: lin_restic_rclone_config |default('')
+  when: lin_restic_rclone_config |d('')
   tags: lin_restic_rclone
 
 - name: verify that restic repository is already created
