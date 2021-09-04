@@ -20,7 +20,7 @@
       - item.name is defined
       - item.type in ['filesystem', 'postgres', 'command']
     quiet: true
-  loop: "{{ lin_restic_jobs }}"
+  loop: "{{ lin_restic_jobs |d([],true) }}"
 
 - name: generate restic backup script
   template:

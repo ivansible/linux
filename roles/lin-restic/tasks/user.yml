@@ -55,13 +55,16 @@
 - name: allow user restic to impersonate for backup jobs
   lineinfile:
     path: /etc/sudoers.d/99-restic
-    line: "restic ALL=({{ item.user }}) NOPASSWD: {{ item.command }}"
+    line: "restic ALL=({{ usr }}) NOPASSWD: {{ cmd }}"
     owner: root
     mode: 0440
     create: true
-  loop: "{{ lin_restic_sudo_rules |default([],true) |flatten }}"
+  loop: "{{ lin_restic_sudo_rules |d([],true) |flatten }}"
   loop_control:
-    label: "{{ item.command |basename }}"
+    label: "{{ cmd |basename }}"
+  vars:
+    usr: "{{ item.user |d('root') }}"
+    cmd: "{{ item.command |d(item |string) }}"
 
 
 - name: create directories for restic jobs

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -o pipefail
 {{ lin_restic_binary }} version
-{% for job in lin_restic_jobs %}
+{% for job in lin_restic_jobs |d([],true) %}
 {%   set auto_tags = [job.name, inventory_hostname] %}
 {%   set augment_tags = auto_tags + job.tags |default([]) %}
 {%   set tag_opts = augment_tags |select |map('regex_replace', '^', '--tag=') |list %}

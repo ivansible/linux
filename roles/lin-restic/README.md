@@ -71,6 +71,7 @@ Directories for rclone mount and command jobs.
 
     lin_restic_sudo_rules: [{user: postgres, command: /usr/bin/pg_dump}]...
 Allow user restic to impersonate via `sudo` for backup jobs.
+If `user` is root, you can use just a simple string with command instead of mapping.
 
     lin_restic_ssh_configs: []
 Optional array of records. Each record must contain the following fields:
