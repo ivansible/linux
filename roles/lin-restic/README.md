@@ -38,11 +38,11 @@ Name and password of the restic repository.
     lin_restic_proxy: proto://host:port
 Optional proxy, protocol is one of `http`,`https`,`socks`,`socks5`.
 
-    lin_restic_cron_time_backup: 2:00
+    lin_restic_cron_time_backup: 7:00
     lin_restic_cron_ordering: false
 Fine-tune restic cron jobs (start daily at specified time).
 
-    lin_restic_cron_time_prune: 5:00
+    lin_restic_cron_time_prune: 7:30
     lin_restic_cron_day_prune: sun
 Fine-tune when cron should start the prune job:
 "sat" - on Saturday, "sun" - on Sunday, "mon-sun" - daily.

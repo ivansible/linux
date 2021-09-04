@@ -101,7 +101,7 @@
   notify: reload systemd daemon
   vars:
     day: "{{ lin_restic_cron_day_prune |default('Mon', true) }}"
-    time: "{{ lin_restic_cron_time_prune |default('5:00', true) }}"
+    time: "{{ lin_restic_cron_time_prune |default('7:30', true) }}"
 
 - name: (de)activate restic weekly prune job
   systemd:

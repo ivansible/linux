@@ -25,8 +25,8 @@ lin_restic_proxy: ~
 
 lin_restic_postgres_port: 5432
 
-lin_restic_cron_time_backup: '2:00'
-lin_restic_cron_time_prune: '5:00'
+lin_restic_cron_time_backup: '7:00'  # after daily cron
+lin_restic_cron_time_prune: '7:30'
 lin_restic_cron_ordering: true
 lin_restic_cron_verbose: 0
 lin_restic_hide_stream_reset: false
