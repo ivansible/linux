@@ -8,5 +8,5 @@ After=restic-backup.service
 Type=oneshot
 User=restic
 Group=rclone
-EnvironmentFile=/etc/default/restic
-ExecStart=/etc/systemd/system/restic-prune.sh
+EnvironmentFile=/etc/restic/vars
+ExecStart=/etc/restic/prune.sh

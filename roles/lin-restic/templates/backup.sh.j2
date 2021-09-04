@@ -1,4 +1,6 @@
 #!/bin/bash
+#set -x
+#. /etc/restic/vars
 set -o pipefail
 {{ lin_restic_binary }} version
 {% for job in lin_restic_jobs |d([],true) %}

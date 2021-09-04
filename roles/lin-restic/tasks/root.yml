@@ -3,6 +3,14 @@
   import_tasks: install.yml
   tags: lin_restic_install
 
+- name: create restic config directory
+  file:
+    path: /etc/restic
+    state: directory
+    owner: root
+    group: rclone
+    mode: 0750
+
 - name: create dedicated restic user
   import_tasks: user.yml
   tags: lin_restic_user
@@ -56,7 +64,11 @@
   when: lin_restic_mount_dir |d('')
   tags: lin_restic_mount
 
-- name: activate restic cron jobs
-  import_tasks: cron.yml
+- name: activate restic backup job
+  import_tasks: backup.yml
+  tags: lin_restic_cron
+
+- name: activate restic prune job
+  import_tasks: prune.yml
   tags: lin_restic_cron
 ...

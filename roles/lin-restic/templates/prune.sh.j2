@@ -1,4 +1,6 @@
 #!/bin/bash
+#set -x
+#. /etc/restic/vars
 set -o pipefail
 {% set nice_restic_binary = 'nice ' + lin_restic_binary %}
 {{ lin_restic_binary }} version

@@ -5,5 +5,5 @@ Description=Restic backup
 Type=oneshot
 User=restic
 Group=rclone
-EnvironmentFile=/etc/default/restic
-ExecStart=/etc/systemd/system/restic-backup.sh
+EnvironmentFile=/etc/restic/vars
+ExecStart=/etc/restic/backup.sh

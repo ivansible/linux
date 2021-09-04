@@ -7,7 +7,7 @@ Conflicts=restic-prune.service
 [Service]
 User=restic
 Group=rclone
-EnvironmentFile=/etc/default/restic
+EnvironmentFile=/etc/restic/vars
 Environment=HOME={{ restic_user_result.home |d('/home/restic') }}
 ExecStartPre=-/bin/fusermount -zu {{ lin_restic_mount_dir }}
 ExecStart={{ lin_restic_binary }} mount {{ lin_restic_mount_dir }} --no-lock --allow-other

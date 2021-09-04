@@ -1,0 +1,64 @@
+---
+- name: restic environment variables for cron
+  blockinfile:
+    path: /etc/restic/vars
+    block: "{{ lookup('template', 'defaults.j2') }}"
+    marker: '# RESTIC {mark}'
+    owner: root
+    group: rclone
+    mode: 0640
+    create: true
+  vars:
+    proxy: "{{ lin_restic_proxy |d('',true) }}"
+    cmd_vars: "{{ lin_restic_cmd_vars |dictsort }}"
+  no_log: "{{ hide_secrets |bool }}"
+
+
+- name: validate restic backup jobs
+  assert:
+    that:
+      - item.name is defined
+      - item.type in ['filesystem', 'postgres', 'command']
+    quiet: true
+  loop: "{{ lin_restic_jobs |d([],true) }}"
+
+- name: generate restic backup script
+  template:
+    src: backup.sh.j2
+    dest: /etc/restic/backup.sh
+    owner: restic
+    group: rclone
+    mode: 0750
+  register: restic_backup_script_result
+  vars:
+    verb_opts: "{{ ['--verbose=%s' |format(lin_restic_cron_verbose)]
+                   if lin_restic_cron_verbose |int > 0 else [] }}"
+  notify: reload systemd daemon
+
+- name: setup restic backup service
+  template:
+    src: backup.service.j2
+    dest: /etc/systemd/system/restic-backup.service
+    mode: 0644
+  register: restic_backup_service_result
+  notify: reload systemd daemon
+
+- name: configure restic backup timer
+  template:
+    src: backup.timer.j2
+    dest: /etc/systemd/system/restic-backup.timer
+    mode: 0644
+  register: restic_backup_timer_result
+  notify: reload systemd daemon
+
+- name: activate restic daily backup job
+  systemd:
+    name: restic-backup.timer
+    state: started
+    enabled: true
+    daemon_reload: "{{ script_changed or service_changed or timer_changed }}"
+  vars:
+    script_changed: "{{ restic_backup_script_result is changed }}"
+    service_changed: "{{ restic_backup_service_result is changed }}"
+    timer_changed: "{{ restic_backup_timer_result is changed }}"
+...

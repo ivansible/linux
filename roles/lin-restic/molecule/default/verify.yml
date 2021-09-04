@@ -14,12 +14,12 @@
 
     - name: run backup
       # noqa 301
-      command: /etc/systemd/system/restic-backup.sh
+      command: /etc/restic/backup.sh
       environment: "{{ restic_test_env }}"
 
     - name: run prune
       # noqa 301
-      command: /etc/systemd/system/restic-prune.sh
+      command: /etc/restic/prune.sh
       environment: "{{ restic_test_env }}"
 
     - name: list snapshots
