@@ -7,7 +7,8 @@ set -o pipefail
 {%   set auto_tags = [job.name, inventory_hostname] %}
 {%   set augment_tags = auto_tags + job.tags |d([]) %}
 {%   set tag_opts = augment_tags |select |map('regex_replace', '^', '--tag=') |list %}
-{%   set exclude_opts = job.excludes |d([]) |select |map('regex_replace', '^', '-e ') |list %}
+{%   set excludes = job.excludes |d([]) |select |list %}
+{%   set exclude_opts = ['--exclude-file=/etc/restic/exclude.' + job.name] if excludes else [] %}
 {%   set other_opts = job.options |d([]) %}
 {%   set all_opts = verb_opts + tag_opts + exclude_opts + other_opts %}
 {%   set all_opts_str = all_opts |select |sort |unique |join(' ') %}

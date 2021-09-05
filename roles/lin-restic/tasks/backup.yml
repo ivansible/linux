@@ -13,7 +13,6 @@
     cmd_vars: "{{ lin_restic_cmd_vars |dictsort }}"
   no_log: "{{ hide_secrets |bool }}"
 
-
 - name: validate restic backup jobs
   assert:
     that:
@@ -21,6 +20,38 @@
       - item.type in ['filesystem', 'postgres', 'command']
     quiet: true
   loop: "{{ lin_restic_jobs |d([],true) }}"
+
+- name: generate restic filesystem exclustions
+  copy:
+    dest: /etc/restic/exclude.{{ job.name }}
+    content: |
+      {% for dir in excludes |sort |unique %}
+      {{ dir }}
+      {% endfor %}
+    force: true
+    owner: root
+    group: rclone
+    mode: 0644
+  when:
+    - job.type == 'filesystem'
+    - not (job.disable |d(false) |bool)
+    - excludes |length > 0
+  vars:
+    excludes: "{{ job.excludes |d([]) |select |list }}"
+  loop: "{{ lin_restic_jobs |d([],true) }}"
+  loop_control:
+    loop_var: job
+    label: "{{ job.name }}"
+
+- name: remove empty restic exclusions
+  file:
+    path: /etc/restic/exclude.{{ job.name }}
+    state: absent
+  when: not (job.excludes |d([]) |select |list)
+  loop: "{{ lin_restic_jobs |d([],true) }}"
+  loop_control:
+    loop_var: job
+    label: "{{ job.name }}"
 
 - name: generate restic backup script
   template:
