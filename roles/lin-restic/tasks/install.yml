@@ -11,7 +11,7 @@
         repository: restic
         release: "{{ lin_restic_version }}"
         owner: "{{ lin_restic_repo_owner }}"
-        template: '{download_url}/restic_{ver}_linux_amd64.bz2'
+        template: '{download_url}/restic_{ver}_linux_{goarch}.bz2'
         strip_v: true
         version_script: "{{ lin_restic_binary }} version"
         script_regex: '[0-9][.][0-9.a-z_-]+'
@@ -37,7 +37,7 @@
         repository: restic
         release: "{{ lin_restic_version }}"
         owner: "{{ lin_restic_repo_owner }}"
-        template: '{download_url}/restic_{ver}_linux_amd64.zip'
+        template: '{download_url}/restic_{ver}_linux_{goarch}.zip'
         strip_v: true
         version_script: "{{ lin_restic_binary }} version"
         script_regex: '[0-9][.][0-9.a-zA-Z_-]+'
