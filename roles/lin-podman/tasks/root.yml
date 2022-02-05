@@ -7,7 +7,7 @@
 
     - name: add kubic repository on modern ubuntu
       apt_repository:
-        repo: "deb [arch=amd64] {{ kubic_repo }}/ /"
+        repo: "deb [arch={{ lin_apt_arch }}] {{ kubic_repo }}/ /"
         filename: podman-kubic
         mode: 0644
   vars:

@@ -2,5 +2,6 @@
 - name: become root and install podman
   import_tasks: root.yml
   become: true
+  when: ansible_architecture == 'x86_64' or ansible_lsb.release is version('20.04','>=')
   tags: lin_podman_all
 ...
