@@ -1,18 +1,4 @@
 ---
-dependency:
-  name: galaxy
-  options:
-    role-file: molecule/default/requirements.yml
-driver:
-  name: delegated
-  options:
-    managed: false
-    ansible_connection_options:
-      ansible_connection: local
-platforms:
-  - name: localhost
-    groups:
-      - molecule
 provisioner:
   name: ansible
   inventory:
@@ -28,6 +14,10 @@ provisioner:
     prepare: ../default/prepare.yml
     converge: ../default/converge.yml
     verify: ../default/verify.yml
+  config_options:
+    defaults:
+      strategy: linear
+      verbosity: 1
   lint:
     name: ansible-lint
 verifier:
@@ -35,6 +25,20 @@ verifier:
   lint:
     name: ansible-lint
     enabled: false
+dependency:
+  name: galaxy
+  options:
+    role-file: molecule/default/requirements.yml
+driver:
+  name: delegated
+  options:
+    managed: false
+    ansible_connection_options:
+      ansible_connection: local
+platforms:
+  - name: localhost
+    groups:
+      - molecule
 scenario:
   name: localhost
   test_sequence:
