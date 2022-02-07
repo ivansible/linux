@@ -5,15 +5,24 @@
     state: absent
     purge: true
 
-- name: install perl Net::DNS and ipset packages
-  apt:
-    name:
+- name: install perl Net::DNS and ipset packages (block)
+  block:
+    - name: install perl Net::DNS and ipset packages (will rescue if it fails)
+      apt:
+        name: "{{ packages }}"
+        no_log: "{{ hide_secrets |bool }}"  # reduce verbose failure message
+  rescue:
+    - name: install perl Net::DNS and ipset packages (update cache to rescue)
+      apt:
+        name: "{{ packages }}"
+        update_cache: true
+  vars:
+    packages:
       - libnet-dns-perl
       - ipset
       - iptables
       ## install gcc to build 'no-lock' library
       - build-essential
-    state: present
 
 - name: install extra iptables modules for ferm
   block:
