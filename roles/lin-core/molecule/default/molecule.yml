@@ -5,13 +5,6 @@ provisioner:
     group_vars:
       molecule:
         ansible_user: ansible
-        lin_core_system_locale: en_US.UTF-8
-        lin_use_ssh: ${IVATEST_SSH_SERVER:-true}
-        real_ssh_port: ${IVATEST_SSH_PORT:-22}
-        allow_sysctl: false
-        # these will fail in docker:
-        lin_core_time_sync: false
-        lin_firewall: ${IVATEST_FIREWALL:-ferm}
   config_options:
     defaults:
       strategy: linear

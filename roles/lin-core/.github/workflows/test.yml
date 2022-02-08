@@ -24,6 +24,8 @@ jobs:
       IVATEST_SSH_PORT: 0
       # prevent mucking iptables on github runners or in docker
       IVATEST_FIREWALL: 'none'
+      # ntp sync passes on host, fails in docker
+      IVATEST_TIME_SYNC: ${{ matrix.time_sync }}
 
     strategy:
       fail-fast: false
@@ -32,10 +34,12 @@ jobs:
           - name: focal
             os: ubuntu-20.04
             scenario: localhost
+            time_sync: true
 
           - name: docker
             os: ubuntu-latest
             scenario: default
+            time_sync: false
 
     steps:
       - name: checkout repository

@@ -1,3 +1,9 @@
 ---
 is_permitted: false
+lin_core_system_locale: en_US.UTF-8
+allow_sysctl: false
+lin_use_ssh: "{{ lookup('env','IVATEST_SSH_SERVER')|d('true',true)|bool }}"
+real_ssh_port: "{{ lookup('env','IVATEST_SSH_PORT')|d('22',true)|int }}"
+lin_firewall: "{{ lookup('env','IVATEST_FIREWALL')|d('ferm',true)|string }}"
+lin_core_time_sync: "{{ lookup('env','IVATEST_TIME_SYNC')|d('true',true)|bool }}"
 ...
