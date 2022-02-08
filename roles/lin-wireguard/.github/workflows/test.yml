@@ -1,0 +1,67 @@
+---
+name: test
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    env:
+      ROLE_NAME: ivansible.lin_wireguard
+      SCENARIO: ${{ matrix.scenario }}
+      ANSIBLE_FORCE_COLOR: true
+
+      IVATEST_SSH_SERVER: ${{ matrix.ssh_server }}
+      # prevent mucking iptables on github runners or in docker
+      IVATEST_FIREWALL: 'none'
+      # ntp sync passes on host, fails in docker
+      IVATEST_TIME_SYNC: ${{ matrix.time_sync }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # name: focal
+          # os: ubuntu-20.04
+          # scenario: localhost
+          # ssh_server: false
+          # time_sync: true
+
+          - name: docker
+            os: ubuntu-latest
+            scenario: default
+            ssh_server: true
+            time_sync: false
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+
+      - name: install requisites
+        run: |
+          sudo apt-get remove -qy python3-yaml
+          sudo rm -f /opt/pipx_bin/ansible*
+          sudo -H python3 -m pip install -U pip setuptools wheel
+          sudo -H pip3 install -r molecule/default/requirements.txt
+
+      - name: run test
+        run: |
+          molecule test -s $SCENARIO
+
+  galaxy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: push role to galaxy
+        uses: 0x022b/galaxy-role-import-action@v1
+        with:
+          galaxy_api_key: ${{ secrets.GALAXY_API_KEY }}
+...
