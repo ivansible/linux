@@ -20,7 +20,9 @@ jobs:
       ANSIBLE_FORCE_COLOR: true
 
       IVATEST_SSH_SERVER: ${{ matrix.ssh_server }}
+      # iptables roles and ntp sync fail in docker on github runners
       IVATEST_FIREWALL: ${{ matrix.firewall_kind }}
+      IVATEST_TIME_SYNC: ${{ matrix.time_sync }}
 
     strategy:
       fail-fast: false
@@ -31,13 +33,14 @@ jobs:
             scenario: localhost
             ssh_server: false
             firewall_kind: ferm
+            time_sync: true
 
           - name: docker
             os: ubuntu-latest
             scenario: default
             ssh_server: false
-            # iptables roles fail in docker on github runners
             firewall_kind: 'none'
+            time_sync: false
 
     steps:
       - name: checkout repository
