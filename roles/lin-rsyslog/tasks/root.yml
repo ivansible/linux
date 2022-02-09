@@ -64,14 +64,15 @@
   tags: lin_rsyslog_fixes
 
 - name: adjust mail logging
-  # use standard logrotate rules for mail
+  ## use standard logrotate rules for mail
   copy:
     dest: /etc/rsyslog.d/33-mail.conf
+    ## noqa no-tabs
     content: |
       #mail.info	-/var/log/mail.info
       #mail.warn	-/var/log/mail.warn
-      {# noqa 203 (force tabs) #}mail.err	/var/log/mail.err
-      {# noqa 203 (force tabs) #}mail.*		-/var/log/mail.log
+      mail.err	/var/log/mail.err
+      mail.*		-/var/log/mail.log
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
     mode: 0644
@@ -83,7 +84,7 @@
   copy:
     dest: /etc/rsyslog.d/20-ufw.conf
     content: |
-      # Log kernel generated UFW log messages to file
+      ## Log kernel generated UFW log messages to file
       :msg,contains,"[UFW " /var/log/ufw.log
 
       # Uncomment the following to stop logging anything that matches the last rule.
@@ -91,6 +92,7 @@
       # normally containing kern.* messages (eg, /var/log/kern.log)
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    ## " dummy quote to fix vim highlighter
     mode: 0644
   notify: restart syslog service
   when: lin_rsyslog_separate_ufw |bool
@@ -111,6 +113,7 @@
   lineinfile:
     path: /etc/logrotate.d/ufw
     regex: '^\s+maxsize'
+    ## noqa no-tabs
     line: "\tmaxsize 1M"
     insertbefore: '^\s+weekly|^}'
     firstmatch: true
@@ -172,12 +175,14 @@
 - name: log keenetic to dedicated log
   copy:
     dest: /etc/rsyslog.d/33-keenetic.conf
+    ## noqa no-tabs
     content: |
       module(load="imudp")
       input(type="imudp" port="514")
-      {# noqa 203 (force tabs) #}:FROMHOST,isequal,"{{ lin_rsyslog_keenetic_ip }}"	/var/log/keenetic.log
+      :FROMHOST,isequal,"{{ lin_rsyslog_keenetic_ip }}"	/var/log/keenetic.log
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    ## " dummy quote to fix vim highlighter
     mode: 0644
   notify: restart syslog service
   when: lin_rsyslog_keenetic_ip |default('')
@@ -222,6 +227,7 @@
       cron.* {{ cron_log }}
       & stop
     force: "{{ lin_rsyslog_force_rules |bool }}"
+    ## " dummy quote to fix vim highlighter
     mode: 0644
   vars:
     patterns:

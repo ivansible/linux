@@ -10,7 +10,7 @@
     commentout: "{{ lin_compress_logs |bool |ternary('','#') }}"
   loop: "{{ lin_rsyslog_logrotate_files }}"
   when: lin_compress_logs |default(none) is not none
-  ignore_errors: true
+  failed_when: false
   become: true
   tags: lin_rsyslog_compress
 ...
