@@ -1,36 +1,4 @@
 ---
-dependency:
-  name: galaxy
-driver:
-  name: docker
-platforms:
-  - name: xenial
-    image: ivandeex/molecule:16.04
-    command: ""
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
-    pre_build_image: true
-    groups:
-      - molecule
-  - name: bionic
-    image: ivandeex/molecule:18.04
-    command: ""
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
-    pre_build_image: true
-    groups:
-      - molecule
-  - name: focal
-    image: ivandeex/molecule:20.04
-    command: ""
-    volumes:
-      - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    privileged: true
-    pre_build_image: true
-    groups:
-      - molecule
 provisioner:
   name: ansible
   inventory:
@@ -39,6 +7,7 @@ provisioner:
         ansible_user: ansible
   config_options:
     defaults:
+      strategy: linear
       verbosity: 1
   lint:
     name: ansible-lint
@@ -47,6 +16,29 @@ verifier:
   lint:
     name: ansible-lint
     enabled: false
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: focal
+    groups:
+      - molecule
+    image: ivandeex/molecule:20.04
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+  - name: bionic
+    groups:
+      - molecule
+    image: ivandeex/molecule:18.04
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
 scenario:
   name: default
   converge_sequence:

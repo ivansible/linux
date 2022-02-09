@@ -28,7 +28,7 @@
         name: "openvpn@{{ item.name }}"
         state: stopped
         enabled: false
-      ignore_errors: true
+      failed_when: false
       loop: "{{ srv_ovpn_servers |default([],true) |json_query('[?!!disable]') }}"
       loop_control:
         label: "openvpn@{{ item.name }}"
