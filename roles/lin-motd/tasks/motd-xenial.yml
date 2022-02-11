@@ -12,7 +12,7 @@
   loop_control:
     label: "{{ item }}"
   # ignore missing banners and supress error messages
-  ignore_errors: true
+  failed_when: false
   no_log: "{{ hide_secrets |bool }}"
 
 - name: disable cron job motd-news
@@ -20,6 +20,6 @@
     name: motd-news.timer
     state: stopped
     enabled: false
-  ignore_errors: true
+  failed_when: false
   no_log: true
 ...

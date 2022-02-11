@@ -7,34 +7,34 @@
       tags:
         - lin_motd_xenial
         - lin_motd_all
-  when: ansible_lsb.codename in ['xenial']
+  when: ansible_lsb.release is version('18.04','<')
   tags:
     - lin_motd_xenial
     - lin_motd_all
 
-- name: disable motd banners on ubuntu bionic+
-  include_tasks: motd-bionic.yml
+- name: disable motd banners on modern ubuntu
+  include_tasks: motd.yml
   args:
     apply:
       become: true
       tags:
-        - lin_motd_bionic
+        - lin_motd_ubuntu
         - lin_motd_all
   when: ansible_lsb.release is version('18.04','>=')
   tags:
-    - lin_motd_bionic
+    - lin_motd_ubuntu
     - lin_motd_all
 
 - name: switch motd login header on/off
   file:
     path: /etc/update-motd.d/00-header
-    mode: "{{ lin_motd_banner |bool |ternary(0755, 0644) }}"
+    mode: "{{ lin_motd_banner |bool |ternary('0755','0644') }}"
   become: true
   # ignore missing banners and supress error messages
-  ignore_errors: true
+  failed_when: false
   no_log: "{{ hide_secrets |bool }}"
   tags:
     - lin_motd_xenial
-    - lin_motd_bionic
+    - lin_motd_ubuntu
     - lin_motd_all
 ...

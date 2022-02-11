@@ -1,5 +1,5 @@
 ---
-- name: disable bionic+ motd banners by disabling execution (ok to fail)
+- name: disable ubuntu motd banners by disabling execution (ok to fail)
   file:
     path: /etc/update-motd.d/{{ item }}
     mode: 0644
@@ -15,17 +15,17 @@
     - 95-hwe-eol
   loop_control:
     label: "{{ item }}"
-  ignore_errors: true
+  failed_when: false
   no_log: "{{ hide_secrets |bool }}"
 
-- name: disable bionic+ motd banners by renaming (ok to fail)
+- name: disable ubuntu motd banners by renaming (ok to fail)
   command: mv /etc/update-motd.d/{{ item }} /etc/update-motd.d/{{ item }}.off
   args:
     removes: /etc/update-motd.d/{{ item }}
   loop: []
   loop_control:
     label: "{{ item }}"
-  ignore_errors: true
+  failed_when: false
   no_log: "{{ hide_secrets |bool }}"
 
 - name: disable cron job motd-news
@@ -33,6 +33,6 @@
     name: motd-news.timer
     state: stopped
     enabled: false
-  ignore_errors: true
+  failed_when: false
   no_log: true
 ...
