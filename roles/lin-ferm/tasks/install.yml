@@ -10,7 +10,7 @@
     - name: install perl Net::DNS and ipset packages (will rescue if it fails)
       apt:
         name: "{{ packages }}"
-        no_log: "{{ hide_secrets |bool }}"  # reduce verbose failure message
+      no_log: "{{ hide_secrets |bool }}"  # reduce verbose failure message
   rescue:
     - name: install perl Net::DNS and ipset packages (update cache to rescue)
       apt:
