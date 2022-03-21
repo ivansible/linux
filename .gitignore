@@ -1,0 +1,12 @@
+!.gitkeep
+__pycache__
+.galaxy_install_info
+/*.tar.gz
+*-temp*
+*~
+*.bak
+*.retry
+*.pyc
+*.pyo
+*.swp
+.cache
