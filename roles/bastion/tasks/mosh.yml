@@ -4,7 +4,7 @@
     name: mosh
 
 - name: open mosh ports in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{  lin_mosh_ports }}"
     proto: udp
     comment: mosh

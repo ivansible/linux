@@ -1,6 +1,6 @@
 ---
 - name: detect latest docker-machine release
-  github_release:
+  ivansible.base.github_release:
     repository: docker/machine
     release: "{{ docker_machine_release }}"
     template: "{download_url}/docker-machine-Linux-x86_64"

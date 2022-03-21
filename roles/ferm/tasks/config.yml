@@ -54,7 +54,7 @@
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: setup core ferm rules before start
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: "ferm-{{ item.name }}"
     prio: "{{ item.prio }}"
     hook: "{{ item.hook |default('custom') }}"
@@ -69,7 +69,7 @@
     label: "{{ item.name }}"
 
 - name: open external ports in ferm before start
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ ferm_ports_external }}"
     zone: external
     comment: ferm core

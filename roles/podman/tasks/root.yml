@@ -41,7 +41,7 @@
   when: allow_sysctl |bool
 
 - name: detect latest fuse-overlayfs release
-  github_release:
+  ivansible.base.github_release:
     repository: containers/fuse-overlayfs
     release: latest
     creates: /usr/bin/fuse-overlayfs

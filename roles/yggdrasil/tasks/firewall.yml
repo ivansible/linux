@@ -8,7 +8,7 @@
   when: lin_firewall == 'ufw' and ygg_tls_port |int
 
 - name: open yggdrasil tls port for all in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ ygg_tls_port }}"
     proto: tcp
     zone: external
@@ -18,7 +18,7 @@
   tags: skip_ansible_lint
 
 - name: open yggdrasil tcp port for internal hosts in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ ygg_tcp_port }}"
     proto: tcp
     zone: internal

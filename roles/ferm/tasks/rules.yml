@@ -1,6 +1,6 @@
 ---
 - name: open external ports in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ ferm_ports_external }}"
     comment: ferm core
     zone: external
@@ -9,7 +9,7 @@
   tags: skip_ansible_lint
 
 - name: open internal ports in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ ferm_ports_internal }}"
     comment: ferm core
     zone: internal
@@ -18,7 +18,7 @@
   tags: skip_ansible_lint
 
 - name: block ports in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ ferm_ports_block }}"
     comment: ferm core
     zone: blocked
@@ -27,7 +27,7 @@
   tags: skip_ansible_lint
 
 - name: add internal hosts in ferm
-  ferm_host:
+  ivansible.base.ferm_host:
     host: "{{ var_hosts_internal + cli_hosts_internal }}"
     comment: ferm core
     zone: internal
@@ -42,7 +42,7 @@
     - lin_ferm_hosts_extras
 
 - name: block hosts in ferm
-  ferm_host:
+  ivansible.base.ferm_host:
     host: "{{ var_hosts_block + cli_hosts_block }}"
     comment: ferm core
     zone: blocked

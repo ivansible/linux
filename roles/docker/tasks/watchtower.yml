@@ -1,6 +1,6 @@
 ---
 - name: detect latest watchtower release
-  github_release:
+  ivansible.base.github_release:
     repository: containrrr/watchtower
     release: latest
     creates: /usr/local/sbin/watchtower

@@ -1,6 +1,6 @@
 ---
 - name: add yggdrasil peers as internal hosts in ferm
-  ferm_host:
+  ivansible.base.ferm_host:
     host: "{{ ipv6 }}"
     comment: "yggdrasil ({{ alias }})"
     zone: internal

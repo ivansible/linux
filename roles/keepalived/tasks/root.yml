@@ -61,7 +61,7 @@
   tags: lin_kad_service
 
 - name: allow vrrp traffic in ferm
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: vrrp
     prio: 34
     rule: |

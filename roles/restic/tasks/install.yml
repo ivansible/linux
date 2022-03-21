@@ -7,7 +7,7 @@
 - name: install restic binary
   block:
     - name: detect latest restic binary release
-      github_release:
+      ivansible.base.github_release:
         repository: restic
         release: "{{ lin_restic_version }}"
         owner: "{{ lin_restic_repo_owner }}"
@@ -33,7 +33,7 @@
 - name: install restic binary from zip archive
   block:
     - name: detect latest restic archive release
-      github_release:
+      ivansible.base.github_release:
         repository: restic
         release: "{{ lin_restic_version }}"
         owner: "{{ lin_restic_repo_owner }}"

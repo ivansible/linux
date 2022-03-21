@@ -10,7 +10,7 @@
     autoremove: true
 
 - name: detect latest docker-compose release
-  github_release:
+  ivansible.base.github_release:
     repository: docker/compose
     release: "{{ docker_compose_release }}"
     template: '{download_url}/docker-compose-Linux-x86_64'

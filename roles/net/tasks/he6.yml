@@ -17,7 +17,7 @@
   register: he6_iface_result
 
 - name: configure ferm firewall on he6 interface
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: "ipv6-he-{{ lin_he6_device }}"
     prio: 40
     rule: "{{ lookup('template', 'he6.ferm.j2') }}"

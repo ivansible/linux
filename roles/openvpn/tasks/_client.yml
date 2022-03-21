@@ -118,7 +118,7 @@
   notify: restart openvpn servers
 
 - name: masquerade redirected client traffic in ferm for '{{ full_name }}'
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: "ovpn-gw-{{ server_name }}-{{ client_name }}"
     prio: 78
     rule: "{{ lookup('template', 'client/redirect-gateway.ferm.j2') }}"
@@ -129,7 +129,7 @@
   when: lin_firewall == 'ferm'
 
 - name: collect redirected client addresses for '{{ full_name }}'
-  ferm_host:
+  ivansible.base.ferm_host:
     host:
       - "{{ (client_subnet4 |ipaddr('address') or client_subnet4) if redirect_ipv4 else '' }}"
       - "{{ (client_subnet6 |ipaddr('address') or client_subnet6) if redirect_ipv6 else '' }}"

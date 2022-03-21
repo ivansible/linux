@@ -1,6 +1,6 @@
 ---
 - name: open wireguard port in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ item.port |d(0) }}"
     proto: udp
     comment: wireguard
@@ -11,7 +11,7 @@
   when: item.port |d(0) |int
 
 - name: enable wireguard forwarding
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: wireguard
     prio: 77
     hook: custom
@@ -22,7 +22,7 @@
     public_iface: "{{ lin_wg_public_interface |d('',true) }}"
 
 - name: collect client addresses for forwarding
-  ferm_host:
+  ivansible.base.ferm_host:
     host: "{% for ip in peer_ips %}{{ ip |ipaddr('address') or ip }}{{ loop.last |ternary('',',') }}{% endfor %}"
     comment: "wireguard {{ peer.name |d('peer') }}"
     zone: nat

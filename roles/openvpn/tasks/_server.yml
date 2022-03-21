@@ -164,7 +164,7 @@
   when: lin_firewall == 'ufw'
 
 - name: open/block server port in ferm for '{{ server_name }}'
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ server_port |int }}"
     proto: "{{ server_proto }}"
     zone: "{{ internal |ternary('internal','external') }}"

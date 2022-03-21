@@ -1,6 +1,6 @@
 ---
 - name: configure ferm port forwards
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: forwards
     prio: 76
     rule: "{{ lookup('template', 'forwards.ferm') }}"

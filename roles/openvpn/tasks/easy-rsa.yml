@@ -8,7 +8,7 @@
     mode: 0750
 
 - name: find latest version of easy-rsa
-  github_release:
+  ivansible.base.github_release:
     repository: OpenVPN/easy-rsa
     release: latest
     template: '{download_url}/EasyRSA-{ver}.tgz'

@@ -159,7 +159,7 @@
 
 
 - name: enable logging from remote (internal) hosts in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: 514
     proto: udp
     comment: rsyslog

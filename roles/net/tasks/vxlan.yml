@@ -7,7 +7,7 @@
   register: _vxlan_iface_result
 
 - name: open vxlan port in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ lin_vxlan_port }}"
     proto: udp
     zone: internal
@@ -16,7 +16,7 @@
   when: lin_firewall == 'ferm'
 
 - name: permit vxlan forwarding in ferm
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: vxlan
     prio: 77
     hook: custom

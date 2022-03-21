@@ -1,6 +1,6 @@
 ---
 - name: open internal ports in ferm for docker swarm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ docker_swarm_ports }}"
     comment: docker swarm
     zone: internal
@@ -8,7 +8,7 @@
   tags: [skip_ansible_lint, lin_docker_firewall]
 
 - name: permit ipsec/esp in ferm for swarm
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: docker-swarm
     prio: 33
     rule: |

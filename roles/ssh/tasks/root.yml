@@ -25,7 +25,7 @@
   tags: lin_ssh_firewall
 
 - name: open ssh port in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: "{{ real_ssh_port |string }}"
     proto: tcp
     zone: external
@@ -38,7 +38,7 @@
     - lin_ssh_firewall
 
 - name: set connection limit on ssh port
-  ferm_rule:
+  ivansible.base.ferm_rule:
     name: ssh-limit
     rule: |
       # SSH Connection Limit

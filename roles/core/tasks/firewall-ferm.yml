@@ -9,7 +9,7 @@
       - "{{ real_ssh_port |string }}/tcp"
 
 - name: open ntp port in ferm
-  ferm_port:
+  ivansible.base.ferm_port:
     port: 123/udp
     zone: "{{ lin_core_open_ntp |bool |ternary('external','internal') }}"
     solo_zone: true
@@ -20,7 +20,7 @@
 - name: fix ssh port in ferm firewall
   block:
     - name: close port 22/tcp in ferm, if not used
-      ferm_port:
+      ivansible.base.ferm_port:
         port: 22
         proto: tcp
         state: absent
@@ -28,7 +28,7 @@
       tags: skip_ansible_lint
 
     - name: close port 22 (tcp+udp) in ferm, if not used
-      ferm_port:
+      ivansible.base.ferm_port:
         port: 22
         state: absent
       ignore_errors: "{{ ansible_check_mode }}"

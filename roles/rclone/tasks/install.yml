@@ -2,7 +2,7 @@
 - name: install rclone from package
   block:
     - name: detect latest rclone package release
-      github_release:
+      ivansible.base.github_release:
         repository: rclone
         release: "{{ lin_rclone_version }}"
         owner: "{{ lin_rclone_repo_owner }}"
@@ -30,7 +30,7 @@
 - name: install rclone from zip archive
   block:
     - name: detect latest rclone archive release
-      github_release:
+      ivansible.base.github_release:
         repository: rclone
         release: "{{ lin_rclone_version }}"
         owner: "{{ lin_rclone_repo_owner }}"
