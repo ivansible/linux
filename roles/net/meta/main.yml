@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base
+  - ivansible.base.linux
 
 galaxy_info:
   role_name: lin_net

@@ -1,7 +1,7 @@
 ---
 - name: activate ferm firewall
   import_role:
-    name: ivansible.lin_ferm
+    name: ivansible.linux.ferm
   vars:
     ferm_install: true
     ferm_ports_external:

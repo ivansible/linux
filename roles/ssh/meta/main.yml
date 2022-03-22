@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for ssh restart handler and ssh enabling flag
+  - ivansible.base.linux  # for ssh restart handler and ssh enabling flag
 
 galaxy_info:
   role_name: lin_ssh

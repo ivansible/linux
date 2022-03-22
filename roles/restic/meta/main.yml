@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_rclone
+  - ivansible.linux.rclone
 
 galaxy_info:
   role_name: lin_restic

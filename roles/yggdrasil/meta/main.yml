@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for lin_firewall
+  - ivansible.base.linux  # for lin_firewall
 
 galaxy_info:
   role_name: lin_yggdrasil

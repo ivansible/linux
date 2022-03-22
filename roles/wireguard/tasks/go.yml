@@ -1,7 +1,7 @@
 ---
 - name: install golang for building wireguard-go
   import_role:
-    name: ivansible.lin_go
+    name: ivansible.devel.go
     # exports lin_go_version
 
 - name: create temporary directory for building wireguard-go

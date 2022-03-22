@@ -1,6 +1,6 @@
 ---
 dependencies:
-  - ivansible.lin_base  # for hide_secrets
+  - ivansible.base.linux  # for hide_secrets
 
 galaxy_info:
   role_name: lin_motd
