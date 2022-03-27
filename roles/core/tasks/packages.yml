@@ -22,15 +22,17 @@
 - block:
     - name: install core development packages (ok to fail once, log hidden)
       apt:
-        name: "{{ lin_core_packages_devel |select |list }}"
+        name: "{{ packages }}"
         state: present
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: update apt lists and install core development packages
       apt:
-        name: "{{ lin_core_packages_devel |select |list }}"
+        name: "{{ packages }}"
         state: present
         update_cache: true
+  vars:
+    packages: "{{ lin_core_packages_devel |select |list }}"
 
 ## it may be a good idea to restart mitogen runner
 ## after installing python apt bindings

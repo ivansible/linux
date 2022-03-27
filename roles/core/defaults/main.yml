@@ -88,8 +88,8 @@ lin_core_packages_devel:
   - "{{ lin_use_python2 |bool |ternary('python-apt', '') }}"
   - python3-apt
   # development
-  - python
   - python3
+  - "{{ lin_use_python2 |bool |ternary('python', '') }}"
   - "{{ lin_use_python2 |bool |ternary('python-pip', '') }}"
   - python3-pip
   - virtualenv
