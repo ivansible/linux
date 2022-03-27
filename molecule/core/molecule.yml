@@ -1,0 +1,61 @@
+---
+provisioner:
+  name: ansible
+  inventory:
+    links:
+      hosts: settings.yml
+  playbooks:
+    prepare: prepare.yml
+    converge: converge.yml
+    ## using testinfra - no verify playbook
+  env:
+    ANSIBLE_CALLBACK_PLUGINS: $MOLECULE_PROJECT_DIRECTORY/plugins/callback
+    ANSIBLE_STRATEGY_PLUGINS: $HOME/.ansible/venv/site-packages/ansible_mitogen/plugins/strategy
+    IVATEST_SSH_PORT: 0  # ssh is handled by another scenario - skip ssh test
+  config_options:
+    defaults:
+      strategy: ${ANSIBLE_STRATEGY:-mitogen_linear}
+      stdout_callback: ${ANSIBLE_STDOUT_CALLBACK:-unixy2}
+      verbosity: 1
+dependency:
+  name: galaxy
+  options:
+    role-file: molecule/default/requirements.yml
+lint: |
+  ansible-lint
+scenario:
+  test_sequence:
+    - dependency
+    - syntax
+    - lint
+    - destroy
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - destroy
+  create_sequence:
+    - create
+    # prepare
+  destroy_sequence:
+    - destroy
+    # cleanup
+  converge_sequence:
+    - converge
+verifier:
+  name: testinfra
+  directory: testinfra
+driver:
+  name: docker
+platforms:
+  - name: focal.$MOLECULE_SCENARIO_NAME
+    groups:
+      - docker_molecule
+    image: ivandeex/molecule:20.04
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    privileged: true
+    pre_build_image: true
+...

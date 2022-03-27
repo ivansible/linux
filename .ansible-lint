@@ -1,3 +1,7 @@
 ---
-skip_list: [role-name, no-handler]
+skip_list:
+  - role-name
+  - no-handler
+exclude_paths:
+  - molecule/*/settings.yml
 ...

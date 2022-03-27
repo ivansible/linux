@@ -1,0 +1,6 @@
+---
+- name: prepare
+  hosts: all
+  roles:
+    - ivansible.linux.core
+...

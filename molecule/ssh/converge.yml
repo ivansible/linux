@@ -1,0 +1,6 @@
+---
+- name: converge
+  hosts: all
+  roles:
+    - ivansible.linux.ssh
+...

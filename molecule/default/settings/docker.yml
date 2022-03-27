@@ -1,0 +1,30 @@
+---
+all:
+  children:
+    molecule:
+      children:
+        docker_molecule:
+          vars:
+            ansible_user: ansible
+        local_molecule:
+          vars:
+            lin_use_docker: false
+      vars:
+        is_permitted: false
+        allow_sysctl: false
+        lin_firewall: none
+        lin_use_ssh: false
+        lin_core_time_sync: false
+        lin_core_system_locale: en_US.UTF-8
+
+        lin_use_docker: true
+        docker_tls_enable: true
+        docker_tls_addr: 127.0.0.1
+        docker_tls_server_cnames:
+          - "{{ ansible_default_ipv4.address |d('') }}"
+          - "{{ ansible_default_ipv6.address |d('') }}"
+          - "{{ inventory_hostname }}.ca.example.com"
+
+        docker_daily_gc: true
+        docker_watchtower_enable: true
+...

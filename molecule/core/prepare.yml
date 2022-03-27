@@ -1,0 +1,5 @@
+---
+- name: prepare
+  hosts: all
+  ## nothing to do
+...

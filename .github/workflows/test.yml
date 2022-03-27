@@ -1,0 +1,114 @@
+---
+name: test
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '*'
+  pull_request:
+
+jobs:
+  test:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-20.04
+    env:
+      COLLNAME: ivansible/linux
+      SCENARIO: ${{ matrix.scenario }}
+      PLAYBOOK: ${{ matrix.playbook }}
+      ANSIBLE_FORCE_COLOR: true
+      PY_COLORS: true
+
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          ## skip: ansible bastion net podman refresh yggdrasil
+
+          - name: core
+            scenario: core
+
+          - name: core.local
+            scenario: core.local
+
+          - name: ferm
+            playbook: ferm
+
+          - name: ferm.local
+            playbook: ferm
+            scenario: local
+
+          - name: motd
+            playbook: motd
+
+          - name: rsyslog
+            playbook: rsyslog
+
+          - name: ssh
+            scenario: ssh
+            ssh_port: 22
+
+          - name: docker
+            playbook: docker
+
+          - name: keepalived
+            playbook: keepalived
+
+          - name: rclone
+            playbook: rclone
+
+          - name: restic
+            playbook: restic
+
+          - name: openvpn
+            playbook: openvpn
+
+          - name: wireguard
+            playbook: wireguard
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+
+      - name: install requisites
+        run: |
+          sudo apt-get remove -qy python3-yaml
+          sudo rm -f /opt/pipx_bin/ansible*
+          sudo -H python3 -m pip install -U pip setuptools wheel
+          sudo -H pip3 install -r ./molecule/default/requirements.txt
+
+      - name: fix mitogen and molecule
+        run: |
+          MITOGEN=$(python3 -c "import ansible_mitogen as m; print(m.__path__[0])")
+          VENV=$(dirname $MITOGEN)
+          PRJ=$(pwd)
+          SRC=$PRJ/.github/workflows
+          sudo patch -d $VENV/molecule_docker -p1 -i $SRC/docker-mitogen.patch
+          sudo patch -d $VENV/mitogen -p1 -i $SRC/mitogen-distro.patch
+          LNK=$HOME/.ansible/venv/site-packages/ansible_mitogen/plugins/strategy
+          mkdir -p $(dirname $LNK)
+          ln -sf $MITOGEN/plugins/strategy $LNK
+
+      - name: let molecule detect current collection
+        run: |
+          LNK=$HOME/.ansible/collections/ansible_collections/$COLLNAME
+          mkdir -p $(dirname $LNK)
+          ln -sf $(pwd) $LNK
+
+      - name: run test
+        run: |
+          cd ~/.ansible/collections/ansible_collections/$COLLNAME
+          molecule test -s ${SCENARIO:-default}
+
+# galaxy:
+#   needs: test
+#   runs-on: ubuntu-latest
+#   steps:
+#     - name: push collection to galaxy
+#       uses: 0x022b/galaxy-role-import-action@v1
+#       with:
+#         galaxy_api_key: ${{ secrets.GALAXY_API_KEY }}
+...

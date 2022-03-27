@@ -1,0 +1,24 @@
+---
+all:
+  vars:
+    is_github_test: "{{ lookup('env','GITHUB_ACTION') != '' }}"  # detect github
+  children:
+    molecule:
+      children:
+        docker_molecule:
+          vars:
+            ansible_user: ansible
+            ## ferm passes in local docker but fails in docker on github worker container
+            ferm_install: "{{ not is_github_test }}"
+        local_molecule:
+          vars:
+            ## prevent disturbing a local workstation but let the test pass on github runner
+            ferm_install: "{{ is_github_test }}"
+      vars:
+        is_permitted: false
+        allow_sysctl: false
+        lin_firewall: none  # prevent ferm install from the core role
+        lin_use_ssh: false
+        lin_core_time_sync: false
+        lin_core_system_locale: en_US.UTF-8
+...

@@ -1,0 +1,22 @@
+---
+all:
+  children:
+    molecule:
+      vars:
+        is_permitted: false
+        lin_core_system_locale: en_US.UTF-8
+        allow_sysctl: false
+        lin_firewall: none  # no mucking iptables on github runners nor in docker
+      children:
+        docker_molecule:
+          vars:
+            ansible_user: ansible
+            lin_core_time_sync: false
+            lin_use_ssh: true
+            real_ssh_port: 22
+        local_molecule:
+          vars:
+            lin_core_time_sync: true
+            lin_use_ssh: false  # no messing with ssh port on localhost
+            real_ssh_port: 0
+...

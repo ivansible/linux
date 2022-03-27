@@ -1,0 +1,30 @@
+---
+all:
+  children:
+    molecule:
+      children:
+        docker_molecule:
+        local_molecule:
+      vars:
+        ansible_user: ansible
+        is_permitted: false
+        allow_sysctl: false
+        lin_use_ssh: false
+        lin_firewall: none
+        lin_core_time_sync: false
+        lin_core_system_locale: en_US.UTF-8
+
+        lin_rclone_allow_nonroot: false
+        lin_rclone_disable_netdev: true
+        lin_rclone_mounts:
+          - name: test1
+            path: /mnt/test1
+            config: |
+              type = alias
+              remote = /bin
+          - name: test2
+            path: /mnt/test2
+            config: |
+              type = alias
+              remote = /bin
+...

@@ -1,0 +1,13 @@
+--- mitogen/master.py.bak	2022-03-28 19:43:35.594371211 +0300
++++ mitogen/master.py	2022-03-28 19:44:28.250723494 +0300
+@@ -653,8 +653,9 @@
+                 return [], None, modpath
+ 
+             pkg = sys.modules.get(pkgname)
++            name = getattr(pkg, '__name__', None)
+             path = getattr(pkg, '__path__', None)
+-            if pkg and path:
++            if pkg and pkgname == name and path:
+                 return pkgname.split('.'), path, modpath
+ 
+             LOG.debug('%r: %r lacks __path__ attribute', self, pkgname)

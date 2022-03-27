@@ -1,0 +1,27 @@
+---
+- name: verify
+  hosts: all
+  become: true
+  tasks:
+    - name: unmount old mounts (failures ignored)
+      command: umount "{{ item.path }}"  # noqa 301 303
+      args: {warn: false}
+      failed_when: false
+      loop: "{{ lin_rclone_mounts }}"
+      loop_control: {label: "{{ item.name }}"}
+
+    - name: mount rclone dirs
+      command: mount "{{ item.path }}"  # noqa 301 303
+      args: {warn: false}
+      loop: "{{ lin_rclone_mounts }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: verify mount correctness
+      file:
+        path: "{{ item.path }}/bash"
+        state: file
+      loop: "{{ lin_rclone_mounts }}"
+      loop_control:
+        label: "{{ item.name }}"
+...

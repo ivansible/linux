@@ -1,0 +1,20 @@
+diff -ru a/molecule_docker/playbooks/create.yml b/molecule_docker/playbooks/create.yml
+--- a/playbooks/create.yml
++++ b/playbooks/create.yml
+@@ -1,5 +1,6 @@
+ ---
+ - name: Create
++  strategy: linear
+   hosts: localhost
+   connection: local
+   gather_facts: false
+diff -ru a/molecule_docker/playbooks/destroy.yml b/molecule_docker/playbooks/destroy.yml
+--- a/playbooks/destroy.yml
++++ a/playbooks/destroy.yml
+@@ -1,5 +1,6 @@
+ ---
+ - name: Destroy
++  strategy: linear
+   hosts: localhost
+   connection: local
+   gather_facts: false
