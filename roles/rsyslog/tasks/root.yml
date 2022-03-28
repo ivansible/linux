@@ -179,13 +179,18 @@
     content: |
       module(load="imudp")
       input(type="imudp" port="514")
-      :FROMHOST,isequal,"{{ lin_rsyslog_keenetic_ip }}"	/var/log/keenetic.log
+      {% for addr in addresses %}
+      :fromhost,isequal,"{{ addr }}"	/var/log/keenetic.log
       & stop
+      {% endfor %}
     force: "{{ lin_rsyslog_force_rules |bool }}"
     ## " dummy quote to fix vim highlighter
     mode: 0644
   notify: restart syslog service
-  when: lin_rsyslog_keenetic_ip |default('')
+  vars:
+    ## enforce keenetic address to be list and skip empty elements
+    addresses: "{{ [lin_rsyslog_keenetic_ip |d('')] |flatten |select |list }}"
+  when: addresses |d([])
   tags: lin_rsyslog_keenetic
 
 - name: rotate keenetic log
