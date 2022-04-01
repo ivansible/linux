@@ -26,7 +26,7 @@
     - '\$?ModLoad imklog'
     - 'module\(load=\"imklog\"'
   notify: restart syslog service
-  when: ansible_virtualization_type == 'docker'
+  when: ansible_connection == 'docker'
   tags: lin_rsyslog_docker
 
 - name: silence warning regarding legacy parameter
