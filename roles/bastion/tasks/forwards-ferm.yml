@@ -11,7 +11,7 @@
     name: ufw-forwards
     state: stopped
     enabled: false
-  ignore_errors: true
+  failed_when: false
   no_log: "{{ hide_secrets |bool }}"
   ## this task always reports as changed in check mode
   when: not ansible_check_mode

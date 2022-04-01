@@ -42,6 +42,7 @@
     path: ~/.tmux.conf
     line: "{{ item }}"
     create: true
+    mode: 0644
   loop:
     - 'set-option -g history-limit 22000'
     - 'bind -n C-k clear-history'  # clear scroll buffer on Ctrl-K
