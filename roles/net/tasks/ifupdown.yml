@@ -8,6 +8,7 @@
   file:
     path: /etc/network/interfaces.d
     state: directory
+    mode: 0755
 
 - name: ensure includes in interfaces
   lineinfile:

@@ -13,5 +13,5 @@
     name: ntp
     state: restarted
   become: true
-  ignore_errors: true
+  failed_when: false
 ...
