@@ -9,6 +9,8 @@
   rescue:
     - name: create swap file using dd
       command: dd bs=1M "count={{ lin_core_swap_mb }}" if=/dev/zero "of={{ lin_core_swap_file }}"
+      args:
+        creates: "{{ lin_core_swap_file }}"
       register: swap_status_result
 
 - name: set swap file permissions
