@@ -110,8 +110,7 @@ docker_storage_driver: ~  # overlay2
 docker_daemon_use_criu: ~
 docker_daemon_proxy: ~
 
-docker_miss_containerd: "{{ lookup('env', 'TRAVIS') |bool and
-                            ansible_connection == 'local' }}"
+docker_miss_containerd: "{{ lookup('env', 'TRAVIS') |bool and is_local_target }}"
 docker_containerd_sock: "{{ docker_miss_containerd |bool
                           | ternary(none, '/run/containerd/containerd.sock') }}"
 
