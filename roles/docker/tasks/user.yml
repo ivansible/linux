@@ -65,14 +65,15 @@
               - --username={{ docker_hub_username }}
               - --password-stdin
             stdin: "{{ docker_hub_password }}"
+            creates: ~/.docker/config.json
 
         - name: move docker hub token from root to login user
           ## using recursive chown because file module can't recurse
-          ## noqa 302
           shell: >
             chown -R {{ ansible_user_uid }}:{{ ansible_user_gid }} ~/.docker &&
             rm -rf "{{ ansible_user_dir }}/.docker" &&
             mv ~/.docker "{{ ansible_user_dir }}/"
+          tags: skip_ansible_lint
       ## end of rescue block
       become: true
 
