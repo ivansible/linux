@@ -2,7 +2,7 @@
 - name: fix error "storage.googleapis.com/bazel-apt key expired"
   apt_key:
     url: https://bazel.build/bazel-release.pub.gpg
-  when: ansible_connection != 'docker'
+  when: not is_docker_target
   ## task requires gpg which is not always present on a pristine system
   failed_when: false
 

@@ -11,7 +11,7 @@
         name: "{{ lin_core_packages_core }}"
         update_cache: true
       ## reduce log thrashing in docker molecule tests
-      no_log: "{{ is_molecule_test and ansible_connection == 'docker' }}"
+      no_log: "{{ is_molecule_test and is_docker_target }}"
 
 - name: install system logger
   apt:
@@ -21,7 +21,7 @@
     state: present
   when: lin_use_rsyslog |bool
   ## reduce log thrashing in docker molecule tests
-  no_log: "{{ is_molecule_test and ansible_connection == 'docker' }}"
+  no_log: "{{ is_molecule_test and is_docker_target }}"
 
 - block:
     - name: install core development packages (ok to fail once, log hidden)

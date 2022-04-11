@@ -9,7 +9,7 @@
     # docker does not allow atomic updates of /etc/hosts
     # see https://github.com/ansible/ansible/issues/13981
     # see https://docs.docker.com/network/bridge/#differences-between-user-defined-bridges-and-the-default-bridge
-    unsafe_writes: "{{ ansible_connection == 'docker' }}"
+    unsafe_writes: "{{ is_docker_target }}"
   tags: etc_hosts
 
 - name: remove telemetry packages
