@@ -16,13 +16,16 @@ DOCUMENTATION = '''
 '''
 
 import json
+import re
 
 from datetime import datetime
 from os.path import basename
 from ansible import constants as C
+from ansible import context
 from ansible.module_utils._text import to_text
 from ansible.utils.color import colorize, hostcolor
 from ansible.plugins.callback.default import CallbackModule as CallbackModule_default
+
 
 class CallbackModule(CallbackModule_default):
     CALLBACK_VERSION = 2.0
@@ -35,8 +38,9 @@ class CallbackModule(CallbackModule_default):
         self._last_role_name = ''
 
     def _run_is_verbose(self, result, verbosity=0):
-        return ((self._display.verbosity > verbosity or result._result.get('_ansible_verbose_always', False) is True)
-                and result._result.get('_ansible_verbose_override', False) is False)
+        always = result._result.get('_ansible_verbose_always', False)
+        override = result._result.get('_ansible_verbose_override', False)
+        return (self._display.verbosity > verbosity or always is True) and override is False
 
     def _get_task_display_name(self, task):
         self.task_display_name = None
@@ -79,7 +83,7 @@ class CallbackModule(CallbackModule_default):
         if task_action in ('debug', 'assert') and msg == "ok" and result_msg:
             try:
                 debug_msg = self._dump_results(result_msg, indent=4)
-            except:
+            except Exception:
                 debug_msg = to_text(result_msg)
             return "%s %s | %s: %s" % (task_host, msg, task_action, debug_msg)
 
@@ -94,12 +98,24 @@ class CallbackModule(CallbackModule_default):
             task_result += " | msg: " + to_text(result_msg)
 
         if result._result.get('stdout') and self._run_is_verbose(result, verbosity=0):
-            task_result += " | stdout: " + result._result.get('stdout')
+            task_result += " | stdout: " + self._fix_output(result._result.get('stdout'))
 
         if result._result.get('stderr'):
-            task_result += " | stderr: " + result._result.get('stderr')
+            task_result += " | stderr: " + self._fix_output(result._result.get('stderr'))
 
         return task_result
+
+    def _fix_output(self, s):
+        s = s or ''
+        # unwrap interactive console updates
+        s = re.sub(r'(?<=[^\r\n])\r(?=[^\r\n])', '\n', s)
+        # normalize line endings
+        s = s.replace('\r\n', '\n')
+        # squash apt progress messages
+        s = re.sub(r'\n\(Reading database \.\.\. (?:[0-9]+%)?(?=\n)', '', s)
+        # squash consecutive empty lines
+        s = re.sub(r'\n{3,}', '\n\n', s)
+        return s.strip()
 
     def v2_playbook_on_task_start(self, task, is_conditional):
         self._get_task_display_name(task)
