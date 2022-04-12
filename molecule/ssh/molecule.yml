@@ -17,9 +17,8 @@ provisioner:
       stdout_callback: ${ANSIBLE_STDOUT_CALLBACK:-unixy2}
       verbosity: 1
 dependency:
-  name: galaxy
-  options:
-    role-file: molecule/default/requirements.yml
+  name: shell
+  command: ansible-galaxy install -r molecule/default/requirements.yml
 lint: |
   ansible-lint
 scenario:
