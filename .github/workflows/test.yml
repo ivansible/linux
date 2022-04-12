@@ -87,6 +87,7 @@ jobs:
           PRJ=$(pwd)
           SRC=$PRJ/.github/workflows
           sudo patch -d $VENV/molecule_docker -p1 -i $SRC/docker-mitogen.patch
+          sudo patch -d $VENV/ansible_mitogen -p1 -i $SRC/mitogen-docker.patch
           sudo patch -d $VENV/mitogen -p1 -i $SRC/mitogen-distro.patch
           LNK=$HOME/.ansible/venv/site-packages/ansible_mitogen/plugins/strategy
           mkdir -p $(dirname $LNK)

@@ -1,0 +1,11 @@
+--- ansible_mitogen/strategy.py.bak	2022-04-13 19:16:22.345756992 +0300
++++ ansible_mitogen/strategy.py	2022-04-13 19:13:47.993645233 +0300
+@@ -119,6 +119,8 @@ def wrap_connection_loader__get(name, *a
+     """
+     if name in REDIRECTED_CONNECTION_PLUGINS:
+         name = 'mitogen_' + name
++    if name == 'community.docker.docker':
++        name = 'mitogen_docker'
+ 
+     return ansible_mitogen.loaders.connection_loader__get(name, *args, **kwargs)
+ 
