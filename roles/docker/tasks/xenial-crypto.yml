@@ -2,7 +2,7 @@
 ## fix python cryptography and openssl on xenial
 
 - name: upgrade python{{ ver }} cryptography package
-  pip:
+  ansible.builtin.pip:
     ## only cryptography v2.9 has sane wheels for both python 2 and 3 on xenial
     name: cryptography == 2.9
     executable: "pip{{ ver }}"
@@ -14,13 +14,14 @@
 - name: fix broken ansible to python{{ ver }}-openssl bindings on xenial
   block:
     - name: verify validity of python{{ ver }}-openssl packages (ok to fail, will rescue)
-      command: "python{{ ver }} -c 'from OpenSSL import SSL'"
+      ansible.builtin.command:
+        cmd: "python{{ ver }} -c 'from OpenSSL import SSL'"
       changed_when: false
       ## minimize long error message
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: upgrade python{{ ver }}-openssl apt package
-      apt:
+      ansible.builtin.apt:
         ## noqa 403
         name: python{{ ver }}-openssl
         state: latest
@@ -32,6 +33,7 @@
     - name: upgrade python{{ ver }}-openssl python package
       ## easy_install is part of python-setuptools
       ## mitigate pyOpenSSL 20.0+ failure to install on xenial
-      # noqa no-changed-when
-      command: python{{ ver }} -m easy_install --upgrade "pyOpenSSL<20"
+      ansible.builtin.command:
+        # noqa no-changed-when
+        cmd: python{{ ver }} -m easy_install --upgrade "pyOpenSSL<20"
 ...

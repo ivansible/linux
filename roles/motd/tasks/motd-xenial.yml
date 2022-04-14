@@ -1,6 +1,6 @@
 ---
 - name: disable xenial motd banners by disabling execution (ok to fail)
-  file:
+  ansible.builtin.file:
     path: /etc/update-motd.d/{{ item }}
     mode: 0644
   loop:
@@ -16,7 +16,7 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: disable cron job motd-news
-  systemd:
+  ansible.builtin.systemd:
     name: motd-news.timer
     state: stopped
     enabled: false

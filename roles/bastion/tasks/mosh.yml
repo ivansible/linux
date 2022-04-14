@@ -1,6 +1,6 @@
 ---
 - name: install mosh
-  apt:
+  ansible.builtin.apt:
     name: mosh
 
 - name: open mosh ports in ferm
@@ -14,7 +14,7 @@
     - lin_bastion_firewall
 
 - name: open mosh ports in ufw
-  ufw:
+  community.general.ufw:
     port: "{{ lin_mosh_ports }}"
     proto: udp
     rule: allow
@@ -22,7 +22,7 @@
   tags: lin_bastion_firewall
 
 - name: install mosh helper for mobaxterm
-  copy:
+  ansible.builtin.copy:
     src: mosh-server-moba.sh
     dest: /usr/local/bin/mosh-server-moba
     mode: 0755

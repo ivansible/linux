@@ -1,6 +1,6 @@
 ---
 - name: install wireguard as root
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: lin_wg_nets |d([])
   tags:
@@ -8,7 +8,7 @@
     - lin_wireguard_all
 
 - name: run wireguard handlers
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags:
     - lin_wg_all
     - lin_wireguard_all

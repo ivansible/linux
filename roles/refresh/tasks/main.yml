@@ -1,5 +1,5 @@
 ---
 - name: use import to become root globally
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
 ...

@@ -1,7 +1,7 @@
 ---
 - block:
     - name: upload cert from settings for client '{{ full_name }}'
-      copy:
+      ansible.builtin.copy:
         dest: "{{ client_crt_path }}"
         content: "{{ client.cert }}"
         owner: root
@@ -9,7 +9,7 @@
         force: true
 
     - name: upload key from settings for client '{{ full_name }}'
-      copy:
+      ansible.builtin.copy:
         dest: "{{ client_key_path }}"
         content: "{{ client.key }}"
         owner: root
@@ -17,13 +17,13 @@
         force: true
 
     - name: record content of cert/key for client '{{ full_name }}'
-      set_fact:
+      ansible.builtin.set_fact:
         client_crt_text: "{{ client.cert }}"
         client_key_text: "{{ client.key }}"
   when: client_crt_from_vars
 
 - name: generate new cert/key for client '{{ full_name }}'
-  shell:
+  ansible.builtin.shell:
     # noqa 302
     cmd: |
       rm -f "./pki/issued/{{ client_cname }}.crt"
@@ -39,7 +39,7 @@
   when: not client_crt_from_vars
 
 - name: ensure permissions on cert/key for client '{{ full_name }}'
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     owner: root
     mode: 0600
@@ -49,23 +49,23 @@
 
 - block:
     - name: slurp cert content for client '{{ full_name }}'
-      slurp:
+      ansible.builtin.slurp:
         src: "{{ client_crt_path }}"
       register: slurp_client_crt
 
     - name: slurp key content for client '{{ full_name }}'
-      slurp:
+      ansible.builtin.slurp:
         src: "{{ client_key_path }}"
       register: slurp_client_key
 
     - name: decode content of client cert/key for '{{ full_name }}'
-      set_fact:
+      ansible.builtin.set_fact:
         client_crt_text: "{{ slurp_client_crt.content |b64decode }}"
         client_key_text: "{{ slurp_client_key.content |b64decode }}"
   when: not client_crt_from_vars
 
 - name: update configuration for client '{{ full_name }}'
-  template:
+  ansible.builtin.template:
     src: client/client.ovpn
     dest: "{{ server_dir }}/clients/{{ client_name }}.ovpn"
     owner: root
@@ -83,7 +83,7 @@
 
 - name: update per-client routes for '{{ full_name }}'
   ## it's important to have per-client config (even blank) in case of ccd-only
-  template:
+  ansible.builtin.template:
     src: client/routes.j2
     dest: "{{ server_dir }}/configs/{{ client_name }}"
     force: "{{ has_config or has_subnet or has_push_routes or has_self_routes }}"

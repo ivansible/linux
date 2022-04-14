@@ -2,26 +2,27 @@
 ## synchronize system time
 
 - name: timedatectl requires dbus
-  systemd:
+  ansible.builtin.systemd:
     name: dbus
     state: started
     enabled: true
 
 - name: enable ntp sync
-  command: timedatectl set-ntp true
+  ansible.builtin.command:
+    cmd: timedatectl set-ntp true
   changed_when: not lin_core_hide_changes |bool
   ## fails on ubuntu 20.04 'focal' with "Failed to set ntp: NTP not supported"
   when: lin_systemd_ntp |bool
 
 - name: point ntpd to our time server
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ntp.conf
     line: "pool {{ lin_core_time_server }}"
     insertafter: "^pool "
   when: lin_systemd_ntp |bool
 
 - name: activate ntp daemon
-  systemd:
+  ansible.builtin.systemd:
     name: ntp
     state: started
     enabled: true
@@ -31,14 +32,15 @@
   ## "-u" = use unprivileged port for outgoing packets,
   ## helps when ntp service is running (or against firewalls),
   ## so we don't have to stop/start ntp service
-  command: ntpdate -t 10 -u "{{ lin_core_time_server }}"
+  ansible.builtin.command:
+    cmd: ntpdate -t 10 -u "{{ lin_core_time_server }}"
   changed_when: not lin_core_hide_changes |bool
   failed_when: false
   when: lin_core_resync_once |bool
   tags: lin_core_resync
 
 - name: make service to step-sync time on every boot
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/step-sync.service
     content: |
       # ansible-managed
@@ -61,7 +63,7 @@
   when: lin_core_resync_onboot |bool
 
 - name: activate service to step-sync time on every boot
-  systemd:
+  ansible.builtin.systemd:
     name: step-sync
     state: started
     enabled: true

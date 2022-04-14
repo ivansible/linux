@@ -1,6 +1,6 @@
 ---
 - name: add keepalived ppa
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: ppa:hnakamur/keepalived
     filename: keepalived
     mode: 0644
@@ -10,12 +10,12 @@
 - name: install keepalived packages
   block:
     - name: install keepalived packages (will rescue if fails)
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
       register: _keepalived_apt_result
   rescue:
     - name: install keepalived packages (update cache)
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
         update_cache: true
       register: _keepalived_apt_result
@@ -24,14 +24,14 @@
   tags: lin_kad_install
 
 - name: directory for keepalived config and scripts
-  file:
+  ansible.builtin.file:
     path: /etc/keepalived
     state: directory
     mode: 0755
   tags: lin_kad_install
 
 - name: initialize keepalived config
-  template:
+  ansible.builtin.template:
     src: defaults.conf
     dest: /etc/keepalived/keepalived.conf
     force: "{{ _keepalived_apt_result is changed or kad_reset |bool }}"
@@ -40,7 +40,7 @@
   tags: lin_kad_config
 
 - name: add user config to keepalived
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/keepalived/keepalived.conf
     block: "{{ kad_user_config }}"
     marker: '# {mark} USER CONFIG'
@@ -48,12 +48,12 @@
   tags: lin_kad_config
 
 - name: setup dynamic routes
-  import_tasks: routes.yml
+  ansible.builtin.import_tasks: routes.yml
   when: kad_router_enable |bool
   tags: lin_kad_routes
 
 - name: activate keepalived service
-  systemd:
+  ansible.builtin.systemd:
     name: keepalived
     state: started
     enabled: true
@@ -74,7 +74,7 @@
   tags: [skip_ansible_lint, lin_kad_firewall]
 
 - name: configure keepalived logging
-  import_tasks: syslog.yml
+  ansible.builtin.import_tasks: syslog.yml
   when: kad_use_rsyslog |bool
   tags: lin_kad_syslog
 ...

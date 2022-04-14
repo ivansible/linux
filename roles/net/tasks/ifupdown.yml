@@ -1,17 +1,17 @@
 ---
 - name: install ifupdown package
-  apt:
+  ansible.builtin.apt:
     name: ifupdown
     state: present
 
 - name: ensure include directory for interfaces
-  file:
+  ansible.builtin.file:
     path: /etc/network/interfaces.d
     state: directory
     mode: 0755
 
 - name: ensure includes in interfaces
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: "/etc/network/{{ item }}"
     line: 'source /etc/network/interfaces.d/*'
     regexp: '^source(-directory)? /etc/network/interfaces\.d'

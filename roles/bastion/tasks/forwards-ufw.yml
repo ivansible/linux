@@ -1,6 +1,6 @@
 ---
 - name: create settings for ufw forwards
-  copy:
+  ansible.builtin.copy:
     dest: /etc/default/ufw-forwards
     content: |
       # settings for ufw-forwards
@@ -11,14 +11,14 @@
   notify: restart ufw forwards
 
 - name: create list of forwards for ufw forwards
-  template:
+  ansible.builtin.template:
     src: ufw-forwards.cfg
     dest: /etc/network/ufw-forwards
     mode: 0640
   notify: restart ufw forwards
 
 - name: upload script for ufw forwards
-  copy:
+  ansible.builtin.copy:
     src: ufw-forwards.sh
     dest: /usr/local/sbin/ufw-forwards.sh
     mode: 0750
@@ -26,7 +26,7 @@
   notify: restart ufw forwards
 
 - name: configure service for ufw forwards
-  copy:
+  ansible.builtin.copy:
     src: ufw-forwards.service
     dest: /etc/systemd/system/ufw-forwards.service
     mode: 0644
@@ -35,7 +35,7 @@
   notify: restart ufw forwards
 
 - name: enable service for ufw forwards
-  systemd:
+  ansible.builtin.systemd:
     name: ufw-forwards
     state: started
     enabled: true

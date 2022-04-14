@@ -1,6 +1,6 @@
 ---
 - name: enable or disable compression of rotated logs
-  replace:
+  ansible.builtin.replace:
     path: "/etc/logrotate.d/{{ item }}"
     regexp: "{{ lookbehind }}(compress|delaycompress)"
     replace: "{{ commentout }}\\1"

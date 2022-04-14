@@ -1,20 +1,20 @@
 ---
-# handlers for ivansible.lin_wireguard
+## handlers for ivansible.linux.wireguard
 
 - name: remove wireguard-go build directory
-  file:
+  ansible.builtin.file:
     path: "{{ wireguard_go_build_dir.path }}"
     state: absent
   become: true
 
 - name: remove wireguard-go build cache
-  file:
+  ansible.builtin.file:
     path: ~/.cache/go-build
     state: absent
   become: true
 
 - name: restart wireguard service
-  systemd:
+  ansible.builtin.systemd:
     name: "wg-quick@wg{{ item }}"
     state: restarted
     enabled: true

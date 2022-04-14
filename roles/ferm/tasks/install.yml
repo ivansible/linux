@@ -1,6 +1,6 @@
 ---
 - name: remove stock ferm
-  apt:
+  ansible.builtin.apt:
     name: ferm
     state: absent
     purge: true
@@ -8,12 +8,12 @@
 - name: install perl Net::DNS and ipset packages (block)
   block:
     - name: install perl Net::DNS and ipset packages (will rescue if it fails)
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
       no_log: "{{ hide_secrets |bool }}"  # reduce verbose failure message
   rescue:
     - name: install perl Net::DNS and ipset packages (update cache to rescue)
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
         update_cache: true
   vars:
@@ -27,11 +27,11 @@
 - name: install extra iptables modules for ferm
   block:
     - name: install extra iptables modules (will update if fails)
-      apt:
+      ansible.builtin.apt:
         name: "{{ extras }}"
   rescue:
     - name: install extra iptables modules (update caches)
-      apt:
+      ansible.builtin.apt:
         name: "{{ extras }}"
         update_cache: true
   vars:
@@ -41,7 +41,7 @@
   when: ferm_extras |bool
 
 - name: download ferm script (skip in check mode)
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ ferm_script_url }}"
     dest: "{{ ferm_binary }}"
     owner: root
@@ -53,7 +53,7 @@
   when: not ansible_check_mode
 
 - name: upload ferm helper scripts
-  template:
+  ansible.builtin.template:
     src: "bin/{{ item.name }}"
     dest: "{{ ferm_bindir }}/{{ item.name |splitext |first }}"
     owner: root
@@ -71,7 +71,7 @@
   notify: reload ferm service
 
 - name: build ferm helper library
-  command:
+  ansible.builtin.command:
     cmd: gcc -shared "-Wl,-soname,{{ lib_name }}.so" -o "{{ lib_path }}" -fPIC -lc -xc -
     stdin: "int flock(int fd, int op) { return 0; }"
     creates: "{{ lib_path }}"

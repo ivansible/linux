@@ -1,15 +1,15 @@
 ---
-# handlers for ivansible.lin_net
+## handlers for ivansible.lin_net
 
 - name: restart systemd-resolved
-  systemd:
+  ansible.builtin.systemd:
     name: systemd-resolved
     state: restarted
     daemon_reload: true
   become: true
 
 - name: restart ntp daemon
-  systemd:
+  ansible.builtin.systemd:
     name: ntp
     state: restarted
   become: true

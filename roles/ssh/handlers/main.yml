@@ -1,4 +1,4 @@
 ---
-# handlers for ivansible.lin_ssh
-# note: ssh restart handler is imported from the lin_base role
+## handlers for ivansible.lin_ssh ...
+## note: ssh restart handler is imported from the `ivansible.base.linux` role
 ...

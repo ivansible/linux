@@ -1,40 +1,40 @@
 ---
 - name: remove obsolete directories for ferm rules
-  file:
+  ansible.builtin.file:
     path: "{{ ferm_dir }}/{{ item }}"
     state: absent
   loop: "{{ ferm_rule_hooks }}"
   register: _ferm_remove_old_dirs
 
 - name: make directories for ferm rules
-  file:
+  ansible.builtin.file:
     path: "{{ ferm_dir }}/{{ item }}.d"
     state: directory
     mode: 0755
   loop: "{{ ferm_rule_hooks }}"
 
 - name: directory for ferm openvz file
-  file:
+  ansible.builtin.file:
     path: "{{ ferm_openvz_file |dirname }}"
     state: directory
     mode: 0750
 
 - name: ensure ferm openvz file exists
-  template:
+  ansible.builtin.template:
     src: etc/initial-openvz.ferm
     dest: "{{ ferm_openvz_file }}"
     mode: 0640
     force: false
 
 - name: create ferm configuration
-  template:
+  ansible.builtin.template:
     src: etc/config.ferm
     dest: "{{ ferm_dir }}/config.ferm"
     mode: 0640
   notify: reload ferm service
 
 - name: ensure ferm files exist for host/port sets
-  copy:
+  ansible.builtin.copy:
     dest: "{{ ferm_dir }}/{{ item }}"
     content: |
       # ferm {{ item }}
@@ -45,7 +45,7 @@
   notify: reload ferm service
 
 - name: set permissions of ferm config files
-  file:
+  ansible.builtin.file:
     path: "{{ ferm_dir }}/{{ item }}"
     owner: root
     group: root

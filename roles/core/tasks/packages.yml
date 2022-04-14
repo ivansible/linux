@@ -1,20 +1,20 @@
 ---
 - block:
     - name: install core packages (ok to fail once, log hidden)
-      apt:
+      ansible.builtin.apt:
         name: "{{ lin_core_packages_core }}"
       ## reduce verbose failure message
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: update apt cache and install core packages
-      apt:
+      ansible.builtin.apt:
         name: "{{ lin_core_packages_core }}"
         update_cache: true
       ## reduce log thrashing in docker molecule tests
       no_log: "{{ is_molecule_test and is_docker_target }}"
 
 - name: install system logger
-  apt:
+  ansible.builtin.apt:
     name:
       - rsyslog
       - logrotate
@@ -25,13 +25,13 @@
 
 - block:
     - name: install core development packages (ok to fail once, log hidden)
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
       no_log: "{{ hide_secrets |bool }}"
   rescue:
     - name: update apt lists and install core development packages
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages }}"
         state: present
         update_cache: true
@@ -40,5 +40,5 @@
 
 ## it may be a good idea to restart mitogen runner
 ## after installing python apt bindings
-# - meta: reset_connection
+# - ansible.builtin.meta: reset_connection
 ...

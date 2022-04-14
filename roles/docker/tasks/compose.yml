@@ -1,6 +1,6 @@
 ---
 - name: uninstall stock docker-compose
-  apt:
+  ansible.builtin.apt:
     name:
       - docker-compose
       - docker_compose
@@ -20,7 +20,7 @@
   register: latest_dcomp_release
 
 - name: download docker-compose
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ latest_dcomp_release.url }}"
     dest: "{{ docker_compose_binary_file }}"
     mode: 0755
@@ -30,14 +30,14 @@
 - name: bash completion script for docker-compose (optional)
   block:
     - name: bash completion script for docker-compose (attempt to get release)
-      get_url:
+      ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644
         force: "{{ docker_upgrade |bool }}"
   rescue:
     - name: bash completion script for docker-compose (workaround, get master)
-      get_url:
+      ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/docker/compose/master/contrib/completion/bash/docker-compose
         dest: /etc/bash_completion.d/docker-compose
         mode: 0644

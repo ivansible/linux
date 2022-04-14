@@ -1,6 +1,6 @@
 ---
 - name: refresh target facts before doing forwards (may fail with mitogen)
-  setup:
+  ansible.builtin.setup:
   delegate_to: "{{ lin_bastion_target }}"
   delegate_facts: true
   run_once: true
@@ -12,7 +12,7 @@
     - lin_bastion_all
 
 - name: setup ferm port forwards
-  import_tasks: forwards-ferm.yml
+  ansible.builtin.import_tasks: forwards-ferm.yml
   become: true
   when: lin_firewall == 'ferm'
   tags:
@@ -20,7 +20,7 @@
     - lin_bastion_all
 
 - name: setup ufw port forwards
-  include_tasks: forwards-ufw.yml
+  ansible.builtin.include_tasks: forwards-ufw.yml
   args:
     apply:
       become: true
@@ -31,14 +31,14 @@
     - lin_bastion_all
 
 - name: install mosh
-  import_tasks: mosh.yml
+  ansible.builtin.import_tasks: mosh.yml
   become: true
   tags:
     - lin_bastion_mosh
     - lin_bastion_all
 
 - name: customize tmux (duplicate of role dev-user)
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.tmux.conf
     line: "{{ item }}"
     create: true

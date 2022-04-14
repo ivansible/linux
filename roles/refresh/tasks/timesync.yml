@@ -3,7 +3,7 @@
 
 - block:
     - name: install time packages
-      apt:
+      ansible.builtin.apt:
         name:
           - ntp
           - ntpdate
@@ -11,7 +11,7 @@
           - dbus
   rescue:
     - name: install time packages and update apt
-      apt:
+      ansible.builtin.apt:
         name:
           - ntp
           - ntpdate
@@ -19,11 +19,12 @@
         update-cache: true
 
 - name: enable ntp sync
-  command: timedatectl set-ntp true
+  ansible.builtin.command:
+    cmd: timedatectl set-ntp true
   changed_when: not linref_time_hide_changes |bool
 
 - name: activate ntp daemon
-  systemd:
+  ansible.builtin.systemd:
     name: ntp
     state: started
     enabled: true
@@ -33,6 +34,7 @@
   # "-u" = use unprivileged port for outgoing packets,
   # helps when ntp service is running (or against firewalls),
   # so we don't have to stop/start ntp service
-  command: ntpdate -u "{{ linref_time_server }}"
+  ansible.builtin.command:
+    cmd: ntpdate -u "{{ linref_time_server }}"
   changed_when: not linref_time_hide_changes |bool
 ...

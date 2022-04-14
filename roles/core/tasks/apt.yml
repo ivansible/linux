@@ -1,13 +1,13 @@
 ---
 - name: fix error "storage.googleapis.com/bazel-apt key expired"
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://bazel.build/bazel-release.pub.gpg
   when: not is_docker_target
   ## task requires gpg which is not always present on a pristine system
   failed_when: false
 
 - name: use local apt mirrors
-  template:
+  ansible.builtin.template:
     src: sources.list.j2
     dest: /etc/apt/sources.list
     backup: true
@@ -16,7 +16,7 @@
   when: lin_core_apt_fast_mirrors |bool
 
 - name: disable 32-bit apt repositories
-  replace:
+  ansible.builtin.replace:
     path: /etc/apt/sources.list
     regexp: '^\s*deb\s+http'
     replace: 'deb [arch=amd64] http'
@@ -27,7 +27,7 @@
     - lin_apt_arch == 'amd64'
 
 - name: update apt caches
-  apt:
+  ansible.builtin.apt:
     update_cache: true
   when: apt_switch_mirrors is changed
         or apt_disable_32bit is changed

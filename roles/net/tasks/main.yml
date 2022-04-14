@@ -1,9 +1,9 @@
 ---
 - name: become root and setup networking
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   tags: lin_net_all
 
 - name: commit changes
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 ...

@@ -2,34 +2,35 @@
 - name: create swap file
   block:
     - name: create swap file using fallocate (will rescue if it fails)
-      command: fallocate -l "{{ lin_core_swap_mb }}M" "{{ lin_core_swap_file }}"
-      args:
+      ansible.builtin.command:
+        cmd: fallocate -l "{{ lin_core_swap_mb }}M" "{{ lin_core_swap_file }}"
         creates: "{{ lin_core_swap_file }}"
       register: swap_status_result
   rescue:
     - name: create swap file using dd
-      command: dd bs=1M "count={{ lin_core_swap_mb }}" if=/dev/zero "of={{ lin_core_swap_file }}"
-      args:
+      ansible.builtin.command:
+        cmd: dd bs=1M "count={{ lin_core_swap_mb }}" if=/dev/zero "of={{ lin_core_swap_file }}"
         creates: "{{ lin_core_swap_file }}"
       register: swap_status_result
 
 - name: set swap file permissions
-  file:
+  ansible.builtin.file:
     path: "{{ lin_core_swap_file }}"
     mode: 0600
   ignore_errors: "{{ ansible_check_mode }}"
 
 - name: format swap file
-  command: mkswap "{{ lin_core_swap_file }}"
+  ansible.builtin.command:
+    cmd: mkswap "{{ lin_core_swap_file }}"
   when: swap_status_result is changed
 
 - name: add swap file to fstab
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/fstab
     line: "{{ lin_core_swap_file }} none swap sw 0 0"
     regexp: "{{ lin_core_swap_file }}"
 
 - name: activate swap file
-  command: swapon -a
+  ansible.builtin.command: swapon -a
   when: swap_status_result is changed
 ...

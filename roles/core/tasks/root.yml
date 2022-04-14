@@ -1,25 +1,25 @@
 ---
 - name: adjust system settings
-  import_tasks: settings.yml
+  ansible.builtin.import_tasks: settings.yml
   tags: lin_core_settings
 
 - name: adjust apt settings
-  import_tasks: apt.yml
+  ansible.builtin.import_tasks: apt.yml
   tags: lin_core_apt
 
 - name: install core packages
-  import_tasks: packages.yml
+  ansible.builtin.import_tasks: packages.yml
   tags: lin_core_packages
 
 
 - name: synchronize system time
   # this task requires time packages (installed above)
-  import_tasks: timesync.yml
+  ansible.builtin.import_tasks: timesync.yml
   when: lin_core_time_sync |bool
   tags: lin_core_timesync
 
 - name: adjust cron timers
-  include_tasks: cron.yml
+  ansible.builtin.include_tasks: cron.yml
   args:
     apply:
       tags: lin_core_cron
@@ -32,14 +32,14 @@
 
 
 - name: adjust kernel parameters
-  import_tasks: kernel.yml
+  ansible.builtin.import_tasks: kernel.yml
   when: allow_sysctl |bool
   tags:
     - lin_core_sysctl
     - lin_core_kernel
 
 - name: setup swap space
-  import_tasks: swap.yml
+  ansible.builtin.import_tasks: swap.yml
   when:
     - lin_core_swap_enable |bool
     - lin_core_swap_mb |int > 0
@@ -47,7 +47,7 @@
 
 
 - name: derive ssh port
-  set_fact:
+  ansible.builtin.set_fact:
     real_ssh_port: "{{ real_ssh_port
                      | default(ansible_port)
                      | default(ansible_ssh_port)
@@ -59,28 +59,28 @@
     - lin_core_firewall
 
 - name: configure port for ssh service
-  import_tasks: ssh.yml
+  ansible.builtin.import_tasks: ssh.yml
   when: lin_use_ssh |bool
   tags: lin_core_ssh
 
 - name: setup firewall
-  import_tasks: firewall.yml
+  ansible.builtin.import_tasks: firewall.yml
   tags: lin_core_firewall
 
 
 - name: disable telemetry on ubuntu bionic+
-  import_tasks: telemetry.yml
+  ansible.builtin.import_tasks: telemetry.yml
   when: ansible_lsb.release is version('18.04','>=')
   tags: lin_core_telemetry
 
 - name: disable unattended upgrades
-  apt:
+  ansible.builtin.apt:
     name: unattended-upgrades
     state: absent
   tags: lin_core_apt
 
 - name: install helper scripts
-  copy:
+  ansible.builtin.copy:
     src: "utils/{{ item }}.sh"
     dest: "/usr/local/bin/{{ item }}"
     owner: root

@@ -1,6 +1,6 @@
 ---
 - name: configure port for ssh service
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^#*\s*Port\b'
     line: 'Port {{ real_ssh_port }}'
@@ -10,7 +10,7 @@
   notify: restart ssh service
 
 - name: enable ssh service
-  systemd:
+  ansible.builtin.systemd:
     name: ssh
     state: started
     enabled: true

@@ -1,6 +1,6 @@
 ---
 - name: restic environment variables for cron
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/restic/vars
     block: "{{ lookup('template', 'defaults.j2') }}"
     marker: '# RESTIC {mark}'
@@ -14,7 +14,7 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: validate restic backup jobs
-  assert:
+  ansible.builtin.assert:
     that:
       - item.name is defined
       - item.type in ['filesystem', 'postgres', 'command']
@@ -22,7 +22,7 @@
   loop: "{{ lin_restic_jobs |d([],true) }}"
 
 - name: generate restic filesystem exclustions
-  copy:
+  ansible.builtin.copy:
     dest: /etc/restic/exclude.{{ job.name }}
     content: |
       {% for dir in excludes |sort |unique %}
@@ -44,7 +44,7 @@
     label: "{{ job.name }}"
 
 - name: remove empty restic exclusions
-  file:
+  ansible.builtin.file:
     path: /etc/restic/exclude.{{ job.name }}
     state: absent
   when: not (job.excludes |d([]) |select |list)
@@ -54,7 +54,7 @@
     label: "{{ job.name }}"
 
 - name: generate restic backup script
-  template:
+  ansible.builtin.template:
     src: backup.sh.j2
     dest: /etc/restic/backup.sh
     owner: restic
@@ -67,7 +67,7 @@
   notify: reload systemd daemon
 
 - name: setup restic backup service
-  template:
+  ansible.builtin.template:
     src: backup.service.j2
     dest: /etc/systemd/system/restic-backup.service
     mode: 0644
@@ -75,7 +75,7 @@
   notify: reload systemd daemon
 
 - name: configure restic backup timer
-  template:
+  ansible.builtin.template:
     src: backup.timer.j2
     dest: /etc/systemd/system/restic-backup.timer
     mode: 0644
@@ -83,7 +83,7 @@
   notify: reload systemd daemon
 
 - name: activate restic daily backup job
-  systemd:
+  ansible.builtin.systemd:
     name: restic-backup.timer
     state: started
     enabled: true

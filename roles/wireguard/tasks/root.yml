@@ -1,11 +1,11 @@
 ---
 - name: install wireguard from universe
-  apt:
+  ansible.builtin.apt:
     name: wireguard
   tags: lin_wg_install
 
 - name: install wireguard config helper
-  copy:
+  ansible.builtin.copy:
     src: wg-setmetric.sh
     dest: /usr/local/sbin/wg-setmetric
     owner: root
@@ -14,7 +14,7 @@
   tags: lin_wg_install
 
 - name: create wireguard config directory
-  file:
+  ansible.builtin.file:
     path: /etc/wireguard
     state: directory
     mode: 0755
@@ -23,12 +23,12 @@
 - name: install wireguard-go on old kernels
   block:
     - name: check that wireguard-go binary exists
-      stat:
+      ansible.builtin.stat:
         path: "{{ lin_wg_go_binary }}"
       register: wireguard_go_binary_stat
 
     - name: build wireguard-go
-      include_tasks: go.yml
+      ansible.builtin.include_tasks: go.yml
       args:
         apply:
           become: true
@@ -41,7 +41,7 @@
   tags: lin_wg_go
 
 - name: configure wireguard
-  template:
+  ansible.builtin.template:
     src: wireguard.conf
     dest: /etc/wireguard/{{ iface }}.conf
     mode: 0600
@@ -65,7 +65,7 @@
 
 
 - name: open wireguard port in ufw
-  ufw:
+  community.general.ufw:
     port: "{{ item.port |d(0) |string }}"
     proto: udp
   no_log: "{{ hide_secrets |bool }}"
@@ -79,14 +79,14 @@
   tags: lin_wg_firewall
 
 - name: configure ferm firewall for wireguard
-  import_tasks: ferm.yml
+  ansible.builtin.import_tasks: ferm.yml
   when: lin_firewall == 'ferm'
   tags:
     - skip_ansible_lint
     - lin_wg_firewall
 
 - name: make directory for wireguard service drop-in
-  file:
+  ansible.builtin.file:
     path: "/etc/systemd/system/wg-quick@wg{{ item }}.service.d"
     state: directory
     mode: 0755
@@ -96,7 +96,7 @@
   tags: lin_wg_service
 
 - name: enforce ordering on start of wireguard devices
-  copy:
+  ansible.builtin.copy:
     dest: "/etc/systemd/system/wg-quick@wg{{ item }}.service.d/order.conf"
     force: true
     mode: 0644
@@ -118,7 +118,7 @@
   tags: lin_wg_service
 
 - name: enable wireguard service
-  systemd:
+  ansible.builtin.systemd:
     name: "wg-quick@wg{{ item }}"
     state: started
     enabled: true
@@ -136,7 +136,7 @@
 
 
 - name: create directory for wireguard client configs
-  file:
+  ansible.builtin.file:
     path: /etc/wireguard/clients
     state: directory
     mode: 0750
@@ -144,7 +144,7 @@
   tags: lin_wg_clients
 
 - name: create wireguard client config files
-  template:
+  ansible.builtin.template:
     src: client.conf
     dest: /etc/wireguard/clients/{{ filename }}.conf
     mode: 0600
@@ -159,19 +159,24 @@
   vars:
     networks: "{{ lin_wg_nets |d([],true) |flatten }}"
     clients: "{{ networks |subelements('peers', skip_missing=true) }}"
+
     net: "{{ item.0 }}"
     peer: "{{ item.1 }}"
     label: "{{ peer.name |d('none') }}{% if peer.via |d('') %}@{{ peer.via }}{% endif %}/{{ net.name |d('none') }}"
+
     server_name: "{{ peer.via |d(inventory_hostname) }}"
     server_host: "{{ peer.host |d(net_host4, true) |d(lin_wg_host) |d('',true) }}"
     server_port: "{{ peer.port |d(net.port) |d(0,true) |int }}"
+
     active: "{{ peer.active |d(true) |bool }}"
     client_config: "{{ peer.client_config |d(false) |bool }}"
     filename: "{{ peer.name |d('peer') }}-{{ peer.via |d(server_name) }}-{{ net.name |d('net') }}"
+
     addr: "{{ peer.client_ips |d(peer.ips) |d([],true) }}"
     ips: "{{ peer.server_ips |d(net.addr) |d([],true) }}"
     mtu: "{{ peer.mtu |d(net.mtu, true) |d(0) |int }}"
     keepalive: "{{ peer.keepalive |d(0) |int }}"
+
     _redirect_val: "{{ peer.redirect_gateway |d(false,true) |string |lower }}"
     redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' }}"
     redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' }}"

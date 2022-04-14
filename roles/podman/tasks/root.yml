@@ -2,11 +2,11 @@
 - name: install podman on modern ubuntu
   block:
     - name: add kubic key on modern ubuntu
-      apt_key:
+      ansible.builtin.apt_key:
         url: "{{ kubic_repo }}/Release.key"
 
     - name: add kubic repository on modern ubuntu
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: "deb [arch={{ lin_apt_arch }}] {{ kubic_repo }}/ /"
         filename: podman-kubic
         mode: 0644
@@ -16,14 +16,14 @@
   when: ansible_lsb.release is version('16.04', '>')
 
 - name: add project atomic ppa on xenial
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: ppa:projectatomic/ppa
     filename: podman-ppa
     mode: 0644
   when: ansible_lsb.release is version('16.04', '<=')
 
 - name: install podman packages
-  apt:
+  ansible.builtin.apt:
     name:
       - podman
       - skopeo
@@ -34,7 +34,7 @@
       - bash-completion
 
 - name: sysctl for rootless podman
-  sysctl:
+  ansible.posix.sysctl:
     name: user.max_user_namespaces
     value: '15000'
     sysctl_file: /etc/sysctl.d/77-podman.conf
@@ -51,7 +51,7 @@
   register: latest_fuse_overlayfs_release
 
 - name: download and install fuse-overlayfs
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ latest_fuse_overlayfs_release.url }}"
     dest: /usr/bin/fuse-overlayfs
     owner: root
@@ -61,7 +61,7 @@
   when: latest_fuse_overlayfs_release is changed
 
 - name: set registry search order
-  ini_file:
+  community.general.ini_file:
     path: /etc/containers/registries.conf
     section: registries.search
     option: registries

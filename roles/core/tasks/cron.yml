@@ -1,12 +1,12 @@
 ---
 - name: prepare systemd drop-in directory for {{ item.0 }} timer
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/cron-{{ item.0 }}.timer.d
     state: directory
     mode: 0755
 
 - name: adjust systemd calendar for {{ item.0 }} timer
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/cron-{{ item.0 }}.timer.d/calendar.conf
     content: |
       [Timer]

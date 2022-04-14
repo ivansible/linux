@@ -1,6 +1,6 @@
 ---
 - name: create dedicated restic user
-  user:
+  ansible.builtin.user:
     name: restic
     groups: [rclone]
     append: true
@@ -11,7 +11,7 @@
 
 - name: authorize public keys
   ## this task requires molecule/default/files
-  authorized_key:
+  ansible.posix.authorized_key:
     user: restic
     key: "{{ lookup('pipe', keygen_cmd) }}"
     comment: "{{ item |basename |regex_replace('[.]key$') }}"
@@ -26,7 +26,7 @@
     label: "{{ item |basename }}"
 
 - name: restic environment variables for interactive use
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ item.home }}/.bashrc"
     block: |
       export RESTIC_REPOSITORY={{ lin_restic_repository }}
@@ -53,7 +53,7 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: allow user restic to impersonate for backup jobs
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/sudoers.d/99-restic
     line: "restic ALL=({{ usr }}) NOPASSWD: {{ cmd }}"
     owner: root
@@ -68,7 +68,7 @@
 
 
 - name: create directories for restic jobs
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ item.dir }}"
     owner: "{{ item.owner |d('root') }}"
@@ -80,7 +80,7 @@
 
 
 - name: create directories for restic ssh entries
-  file:
+  ansible.builtin.file:
     state: directory
     path: "{{ home }}/.ssh"
     owner: "{{ owner }}"
@@ -93,9 +93,10 @@
     home: "{{ '/root' if owner == 'root'
               else restic_user_result.home if owner == 'restic'
               else '/home/%s' % owner }}"
+    ## " dummy quote to fix vim highlighter
 
 - name: create ssh entries for restic jobs
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ home }}/.ssh/config"
     owner: "{{ owner }}"
     mode: 0600
@@ -123,7 +124,7 @@
     filename: "{{ keyfile |basename }}"
 
 - name: install ssh keys for restic jobs
-  copy:
+  ansible.builtin.copy:
     src: "{{ keyfile }}"
     dest: "{{ home }}/.ssh/{{ filename }}"
     owner: "{{ owner }}"

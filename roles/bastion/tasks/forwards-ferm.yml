@@ -7,7 +7,7 @@
   tags: skip_ansible_lint
 
 - name: disable ufw port forwarding (skip in check mode; please ignore possible failure)
-  systemd:
+  ansible.builtin.systemd:
     name: ufw-forwards
     state: stopped
     enabled: false

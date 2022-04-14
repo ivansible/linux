@@ -1,6 +1,6 @@
 ---
 - name: install syslog and logrotate
-  apt:
+  ansible.builtin.apt:
     name:
       - rsyslog
       - logrotate
@@ -8,7 +8,7 @@
   tags: lin_rsyslog_packages
 
 - name: fix systemd warning "duplicate line for path /var/log"
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /usr/lib/tmpfiles.d/var.conf
     regex: '^(d /var/log 0755 - - -)$'
     line: '#\1 # (ansible, see rsyslog)'
@@ -17,7 +17,7 @@
   tags: lin_rsyslog_fixes
 
 - name: disable kernel logging in docker
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/rsyslog.conf
     regex: "^({{ item }}.*)$"
     line: '#\1'
@@ -30,7 +30,7 @@
   tags: lin_rsyslog_docker
 
 - name: silence warning regarding legacy parameter
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/rsyslog.conf
     regex: '^(\$KLogPermitNonKernelFacility.*)$'
     line: '#\1'
@@ -39,7 +39,7 @@
   tags: lin_rsyslog_fixes
 
 - name: fix console device name
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/rsyslog.d/50-default.conf
     regex: '^(\s+.*?\|\s*)/dev/x?console\s*$'
     line: "\\1{{ device }}"
@@ -54,7 +54,7 @@
 - name: silence NXDOMAIN warning from systemd-rsyslogd
   ## see:
   ## https://askubuntu.com/questions/1058750/new-alert-keeps-showing-up-server-returned-error-nxdomain-mitigating-potential
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/33-resolv.conf
     content: |
       :msg, contains, "Server returned error NXDOMAIN, mitigating potential DNS violation DVE-2018-0001" stop
@@ -65,9 +65,9 @@
 
 - name: adjust mail logging
   ## use standard logrotate rules for mail
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/33-mail.conf
-    ## noqa no-tabs
+    # noqa no-tabs
     content: |
       #mail.info	-/var/log/mail.info
       #mail.warn	-/var/log/mail.warn
@@ -81,7 +81,7 @@
 
 
 - name: log ufw messages to separate log
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/20-ufw.conf
     content: |
       ## Log kernel generated UFW log messages to file
@@ -99,7 +99,7 @@
   tags: lin_rsyslog_ufw
 
 - name: keep ufw messages only in dedicated file, remove from kernel log
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/rsyslog.d/20-ufw.conf
     regex: '^#*& stop'
     line: '& stop'
@@ -110,10 +110,10 @@
 
 - name: limit size of rotated ufw log
   ## besides size, use standard logrotate rules for ufw
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/logrotate.d/ufw
     regex: '^\s+maxsize'
-    ## noqa no-tabs
+    # noqa no-tabs
     line: "\tmaxsize 1M"
     insertbefore: '^\s+weekly|^}'
     firstmatch: true
@@ -122,7 +122,7 @@
 
 
 - name: log drupal to dedicated log
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/33-drupal.conf
     content: |
       :programname,isequal,"drupal" /var/log/drupal.log
@@ -134,7 +134,7 @@
   tags: lin_rsyslog_drupal
 
 - name: rotate drupal log
-  copy:
+  ansible.builtin.copy:
     dest: /etc/logrotate.d/drupal
     content: |
       /var/log/drupal.log {
@@ -173,7 +173,7 @@
     - lin_rsyslog_keenetic
 
 - name: log keenetic to dedicated log
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/33-keenetic.conf
     ## noqa no-tabs
     content: |
@@ -194,7 +194,7 @@
   tags: lin_rsyslog_keenetic
 
 - name: rotate keenetic log
-  copy:
+  ansible.builtin.copy:
     dest: /etc/logrotate.d/keenetic
     content: |
       /var/log/keenetic.log {
@@ -220,7 +220,7 @@
 
 - name: log cron to dedicated log
   ## use standard logrotate rules for cron
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/33-cron.conf
     content: |
       :programname,isequal,"CRON" {{ cron_log }}
@@ -248,7 +248,7 @@
 
 
 - name: ensure log files do exist
-  copy:
+  ansible.builtin.copy:
     content: ""
     force: false
     dest: "/var/log/{{ item }}"
@@ -270,7 +270,7 @@
 
 
 - name: systemd directory for php cleaner overrides
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/phpsessionclean.timer.d
     state: directory
     mode: 0755
@@ -278,7 +278,7 @@
   tags: lin_rsyslog_php
 
 - name: thin out the runs of php session cleaner
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/phpsessionclean.timer.d/interval.conf
     content: |
       # ansible-managed
@@ -292,7 +292,7 @@
   tags: lin_rsyslog_php
 
 - name: limit systemd journal size
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/journald.conf
     regexp: '^#?SystemMaxUse='
     line: "SystemMaxUse={{ lin_rsyslog_max_journal }}"
@@ -302,7 +302,7 @@
   tags: lin_rsyslog_journal
 
 - name: enable or disable compression of rotated logs
-  import_tasks: compress.yml
+  ansible.builtin.import_tasks: compress.yml
   when: lin_compress_logs |default(none) is not none
   tags: lin_rsyslog_compress
 ...

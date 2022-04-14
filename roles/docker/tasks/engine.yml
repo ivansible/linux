@@ -2,11 +2,11 @@
 - name: install docker helpers
   block:
     - name: install docker helpers (rescue if it fails)
-      apt:
+      ansible.builtin.apt:
         name: "{{ helpers }}"
   rescue:
     - name: install docker helpers (update cache)
-      apt:
+      ansible.builtin.apt:
         name: "{{ helpers }}"
         update_cache: true
   vars:
@@ -18,7 +18,7 @@
       # - criu  # criu install failed on hetzner-heron
 
 - name: install extra docker tools
-  apt:
+  ansible.builtin.apt:
     name:
       - bridge-utils
       - ipvsadm
@@ -27,14 +27,14 @@
   when: docker_extras |bool
 
 - name: add docker signing key
-  apt_key:
+  ansible.builtin.apt_key:
     url: https://download.docker.com/linux/ubuntu/gpg
   register: add_docker_key_result
   until: add_docker_key_result is successful
   when: docker_from_docker_io |bool
 
 - name: add docker repository
-  apt_repository:
+  ansible.builtin.apt_repository:
     repo: "deb [arch={{ lin_apt_arch }}] {{ url }} {{ codename }} stable"
     filename: docker-ce
     mode: 0644
@@ -47,14 +47,14 @@
 
 - block:
     - name: install docker and friends
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages_docker }}"
         state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
         autoremove: true
         install_recommends: false
   rescue:
     - name: install docker and friends (update apt cache)
-      apt:
+      ansible.builtin.apt:
         name: "{{ packages_docker }}"
         state: "{{ docker_upgrade |bool |ternary('latest', 'present') }}"
         autoremove: true
@@ -67,14 +67,14 @@
 
 
 - name: bash completion script for docker
-  file:
+  ansible.builtin.file:
     src: /usr/share/bash-completion/completions/docker
     dest: /etc/bash_completion.d/docker
     state: link
 
 
 - name: create directory for dockerd config
-  file:
+  ansible.builtin.file:
     path: /etc/docker
     state: directory
     owner: root
@@ -83,7 +83,7 @@
   tags: [lin_docker_daemon, lin_docker_tls]
 
 - name: configure docker daemon tls security
-  import_tasks: tls.yml
+  ansible.builtin.import_tasks: tls.yml
   vars:
     _dockerd_ca_crt_from_vars: "{{ (docker_tls_ca_crt and docker_tls_ca_key) |ternary(true,false) }}"
     _dockerd_server_crt_from_vars: "{{ (docker_tls_server_crt and docker_tls_server_key) |ternary(true,false) }}"
@@ -91,16 +91,16 @@
   tags: lin_docker_tls
 
 - name: configure docker daemon
-  import_tasks: daemon.yml
+  ansible.builtin.import_tasks: daemon.yml
   tags: lin_docker_daemon
 
 - name: configure docker engine logging
-  import_tasks: syslog.yml
+  ansible.builtin.import_tasks: syslog.yml
   when: docker_use_rsyslog |bool
   tags: lin_docker_syslog
 
 - name: enable docker service
-  systemd:
+  ansible.builtin.systemd:
     name: docker
     state: started
     enabled: true

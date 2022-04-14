@@ -1,20 +1,20 @@
 ---
 - name: prepare ifupdown interfaces file
-  import_tasks: ifupdown.yml
+  ansible.builtin.import_tasks: ifupdown.yml
   tags: lin_net_ifupdown
 
 - name: setup loopback address
-  import_tasks: loopback.yml
+  ansible.builtin.import_tasks: loopback.yml
   when: lin_net_lo4 |default('')
         or lin_net_lo6 |default('')
   tags: lin_net_loopback
 
 - name: setup dns
-  import_tasks: dns.yml
+  ansible.builtin.import_tasks: dns.yml
   tags: lin_net_dns
 
 - name: setup ipv6 from hurricane electric
-  include_tasks: he6.yml
+  ansible.builtin.include_tasks: he6.yml
   when: lin_he6_enable |bool
   args:
     apply:
@@ -25,7 +25,7 @@
   tags: lin_net_he6
 
 - name: setup vxlan
-  include_tasks: vxlan.yml
+  ansible.builtin.include_tasks: vxlan.yml
   when: lin_vxlan_enable |bool
   args:
     apply:
@@ -36,7 +36,7 @@
   tags: lin_net_vxlan
 
 - name: prevent ntp from listening on virtual interfaces like veth
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ntp.conf
     line: "interface listen {{ item }}"
   loop: "{{ lin_net_ntp_interfaces |d([],1) }}"

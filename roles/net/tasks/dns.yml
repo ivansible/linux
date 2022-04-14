@@ -1,6 +1,6 @@
 ---
 - name: configure systemd-resolved
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/resolved.conf
     line: "{{ item.0 }}={{ item.1 }}"
     regexp: "^\\s*#*\\s*{{ item.0 }}\\s*="

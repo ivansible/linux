@@ -1,8 +1,8 @@
 ---
-# handlers for ivansible.lin_bastion
+## handlers for ivansible.lin_bastion
 
 - name: restart ufw forwards
-  systemd:
+  ansible.builtin.systemd:
     name: ufw-forwards
     state: restarted
     enabled: true

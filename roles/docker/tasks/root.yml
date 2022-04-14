@@ -1,26 +1,26 @@
 ---
 - name: create docker group
-  group:
+  ansible.builtin.group:
     name: docker
     state: present
 
 - name: install docker engine
-  import_tasks: engine.yml
+  ansible.builtin.import_tasks: engine.yml
   tags: lin_docker_engine
 
 
 - name: install ansible docker bindings
-  import_tasks: ansible-docker.yml
+  ansible.builtin.import_tasks: ansible-docker.yml
   tags: lin_docker_ansible
 
 
 - name: install docker-compose from github
-  import_tasks: compose.yml
+  ansible.builtin.import_tasks: compose.yml
   when: docker_compose_github_enable |bool
   tags: [lin_docker_compose, ip4only]
 
 - name: install docker machine from github
-  import_tasks: machine.yml
+  ansible.builtin.import_tasks: machine.yml
   when:
     - docker_machine_github_enable |bool
     - docker_extras |bool
@@ -28,10 +28,10 @@
 
 
 - name: apply dockerd changes before poking swarm
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: reset swarm
-  docker_swarm:
+  community.docker.docker_swarm:
     state: absent
     force: true
   when: docker_swarm_reset |bool
@@ -42,14 +42,14 @@
     - lin_docker_reset
 
 - name: configure gwbridge network
-  import_tasks: gwbridge.yml
+  ansible.builtin.import_tasks: gwbridge.yml
   when:
     - docker_gwbridge_addr4 |d('')
     - not docker_swarm_destroy |bool
   tags: lin_docker_gwbridge
 
 - name: configure docker swarm
-  import_tasks: swarm.yml
+  ansible.builtin.import_tasks: swarm.yml
   when:
     - _swarm_role != 'none'
     - not docker_swarm_destroy |bool
@@ -63,7 +63,7 @@
   ## "udevd: could not generate persistent MAC address"
   ## the fix prevents systemd (udevd or networkd) from tinkering
   ## with MAC of virtual network devices, namely docker gwbridge
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/network/99-default.link
     content: |
       # prevent error "could not generate persistent MAC address"
@@ -82,7 +82,7 @@
 
 
 - name: enable daily docker garbage collector
-  copy:
+  ansible.builtin.copy:
     dest: /etc/cron.daily/docker-gc
     content: |
       #!/bin/sh
@@ -97,7 +97,7 @@
   tags: lin_docker_helpers
 
 - name: enable daily container updater
-  import_tasks: watchtower.yml
+  ansible.builtin.import_tasks: watchtower.yml
   vars:
     _watchtower_enable: "{{ docker_watchtower_enable |bool }}"
   when: docker_watchtower_enable is not none

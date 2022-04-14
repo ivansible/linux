@@ -2,7 +2,6 @@
 skip_list:
   - role-name
   - no-handler
-  - fqcn-builtins
 exclude_paths:
   - molecule/*/settings.yml
 ...

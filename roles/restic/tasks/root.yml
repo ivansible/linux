@@ -1,10 +1,10 @@
 ---
 - name: install restic binary
-  import_tasks: install.yml
+  ansible.builtin.import_tasks: install.yml
   tags: lin_restic_install
 
 - name: create restic config directory
-  file:
+  ansible.builtin.file:
     path: /etc/restic
     state: directory
     owner: root
@@ -12,11 +12,11 @@
     mode: 0750
 
 - name: create dedicated restic user
-  import_tasks: user.yml
+  ansible.builtin.import_tasks: user.yml
   tags: lin_restic_user
 
 - name: setup rclone remote for restic
-  include_role:
+  ansible.builtin.include_role:
     name: ivansible.linux.rclone
     tasks_from: _mount.yml
     apply:
@@ -34,7 +34,7 @@
   tags: lin_restic_rclone
 
 - name: verify that restic repository is already created
-  command: restic cat config
+  ansible.builtin.command: restic cat config
   register: restic_repo_check
   changed_when: not restic_repo_check.stdout |d('')
   failed_when: false
@@ -46,7 +46,7 @@
 
 - name: setup new restic repository
   ## hide real hostname from repo keys
-  shell: |
+  ansible.builtin.shell: |
     name=$(hostname)
     hostname host
     restic init && ok=1 || ok=0
@@ -60,15 +60,15 @@
   tags: lin_restic_repo
 
 - name: setup restic mount
-  import_tasks: mount.yml
+  ansible.builtin.import_tasks: mount.yml
   when: lin_restic_mount_dir |d('')
   tags: lin_restic_mount
 
 - name: activate restic backup job
-  import_tasks: backup.yml
+  ansible.builtin.import_tasks: backup.yml
   tags: lin_restic_cron
 
 - name: activate restic prune job
-  import_tasks: prune.yml
+  ansible.builtin.import_tasks: prune.yml
   tags: lin_restic_cron
 ...

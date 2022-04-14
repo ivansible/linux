@@ -1,17 +1,17 @@
 ---
 - name: check whether user has custom bashrc
-  stat:
+  ansible.builtin.stat:
     path: ~/.local/bashrc
   register: _user_local_bashrc
 
 - name: user bash aliases for rclone
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.local/bashrc/4alias.sh
     line: alias rc='rclone'
   when: _user_local_bashrc.stat.exists
 
 - name: user bash completion for docker cli
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.local/bashrc/5completion.sh
     line: 'complete -o default -F __start_rclone rc'
   when: _user_local_bashrc.stat.exists

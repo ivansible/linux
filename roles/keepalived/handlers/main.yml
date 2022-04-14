@@ -1,8 +1,8 @@
 ---
-# handlers for ivansible.lin_keepalived
+## handlers for ivansible.lin_keepalived
 
 - name: restart keepalived service
-  systemd:
+  ansible.builtin.systemd:
     name: keepalived
     state: restarted
   become: true

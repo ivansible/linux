@@ -1,6 +1,6 @@
 ---
 - name: disable ubuntu motd banners by disabling execution (ok to fail)
-  file:
+  ansible.builtin.file:
     path: /etc/update-motd.d/{{ item }}
     mode: 0644
   loop:
@@ -19,8 +19,8 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: disable ubuntu motd banners by renaming (ok to fail)
-  command: mv /etc/update-motd.d/{{ item }} /etc/update-motd.d/{{ item }}.off
-  args:
+  ansible.builtin.command:
+    cmd: mv /etc/update-motd.d/{{ item }} /etc/update-motd.d/{{ item }}.off
     removes: /etc/update-motd.d/{{ item }}
   loop: []
   loop_control:
@@ -29,7 +29,7 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: disable cron job motd-news
-  systemd:
+  ansible.builtin.systemd:
     name: motd-news.timer
     state: stopped
     enabled: false

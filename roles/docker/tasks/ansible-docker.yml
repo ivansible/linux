@@ -1,6 +1,6 @@
 ---
 - name: install ansible docker bindings
-  apt:
+  ansible.builtin.apt:
     name: "{{ lin_use_python2 |bool |ternary(packages_pythons, packages_python3) }}"
     ## old xenial deb package prevents use of modern pip package
     state: "{{ xenial |ternary('absent', 'present') }}"
@@ -11,7 +11,7 @@
   tags: lin_docker_ansible
 
 - name: upgrade python sdk for new features (e.g. swarm)
-  pip:
+  ansible.builtin.pip:
     name: docker>4
     executable: "{{ item }}"
   loop: "{{ lin_use_python2 |bool |ternary(['pip','pip3'], ['pip3']) }}"

@@ -1,12 +1,12 @@
 ---
 - name: create directory for docker systemd drop-in
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/docker.service.d
     state: directory
     mode: 0755
 
 - name: keep all daemon options in config file only
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/docker.service.d/noopt.conf
     force: true
     mode: 0644
@@ -26,14 +26,14 @@
     - restart docker daemon
 
 - name: slurp old docker daemon settings
-  slurp:
+  ansible.builtin.slurp:
     path: /etc/docker/daemon.json
   ignore_errors: true
   register: _docker_old_settings_b64
   notify: restart docker daemon
 
 - name: set new docker daemon settings
-  copy:
+  ansible.builtin.copy:
     dest: /etc/docker/daemon.json
     content: "{{ new_cfg |to_nice_json(indent=2) }}\n"
     force: true

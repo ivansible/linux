@@ -1,10 +1,10 @@
 ---
 - name: dist-upgrade packages
-  apt:
+  ansible.builtin.apt:
     update-cache: true
     upgrade: dist
 
 - name: remove stale dependencies
-  apt:
+  ansible.builtin.apt:
     autoremove: true
 ...

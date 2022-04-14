@@ -1,6 +1,6 @@
 ---
 - name: generate restic weekly prune script
-  template:
+  ansible.builtin.template:
     src: prune.sh.j2
     dest: /etc/restic/prune.sh
     owner: restic
@@ -21,7 +21,7 @@
   notify: reload systemd daemon
 
 - name: setup restic weekly prune service
-  template:
+  ansible.builtin.template:
     src: prune.service.j2
     dest: /etc/systemd/system/restic-prune.service
     mode: 0644
@@ -29,7 +29,7 @@
   notify: reload systemd daemon
 
 - name: configure restic weekly prune timer
-  template:
+  ansible.builtin.template:
     src: prune.timer.j2
     dest: /etc/systemd/system/restic-prune.timer
     mode: 0644
@@ -40,7 +40,7 @@
     time: "{{ lin_restic_cron_time_prune |d('7:30', true) }}"
 
 - name: (de)activate restic weekly prune job
-  systemd:
+  ansible.builtin.systemd:
     name: restic-prune.timer
     state: "{{ active |ternary('started', 'stopped') }}"
     enabled: "{{ active }}"

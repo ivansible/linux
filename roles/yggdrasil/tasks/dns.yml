@@ -1,6 +1,6 @@
 ---
 - name: update yggdrasil ipv6 in cloudflare
-  cloudflare_dns:
+  community.general.cloudflare_dns:
     account_email: "{{ ygg_cf_email }}"
     account_api_token: "{{ ygg_cf_token }}"
     zone: "{{ ygg_cf_zone }}"
@@ -22,7 +22,7 @@
   when: ipv6 |d('')
 
 - name: update yggdrasil ipv6 for connected peers in cloudflare
-  cloudflare_dns:
+  community.general.cloudflare_dns:
     account_email: "{{ ygg_cf_email }}"
     account_api_token: "{{ ygg_cf_token }}"
     zone: "{{ ygg_cf_zone }}"

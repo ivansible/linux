@@ -1,9 +1,9 @@
 ---
-# handlers for ivansible.lin_rclone
+## handlers for ivansible.lin_rclone
 
 - name: reload systemd filesystem target
   listen: restart remote systemd mounts
-  systemd:
+  ansible.builtin.systemd:
     name: remote-fs.target
     state: restarted
     daemon_reload: true
@@ -11,7 +11,7 @@
 
 - name: stop rclone mounts before starting their automounts
   listen: restart remote systemd mounts
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ unit }}.mount"
     state: stopped
   become: true
@@ -27,7 +27,7 @@
 
 - name: restart rclone automounts
   listen: restart remote systemd mounts
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ unit }}.automount"
     state: restarted
     enabled: true

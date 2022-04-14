@@ -1,18 +1,18 @@
 ---
 - name: install golang for building wireguard-go
-  import_role:
+  ansible.builtin.import_role:
     name: ivansible.devel.go
     # exports lin_go_version
 
 - name: create temporary directory for building wireguard-go
-  tempfile:
+  ansible.builtin.tempfile:
     prefix: build-wireguard-go.
     state: directory
   register: wireguard_go_build_dir
   notify: remove wireguard-go build directory
 
 - name: build wireguard-go from source
-  go:
+  ivansible.base.go:
     name: github.com/WireGuard/wireguard-go
     go_path: "{{ wireguard_go_build_dir.path }}"
   tags: skip_ansible_lint
@@ -23,7 +23,7 @@
     go_root: /usr/lib/go-{{ lin_go_version }}
 
 - name: copy wireguard-go in place
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ wireguard_go_build_dir.path }}/bin/wireguard-go"
     dest: "{{ lin_wg_go_binary }}"
   delegate_to: "{{ inventory_hostname }}"

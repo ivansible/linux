@@ -3,7 +3,7 @@
 # see: https://askubuntu.com/a/1030168
 
 - name: disable telemetry host
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
     line: "127.0.0.1\tmetrics.ubuntu.compopcon.ubuntu.com"  # noqa no-tabs
     # docker does not allow atomic updates of /etc/hosts
@@ -13,7 +13,7 @@
   tags: etc_hosts
 
 - name: remove telemetry packages
-  apt:
+  ansible.builtin.apt:
     name:
       - ubuntu-report
       - popularity-contest

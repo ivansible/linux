@@ -1,11 +1,11 @@
 ---
 - name: setup keepalived
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: kad_enable |bool
   tags: lin_kad_all
 
 - name: run postponed tasks
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags: lin_kad_all
 ...

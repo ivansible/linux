@@ -1,6 +1,6 @@
 ---
 - name: become root and install openvpn
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: srv_ovpn_enable |bool
   tags:
@@ -8,14 +8,14 @@
     - srv_openvpn_all
 
 - name: run restart handlers before stopping services
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags:
     - srv_ovpn_all
     - srv_openvpn_all
 
 - block:
     - name: enable generic openvpn service if there are configured servers (optional)
-      systemd:
+      ansible.builtin.systemd:
         name: openvpn.service
         state: "{{ enable |ternary('started','stopped') }}"
         enabled: "{{ enable }}"
@@ -24,7 +24,7 @@
       when: false  # step disabled
 
     - name: stop disabled openvpn servers
-      systemd:
+      ansible.builtin.systemd:
         name: "openvpn@{{ item.name }}"
         state: stopped
         enabled: false

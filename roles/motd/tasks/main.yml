@@ -1,6 +1,6 @@
 ---
 - name: disable motd banners on ubuntu xenial
-  include_tasks: motd-xenial.yml
+  ansible.builtin.include_tasks: motd-xenial.yml
   args:
     apply:
       become: true
@@ -13,7 +13,7 @@
     - lin_motd_all
 
 - name: disable motd banners on modern ubuntu
-  include_tasks: motd.yml
+  ansible.builtin.include_tasks: motd.yml
   args:
     apply:
       become: true
@@ -26,7 +26,7 @@
     - lin_motd_all
 
 - name: switch motd login header on/off
-  file:
+  ansible.builtin.file:
     path: /etc/update-motd.d/00-header
     mode: "{{ lin_motd_banner |bool |ternary('0755','0644') }}"
   become: true

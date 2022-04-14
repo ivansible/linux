@@ -1,6 +1,6 @@
 ---
 - name: configure vxlan interface
-  template:
+  ansible.builtin.template:
     src: vxlan.j2
     dest: "/etc/network/interfaces.d/{{ lin_vxlan_device }}"
     mode: 0644
@@ -28,7 +28,7 @@
   when: lin_firewall == 'ferm'
 
 - name: reset vxlan interface
-  shell: |
+  ansible.builtin.shell: |
     ifdown {{ lin_vxlan_device }} >/dev/null 2>&1
     sleep 1
     ifup {{ lin_vxlan_device }}

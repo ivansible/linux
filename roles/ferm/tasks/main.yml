@@ -1,6 +1,6 @@
 ---
 - name: install ferm
-  include_tasks: install.yml
+  ansible.builtin.include_tasks: install.yml
   args:
     apply:
       become: true
@@ -13,7 +13,7 @@
     - lin_ferm_all
 
 - name: configure ferm
-  include_tasks: config.yml
+  ansible.builtin.include_tasks: config.yml
   args:
     apply:
       become: true
@@ -26,7 +26,7 @@
     - lin_ferm_all
 
 - name: run ferm service
-  include_tasks: service.yml
+  ansible.builtin.include_tasks: service.yml
   args:
     apply:
       become: true
@@ -39,12 +39,12 @@
     - lin_ferm_all
 
 - name: start ferm before setting rules
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags:
     - lin_ferm_all
 
 - name: setup ferm rules
-  include_tasks: rules.yml
+  ansible.builtin.include_tasks: rules.yml
   args:
     apply:
       become: true

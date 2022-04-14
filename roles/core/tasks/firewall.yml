@@ -1,15 +1,15 @@
 ---
 - name: create unix group for proxy processes
-  group:
+  ansible.builtin.group:
     name: proxy
     gid: 13
 
 - name: assert that firewall selector is valid
-  assert:
+  ansible.builtin.assert:
     that: lin_firewall in ['ufw', 'ferm', 'none']
 
 - name: setup ufw firewall
-  include_tasks: firewall-ufw.yml
+  ansible.builtin.include_tasks: firewall-ufw.yml
   args:
     apply:
       become: true
@@ -17,7 +17,7 @@
   when: lin_firewall == 'ufw'
 
 - name: setup ferm firewall
-  include_tasks: firewall-ferm.yml
+  ansible.builtin.include_tasks: firewall-ferm.yml
   args:
     apply:
       become: true

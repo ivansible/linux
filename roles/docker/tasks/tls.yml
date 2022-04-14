@@ -2,7 +2,7 @@
 - name: setup python openssl bindings
   block:
     - name: install python openssl bindings
-      apt:
+      ansible.builtin.apt:
         name: "{{ lin_use_python2 |bool |ternary(py2packages + ',' + py3packages, py3packages) }}"
       vars:
         ## setuptools is required by xenial-crypto to run easy_install
@@ -10,7 +10,7 @@
         py2packages: python-cryptography,python-pip,python-setuptools
 
     - name: fix python cryptography and openssl on xenial
-      include_tasks: xenial-crypto.yml
+      ansible.builtin.include_tasks: xenial-crypto.yml
       loop: "{{ lin_use_python2 |bool |ternary(['','3'], ['3']) }}"
       loop_control:
         loop_var: ver
@@ -21,7 +21,7 @@
 - name: upload predefined ca certificate for dockerd
   block:
     - name: upload predefined ca crt for dockerd
-      copy:
+      ansible.builtin.copy:
         dest: /etc/docker/ca.crt
         content: "{{ docker_tls_ca_crt }}"
         owner: root
@@ -31,7 +31,7 @@
       notify: restart docker daemon
 
     - name: upload predefined ca key for dockerd
-      copy:
+      ansible.builtin.copy:
         dest: /etc/docker/ca.key
         content: "{{ docker_tls_ca_key }}"
         owner: root
@@ -42,7 +42,7 @@
   when: _dockerd_ca_crt_from_vars
 
 - name: check existing dockerd ca certificate
-  stat:
+  ansible.builtin.stat:
     path: /etc/docker/ca.crt
   register: _stat_dockerd_ca_crt
 
@@ -50,11 +50,11 @@
 - name: generate ca certificate for dockerd
   block:
     - name: report ca certificate details for dockerd
-      debug:
+      ansible.builtin.debug:
         msg: "common name: {{ docker_tls_ca_cname }}"
 
     - name: generate ca key for dockerd
-      openssl_privatekey:
+      community.crypto.openssl_privatekey:
         path: /etc/docker/ca.key
         type: "{{ docker_tls_params.type }}"
         curve: "{{ docker_tls_params.curve }}"
@@ -66,7 +66,7 @@
         mode: 0600
 
     - name: generate ca csr for dockerd
-      openssl_csr:
+      community.crypto.openssl_csr:
         path: /etc/docker/ca.csr
         privatekey_path: /etc/docker/ca.key
 
@@ -84,7 +84,7 @@
       notify: clean temporary docker certificate files
 
     - name: generate ca crt for dockerd
-      openssl_certificate:
+      community.crypto.x509_certificate:
         path: /etc/docker/ca.crt
         privatekey_path: /etc/docker/ca.key
         csr_path: /etc/docker/ca.csr
@@ -100,13 +100,13 @@
       when: not ansible_check_mode
 
     - name: slurp data of generated dockerd ca crt
-      slurp:
+      ansible.builtin.slurp:
         src: /etc/docker/ca.crt
       register: _slurp_dockerd_ca_crt
       when: not ansible_check_mode
 
     - name: extract text of generated dockerd ca crt
-      set_fact:
+      ansible.builtin.set_fact:
         docker_tls_daemon_crt: "{{ _slurp_dockerd_ca_crt.content |b64decode }}"
       when: not ansible_check_mode
   when:
@@ -118,7 +118,7 @@
 - name: upload predefined server certificate for dockerd
   block:
     - name: upload predefined server crt for dockerd
-      copy:
+      ansible.builtin.copy:
         dest: /etc/docker/server.crt
         content: "{{ docker_tls_server_crt }}"
         owner: root
@@ -128,7 +128,7 @@
       notify: restart docker daemon
 
     - name: upload predefined server key for dockerd
-      copy:
+      ansible.builtin.copy:
         dest: /etc/docker/server.key
         content: "{{ docker_tls_server_key }}"
         owner: root
@@ -141,12 +141,12 @@
 - name: check that server certificate for dockerd is up-to-date
   block:
     - name: check existing dockerd server key
-      stat:
+      ansible.builtin.stat:
         path: /etc/docker/server.key
       register: _stat_dockerd_server_key
 
     - name: query old dockerd server crt (ok to fail)
-      openssl_certificate_info:
+      community.crypto.x509_certificate_info:
         path: /etc/docker/server.crt
       ignore_errors: true
       register: _old_docker_crt_info
@@ -154,7 +154,7 @@
 
 
 - name: extract common names from docker server certificate
-  set_fact:
+  ansible.builtin.set_fact:
     _docker_crt_new_names: "{{ [docker_tls_server_cnames |d([],true)]
                              | flatten
                              | select
@@ -172,13 +172,13 @@
 - name: generate server certificate for dockerd
   block:
     - name: report server certificate details for dockerd
-      debug:
+      ansible.builtin.debug:
         msg:
           - "alt names: {{ alt_names |join(',') |d('-',true) }}"
           - "old names: {{ _docker_crt_old_names |d('-',true) }}"
 
     - name: generate server key for dockerd
-      openssl_privatekey:
+      community.crypto.openssl_privatekey:
         path: /etc/docker/server.key
         type: "{{ docker_tls_params.type }}"
         curve: "{{ docker_tls_params.curve }}"
@@ -191,7 +191,7 @@
       notify: restart docker daemon
 
     - name: generate server csr for dockerd
-      openssl_csr:
+      community.crypto.openssl_csr:
         path: /etc/docker/server.csr
         privatekey_path: /etc/docker/server.key
 
@@ -212,7 +212,7 @@
       notify: clean temporary docker certificate files
 
     - name: generate server crt for dockerd
-      openssl_certificate:
+      community.crypto.x509_certificate:
         path: /etc/docker/server.crt
         privatekey_path: /etc/docker/server.key
         csr_path: /etc/docker/server.csr
@@ -230,13 +230,13 @@
       when: not ansible_check_mode
 
     - name: slurp data of generated dockerd server crt
-      slurp:
+      ansible.builtin.slurp:
         src: /etc/docker/server.crt
       register: _slurp_dockerd_server_crt
       when: not ansible_check_mode
 
     - name: extract text of generated dockerd server crt
-      set_fact:
+      ansible.builtin.set_fact:
         docker_tls_server_crt: "{{ _slurp_dockerd_server_crt.content |b64decode }}"
       when: not ansible_check_mode
 
@@ -249,12 +249,12 @@
     cname: "{{ names |first }}"
     cn_kind: "{{ 'IP' if cname is match('^([0-9.]+|[0-9a-fA-F:]+)$') else 'DNS' }}"
     alt_names: >
-        {% set ns = namespace(lst=[]) -%}
-        {% for cn in names[1:] -%}
-          {% set kind = 'IP' if cn is match('^([0-9.]+|[0-9a-fA-F:]+)$') else 'DNS' -%}
-          {% set ns.lst = ns.lst + ['%s:%s' % (kind, cn)] -%}
-        {% endfor -%}
-        {{ ['%s:%s' % (cn_kind, cname)] + (ns.lst |sort) -}}
+      {% set ns = namespace(lst=[]) -%}
+      {% for cn in names[1:] -%}
+        {% set kind = 'IP' if cn is match('^([0-9.]+|[0-9a-fA-F:]+)$') else 'DNS' -%}
+        {% set ns.lst = ns.lst + ['%s:%s' % (kind, cn)] -%}
+      {% endfor -%}
+      {{ ['%s:%s' % (cn_kind, cname)] + (ns.lst |sort) -}}
 
   when:
     - not _dockerd_server_crt_from_vars
@@ -264,7 +264,7 @@
 
 
 - name: check existing sample docker client certificate
-  stat:
+  ansible.builtin.stat:
     path: /etc/docker/client.crt
   register: _stat_dockerd_client_crt
 
@@ -301,7 +301,7 @@
       notify: clean temporary docker certificate files
 
     - name: generate sample docker client crt
-      openssl_certificate:
+      community.crypto.x509_certificate:
         path: /etc/docker/client.crt
         privatekey_path: /etc/docker/client.key
         csr_path: /etc/docker/client.csr

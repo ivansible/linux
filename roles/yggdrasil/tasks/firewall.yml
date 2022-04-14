@@ -1,6 +1,6 @@
 ---
 - name: open yggdrasil tls port for all in ufw
-  ufw:
+  community.general.ufw:
     rule: allow
     port: "{{ ygg_tls_port |string }}"
     proto: tcp
@@ -29,7 +29,7 @@
 
 - name: make yggdrasil peers internal (need ygg_internal_hosts=1)
   ## task is included to fully skip it in most cases as it's slow
-  include_tasks: ferm-hosts.yml
+  ansible.builtin.include_tasks: ferm-hosts.yml
   args:
     apply:
       become: true

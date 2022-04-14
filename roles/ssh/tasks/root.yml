@@ -1,13 +1,13 @@
 ---
 - name: derive ssh port
-  set_fact:
+  ansible.builtin.set_fact:
     real_ssh_port: "{{ real_ssh_port
                      | default(ansible_port, true)
                      | default(ansible_ssh_port, true)
                      | default(22, true) }}"
 
 - name: install openssh packages
-  apt:
+  ansible.builtin.apt:
     name:
       - openssh-server
       - openssh-client
@@ -16,7 +16,7 @@
 
 
 - name: open ssh port in ufw
-  ufw:
+  community.general.ufw:
     rule: allow
     port: "{{ real_ssh_port |string }}"
     proto: tcp
@@ -62,7 +62,7 @@
 
 
 - name: enable public key authentication
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     ## This case is distinct because key casing is different on some systems
     regexp: '^#*\s*(Pub[kK]eyAuthentication)\b'
@@ -74,7 +74,7 @@
   tags: lin_ssh_settings
 
 - name: set global sshd settings
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^(#+\s*|#*){{ item.0 }}\b'
     line: '{{ item.0 }} {{ item.1 }}'
@@ -88,7 +88,7 @@
   tags: lin_ssh_settings
 
 - name: set sshd settings for superuser
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/ssh/sshd_config
     block: |
       Match User {{ superusers }}
@@ -104,7 +104,7 @@
   tags: lin_ssh_settings
 
 - name: permit root login from certain hosts only
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/ssh/sshd_config
     block: |
       Match Address {{ addresses }}
@@ -118,19 +118,19 @@
   tags: lin_ssh_settings
 
 - name: update known hosts
-  import_tasks: known_hosts.yml
+  ansible.builtin.import_tasks: known_hosts.yml
   tags: lin_ssh_known_hosts
 
 
 - name: enable ssh service
-  systemd:
+  ansible.builtin.systemd:
     name: ssh
     state: started
     enabled: true
   tags: lin_ssh_install
 
 - name: unlock remote user
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -eo pipefail
       user={{ ansible_user_id }}

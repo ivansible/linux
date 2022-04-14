@@ -2,7 +2,7 @@
 - name: fix ssh port in ufw firewall
   block:
     - name: close port 22/tcp in ufw, if not used
-      ufw:
+      community.general.ufw:
         rule: allow
         port: '22'
         proto: tcp
@@ -10,7 +10,7 @@
       no_log: "{{ hide_secrets |bool }}"
 
     - name: close port 22 (tcp+udp) in ufw, if not used
-      ufw:
+      community.general.ufw:
         rule: allow
         port: '22'
         delete: true
@@ -21,7 +21,7 @@
   tags: lin_core_ssh
 
 - name: open actual ssh port in ufw
-  ufw:
+  community.general.ufw:
     rule: allow
     port: "{{ real_ssh_port |string }}"
     proto: tcp
@@ -31,7 +31,7 @@
 
 
 - name: open ntp port in ufw
-  ufw:
+  community.general.ufw:
     rule: allow
     port: '123'
     proto: udp
@@ -40,17 +40,17 @@
 
 
 - name: disable ferm firewall (please ignore possible failure)
-  systemd:
+  ansible.builtin.systemd:
     name: ferm
     state: stopped
     enabled: false
   failed_when: false
 
 - name: activate ufw firewall
-  ufw:
+  community.general.ufw:
     state: enabled
   no_log: "{{ hide_secrets |bool }}"
 
 - name: test connection
-  ping:
+  ansible.builtin.ping:
 ...

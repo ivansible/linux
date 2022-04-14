@@ -1,12 +1,12 @@
 ---
 - name: run rclone tasks as root
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: lin_rclone_mounts |d([],true)
   tags: lin_rclone_all
 
 - name: user bash addons for rclone
-  import_tasks: bashrc.yml
+  ansible.builtin.import_tasks: bashrc.yml
   become: false
   when:
     - lin_rclone_mounts |d([],true)
@@ -16,6 +16,6 @@
     - lin_rclone_all
 
 - name: reload systemd mounts now
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags: lin_rclone_all
 ...

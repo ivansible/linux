@@ -1,6 +1,6 @@
 ---
 - name: query gwbridge network parameters
-  docker_network_info:
+  community.docker.docker_network_info:
     name: docker_gwbridge
   ignore_errors: true
   register: _gwbridge_info
@@ -11,7 +11,7 @@
   ## Force by: docker_gwbridge_force=true
   ## Note: run shell commands since docker_network fails here with error:
   ## docker.errors.NotFound ("No such container: gateway_ingress-sbox")
-  shell:
+  ansible.builtin.shell:
     cmd: >
       {{ gwbridge_force_cmd }} &&
       yes| docker network remove docker_gwbridge &&

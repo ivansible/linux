@@ -1,20 +1,21 @@
 ---
-# handlers for ivansible.lin_docker
+## handlers for ivansible.lin_docker
+
 - name: restart docker daemon
-  systemd:
+  ansible.builtin.systemd:
     name: docker
     state: restarted
     daemon_reload: true
   become: true
 
 - name: restart watchtower service
-  systemd:
+  ansible.builtin.systemd:
     name: watchtower
     state: restarted
   become: true
 
 - name: clean temporary docker certificate files
-  file:
+  ansible.builtin.file:
     path: "/etc/docker/{{ item }}"
     state: absent
   loop: [ca.csr, server.csr, client.csr]

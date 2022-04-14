@@ -1,8 +1,9 @@
 ---
-# handlers for ivansible.lin_ferm
+## handlers for ivansible.lin_ferm
 
 - name: reload ferm service
-  command: systemctl reload-or-restart ferm.service  # noqa 303
+  # noqa command-instead-of-module
+  ansible.builtin.command: systemctl reload-or-restart ferm.service
   become: true
   register: _ferm_service_reload
   until: _ferm_service_reload is successful

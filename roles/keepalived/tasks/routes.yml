@@ -1,6 +1,6 @@
 ---
 - name: add dynamic routes to keepalived
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/keepalived/keepalived.conf
     block: "{{ lookup('template', 'route.conf') if enabled else '# disabled' }}"
     marker: "# {mark} ROUTE {{ name }}"
@@ -34,7 +34,7 @@
     random_ping: "{{ random_ping_max |int |random(0, seed=random_seed) }}"
 
 - name: make helper scripts for dynamic routes
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "/etc/keepalived/{{ item }}"
     force: true
@@ -47,7 +47,7 @@
   tags: lin_kad_install
 
 - name: set keepalive router parameters
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/keepalived
     regexp: '^ROUTER_{{ item.0 }}='
     line: 'ROUTER_{{ item.0 }}="{{ item.1 }}"'
@@ -65,14 +65,14 @@
       METRIC_VIP: "{{ kad_router_vip_metric }}"
 
 - name: make directory for keepalived service drop-in
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/keepalived.service.d
     state: directory
     mode: 0755
   tags: lin_kad_service
 
 - name: cleanup live routes on service stop
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/keepalived.service.d/clean-routes.conf
     force: true
     mode: 0644
@@ -87,7 +87,7 @@
   tags: lin_kad_service
 
 - name: allow gratuitous keepalived routes
-  sysctl:
+  ansible.posix.sysctl:
     name: "net.ipv4.conf.{{ item }}.rp_filter"
     value: '0'
     sysctl_file: /etc/sysctl.d/77-liveroutes.conf
@@ -98,7 +98,7 @@
   tags: lin_kad_firewall
 
 - name: fix sysctl file mode
-  file:
+  ansible.builtin.file:
     path: /etc/sysctl.d/77-liveroutes.conf
     mode: 0644
   when: allow_sysctl |bool

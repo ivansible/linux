@@ -1,6 +1,6 @@
 ---
 - name: verify server parameters for '{{ server_name }}'
-  assert:
+  ansible.builtin.assert:
     that:
       - server_proto in ['tcp', 'udp']
       - srv_ovpn_compress in ['lz4-v2', 'lz4', 'lzo', '', none]
@@ -10,7 +10,7 @@
     - srv_ovpn_clients
 
 - name: create directory for server '{{ server_name }}'
-  file:
+  ansible.builtin.file:
     path: "{{ server_dir }}"
     state: directory
     owner: root
@@ -18,7 +18,7 @@
     mode: 0755
 
 - name: upload cert from settings for server '{{ server_name }}'
-  copy:
+  ansible.builtin.copy:
     dest: "{{ server_dir }}/server.crt"
     content: "{{ server.cert }}"
     owner: root
@@ -28,7 +28,7 @@
   when: server_crt_from_vars
 
 - name: upload key from settings for server '{{ server_name }}'
-  copy:
+  ansible.builtin.copy:
     dest: "{{ server_dir }}/server.key"
     content: "{{ server.key }}"
     owner: root
@@ -38,7 +38,7 @@
   when: server_crt_from_vars
 
 - name: generate new cert/key for server '{{ server_name }}'
-  shell:
+  ansible.builtin.shell:
     # noqa 302
     cmd: |
       rm -f "./pki/issued/{{ server_cname }}.crt"
@@ -55,7 +55,7 @@
   notify: restart openvpn servers
 
 - name: ensure permissions on cert/key for server '{{ server_name }}'
-  file:
+  ansible.builtin.file:
     path: "{{ server_dir }}/{{ item }}"
     owner: root
     mode: 0600
@@ -64,7 +64,7 @@
     - server.key
 
 - name: update server configuration for '{{ server_name }}'
-  template:
+  ansible.builtin.template:
     src: server/server.conf
     dest: "{{ srv_ovpn_dir }}/{{ server_name }}.conf"
     owner: root
@@ -76,7 +76,7 @@
   notify: restart openvpn servers
 
 - name: update server routes for '{{ server_name }}'
-  template:
+  ansible.builtin.template:
     src: server/routes.j2
     dest: "{{ server_dir }}/routes"
     force: "{{ has_routes }}"
@@ -96,7 +96,7 @@
   notify: restart openvpn servers
 
 - name: update per-server client template for '{{ server_name }}'
-  template:
+  ansible.builtin.template:
     src: client/per-server.tpl
     dest: "{{ server_dir }}/template.ovpn"
     owner: root
@@ -107,7 +107,7 @@
   tags: srv_ovpn_clients
 
 - name: create client directories for server '{{ server_name }}'
-  file:
+  ansible.builtin.file:
     path: "{{ server_dir }}/{{ item }}"
     state: directory
     owner: root
@@ -119,7 +119,7 @@
   tags: srv_ovpn_clients
 
 - name: setup clients for server '{{ server_name }}'
-  include_tasks: _client.yml
+  ansible.builtin.include_tasks: _client.yml
   args:
     apply:
       become: true
@@ -148,13 +148,13 @@
   tags: srv_ovpn_clients
 
 - name: start openvpn server '{{ server_name }}'
-  systemd:
+  ansible.builtin.systemd:
     name: "openvpn@{{ server_name }}"
     state: started
     enabled: true
 
 - name: open/block server port in ufw for '{{ server_name }}'
-  ufw:
+  community.general.ufw:
     port: "{{ server_port |string }}"
     proto: "{{ server_proto }}"
     rule: "{{ internal |ternary('deny','allow') }}"

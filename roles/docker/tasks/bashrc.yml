@@ -1,6 +1,6 @@
 ---
 - name: user bash aliases for docker cli
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: ~/.local/bashrc/4alias.sh
     block: |
       {% for item in docker_bash_aliases |dictsort %}
@@ -9,19 +9,19 @@
     marker: '# {mark} DOCKER ALIASES'
 
 - name: user bash functions for docker cli
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: ~/.local/bashrc/3common.sh
     block: "{{ lookup('file', 'bashrc.docker.sh') }}"
     marker: '# {mark} DOCKER FUNCTIONS'
     insertafter: EOF
 
 - name: user bash completion for docker cli
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.local/bashrc/5completion.sh
     line: 'complete -F _docker dr'
 
 - name: user bash completion for docker-compose
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: ~/.local/bashrc/5completion.sh
     line: 'complete -F _docker_compose dc'
   when: docker_bash_completion_extras |bool

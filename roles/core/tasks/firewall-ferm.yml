@@ -1,6 +1,6 @@
 ---
 - name: activate ferm firewall
-  import_role:
+  ansible.builtin.import_role:
     name: ivansible.linux.ferm
   vars:
     ferm_install: true
@@ -39,5 +39,5 @@
   tags: lin_core_ssh
 
 - name: test connection
-  ping:
+  ansible.builtin.ping:
 ...

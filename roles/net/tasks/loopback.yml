@@ -1,6 +1,6 @@
 ---
 - name: setup loopback address for startup
-  template:
+  ansible.builtin.template:
     src: loopback.j2
     dest: /etc/network/interfaces.d/loopback
     mode: 0644
@@ -8,7 +8,7 @@
 
 - name: set loopback address now
   # noqa 306
-  shell: |
+  ansible.builtin.shell: |
     {% if lin_net_lo4 |default('') %}
         /sbin/ip -4 addr replace {{ lin_net_lo4 }} dev lo:0
     {% endif %}

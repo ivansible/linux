@@ -1,6 +1,6 @@
 ---
 - name: setup yggdrasil on linux as root
-  import_tasks: root.yml
+  ansible.builtin.import_tasks: root.yml
   become: true
   when: ygg_enable |bool
   tags:
@@ -8,13 +8,13 @@
     - lin_yggdrasil_all
 
 - name: restart yggdrasil service if needed
-  meta: flush_handlers
+  ansible.builtin.meta: flush_handlers
   tags:
     - lin_ygg_all
     - lin_yggdrasil_all
 
 - name: update yggdrasil ipv6 in dns
-  import_tasks: dns.yml
+  ansible.builtin.import_tasks: dns.yml
   when: ygg_cf_enable |bool
   tags:
     - lin_ygg_dns

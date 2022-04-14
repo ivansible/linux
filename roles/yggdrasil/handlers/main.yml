@@ -2,7 +2,7 @@
 ## handlers for ivansible.lin_yggdrasil
 
 - name: restart yggdrasil service
-  systemd:
+  ansible.builtin.systemd:
     name: yggdrasil
     state: restarted
     enabled: true

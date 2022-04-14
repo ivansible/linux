@@ -1,6 +1,6 @@
 ---
 - name: create plugin directories
-  file:
+  ansible.builtin.file:
     path: /var/lib/docker-plugins/{{ alias }}/{{ item }}
     state: directory
     owner: root
@@ -9,7 +9,7 @@
   loop: [config, cache]
 
 - name: query previous rclone docker plugin
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -o pipefail
       docker plugin list | awk '($2=="{{ alias }}:latest"){print $1}'
@@ -18,7 +18,7 @@
   changed_when: false
 
 - name: upgrade previous rclone docker plugin
-  shell:
+  ansible.builtin.shell:
     cmd: |
       set -e
       docker plugin disable {{ alias }} || true
@@ -30,7 +30,7 @@
     - _old_plugin.stdout |d("")
 
 - name: install rclone docker plugin
-  shell:
+  ansible.builtin.shell:
     cmd: |
       if [ -n "{{ old_id }}" ]; then
         docker plugin disable {{ alias }} || true
@@ -76,6 +76,7 @@
         {% endif %}
       {% endfor %}
       {{ ns.args |join(' ') if api_enabled else '' }}
+    ## ' dummy quote to fix vim highlighter
     spread_tuples: "{{ lin_rclone_config_sync |d({},true) |dictsort }}"
   when:
     - reinstall or not old_id

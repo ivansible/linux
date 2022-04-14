@@ -1,6 +1,6 @@
 ---
 - name: setup yggdrasil systemd service
-  template:
+  ansible.builtin.template:
     src: yggdrasil.service.j2
     dest: /etc/systemd/system/yggdrasil.service
     mode: 0644
@@ -9,14 +9,14 @@
   tags: lin_ygg_service
 
 - name: remove yggdrasil auto-config service
-  file:
+  ansible.builtin.file:
     path: /etc/systemd/system/yggdrasil-default-config.service
     state: absent
   notify: reload systemd daemon
   tags: lin_ygg_service
 
 - name: enable yggdrasil service
-  systemd:
+  ansible.builtin.systemd:
     name: yggdrasil
     state: started
     enabled: true

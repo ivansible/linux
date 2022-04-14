@@ -1,10 +1,10 @@
 ---
-# handlers for ivansible.srv_openvpn
+## handlers for ivansible.srv_openvpn
 
-# concrete services openvpn@.service are part of generic service
-# openvpn.service and will be restarted when generic is restarted
+## concrete services openvpn@.service are part of generic service
+## openvpn.service and will be restarted when generic is restarted
 - name: restart openvpn servers
-  systemd:
+  ansible.builtin.systemd:
     name: openvpn.service
     state: restarted
     enabled: true

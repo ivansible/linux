@@ -1,6 +1,6 @@
 ---
 - name: directory for yggdrasil configs
-  file:
+  ansible.builtin.file:
     path: /etc/yggdrasil
     state: directory
     owner: root
@@ -8,7 +8,7 @@
     mode: 0750
 
 - name: update yggdrasil configuration
-  template:
+  ansible.builtin.template:
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.conf
     owner: root
@@ -20,14 +20,14 @@
   notify: restart yggdrasil service
 
 - name: make symbolic link to config for yggdrasilctl
-  file:
+  ansible.builtin.file:
     state: link
     src: ./yggdrasil/yggdrasil.conf
     dest: /etc/yggdrasil.conf
     force: true
 
 - name: make yggdrasil configs for connected slaves
-  template:
+  ansible.builtin.template:
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.{{ alias }}
     owner: root
@@ -42,7 +42,7 @@
     label: "{{ alias }}"
 
 - name: make yggdrasil configs for isolated slaves
-  template:
+  ansible.builtin.template:
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.{{ alias }}-isolate
     owner: root

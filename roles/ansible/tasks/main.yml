@@ -1,13 +1,13 @@
 ---
 - block:
     - name: add ansible ppa
-      apt_repository:
+      ansible.builtin.apt_repository:
         repo: ppa:ansible/ansible
         filename: ansible
         mode: 0644
 
     - name: install ansible from ppa
-      apt:
+      ansible.builtin.apt:
         name:
           - python-pip
           - virtualenv
@@ -17,7 +17,7 @@
     # required by ssl winrm transport
     # probably bionic pywinrm is fine
     - name: upgrade pywinrm module
-      pip:
+      ansible.builtin.pip:
         name: pywinrm
 
   become: true

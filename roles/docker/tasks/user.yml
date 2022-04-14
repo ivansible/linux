@@ -1,13 +1,13 @@
 ---
 - name: add target user in the docker group
-  user:
+  ansible.builtin.user:
     name: "{{ ansible_user_id }}"
     groups: docker
     append: true
   become: true
 
 - name: reset ssh connection to unlock new user group
-  include_tasks: reset-connection.yml
+  ansible.builtin.include_tasks: reset-connection.yml
 
 - name: install docker login dependencies on bionic+
   ## Docker login on Bionic defaults to use the secretservice executable
@@ -18,7 +18,7 @@
   ##
   ## Note: there is no need to configure `gpg2` and `pass`, just install it.
   ## See: https://stackoverflow.com/a/52251706
-  apt:
+  ansible.builtin.apt:
     name:
       - gnupg2
       - pass
@@ -35,7 +35,7 @@
     - docker_hub_password |default('',true)
   block:
     - name: attempt to login into docker hub as user (will rescue if it fails)
-      command:
+      ansible.builtin.command:
         argv:
           - docker
           - login
@@ -48,17 +48,17 @@
     - name: workaround for permission denied accessing docker socket
       block:
         - name: restart docker daemon to fix docker socket permission denied
-          systemd:
+          ansible.builtin.systemd:
             name: docker
             state: restarted
 
         - name: remove old docker hub token from root
-          file:
+          ansible.builtin.file:
             path: ~/.docker
             state: absent
 
         - name: attempt to login into docker hub as root
-          command:
+          ansible.builtin.command:
             argv:
               - docker
               - login
@@ -69,7 +69,7 @@
 
         - name: move docker hub token from root to login user
           ## using recursive chown because file module can't recurse
-          shell: >
+          ansible.builtin.shell: >
             chown -R {{ ansible_user_uid }}:{{ ansible_user_gid }} ~/.docker &&
             rm -rf "{{ ansible_user_dir }}/.docker" &&
             mv ~/.docker "{{ ansible_user_dir }}/"

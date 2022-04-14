@@ -1,6 +1,6 @@
 ---
 - name: setup ferm service
-  template:
+  ansible.builtin.template:
     src: etc/ferm.service
     dest: /etc/systemd/system/ferm.service
     mode: 0644
@@ -10,18 +10,19 @@
   notify: reload ferm service
 
 - name: reload ferm service config in systemd
-  command: systemctl daemon-reload  # noqa 303
+  ansible.builtin.command: systemctl daemon-reload  # noqa 303
   when: ferm_service_result is changed
 
 - name: check ufw status (please ignore possible failure)
-  command: ufw status
+  ansible.builtin.command: ufw status
   ignore_errors: true
   no_log: "{{ hide_secrets |bool }}"
   changed_when: false
   register: _ufw_status
 
 - name: disable ufw if it's active yet
-  ufw: state=disabled
+  community.general.ufw:
+    state: disabled
   ignore_errors: true
   ## trigger immediate ferm restart after invoking `ufw disable` and run it
   ## only if really required because it resets chains policy to ACCEPT!
@@ -29,7 +30,7 @@
   register: _ufw_disable
 
 - name: disable ip(6)tables on oracle cloud, if active
-  systemd:
+  ansible.builtin.systemd:
     name: "{{ item }}"
     state: stopped
     enabled: false
@@ -37,7 +38,7 @@
   failed_when: false
 
 - name: activate ferm (restart if ufw was active or old dirs were found)
-  systemd:
+  ansible.builtin.systemd:
     name: ferm
     state: "{{ 'restarted' if need_restart else 'started' }}"
     enabled: true

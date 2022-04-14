@@ -1,6 +1,6 @@
 ---
 - name: upload he6 setup script
-  copy:
+  ansible.builtin.copy:
     src: "{{ use_ferm |ternary('he6-up-ferm.sh', 'he6-up-iptables.sh') }}"
     dest: /etc/network/if-up.d/he6
     force: true
@@ -10,7 +10,7 @@
   register: he6_script_result
 
 - name: configure he6 interface
-  template:
+  ansible.builtin.template:
     src: he6-iface.j2
     dest: "/etc/network/interfaces.d/{{ lin_he6_device }}"
     mode: 0644
@@ -25,7 +25,7 @@
   when: lin_firewall == 'ferm'
 
 - name: reset he6 interface
-  shell: |
+  ansible.builtin.shell: |
     ifdown {{ lin_he6_device }} >/dev/null 2>&1
     sleep 1
     ifup {{ lin_he6_device }}

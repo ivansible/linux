@@ -1,23 +1,23 @@
 ---
 - name: install openvpn
-  import_tasks: install.yml
+  ansible.builtin.import_tasks: install.yml
   tags: srv_ovpn_install
 
 - name: setup easy-rsa
-  import_tasks: easy-rsa.yml
+  ansible.builtin.import_tasks: easy-rsa.yml
   vars:
     ca_cname: "{{ srv_ovpn_ca_cname |default(srv_ovpn_cname, true) |default(ansible_fqdn) }}"
   tags: srv_ovpn_easyrsa
 
 - name: setup CA
-  import_tasks: ca.yml
+  ansible.builtin.import_tasks: ca.yml
   vars:
     ca_cname: "{{ srv_ovpn_ca_cname |default(srv_ovpn_cname, true) |default(ansible_fqdn) }}"
     ca_from_vars: "{{ true if srv_ovpn_ca_cert |default('') else false }}"
   tags: srv_ovpn_ca
 
 - name: common data for all servers
-  import_tasks: common.yml
+  ansible.builtin.import_tasks: common.yml
   vars:
     tlscrypt_from_vars: "{{ true if srv_ovpn_tlscrypt_key |default('') else false }}"
   tags:
@@ -26,7 +26,7 @@
     - srv_ovpn_clients
 
 - name: setup openvpn servers
-  include_tasks: _server.yml
+  ansible.builtin.include_tasks: _server.yml
   args:
     apply:
       become: true

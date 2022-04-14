@@ -1,6 +1,6 @@
 ---
 - name: create group for proxy processes incl. yggdrasil
-  group:
+  ansible.builtin.group:
     name: proxy
     gid: 13
   tags:
@@ -9,18 +9,18 @@
     - lin_ygg_service
 
 - name: install yggdrasil
-  import_tasks: install.yml
+  ansible.builtin.import_tasks: install.yml
   tags: lin_ygg_install
 
 - name: configure yggdrasil
-  import_tasks: config.yml
+  ansible.builtin.import_tasks: config.yml
   tags: lin_ygg_config
 
 - name: setup firewall for yggdrasil
-  import_tasks: firewall.yml
+  ansible.builtin.import_tasks: firewall.yml
   tags: lin_ygg_firewall
 
 - name: setup yggdrasil service
-  import_tasks: service.yml
+  ansible.builtin.import_tasks: service.yml
   tags: lin_ygg_service
 ...

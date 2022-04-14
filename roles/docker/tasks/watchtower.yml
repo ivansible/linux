@@ -13,7 +13,7 @@
   register: latest_watchtower_release
 
 - name: download and unpack watchtower
-  unarchive:
+  ansible.builtin.unarchive:
     remote_src: true
     src: "{{ latest_watchtower_release.url }}"
     dest: /usr/local/sbin
@@ -24,7 +24,7 @@
   when: latest_watchtower_release is changed
 
 - name: configure watchtower
-  copy:
+  ansible.builtin.copy:
     dest: /etc/default/watchtower
     content: |
       # watchtower settings
@@ -42,6 +42,7 @@
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER_USER={{ docker_watchtower_mail_user }}
       WATCHTOWER_NOTIFICATION_EMAIL_SERVER_PASSWORD={{ docker_watchtower_mail_pass }}
       {% endif %}
+    ## " dummy quote to fix vim highlighter
     force: true
     owner: root
     group: root
@@ -49,7 +50,7 @@
   notify: "{{ _watchtower_enable |ternary('restart watchtower service', 'reload systemd daemon') }}"
 
 - name: setup watchtower service
-  copy:
+  ansible.builtin.copy:
     dest: /etc/systemd/system/watchtower.service
     ## FIXME watchtower tries to access docker config as /config.json
     ## FIXME watchtower always returns exit status of 1
@@ -72,7 +73,7 @@
   register: _watchtower_systemd_service
 
 - name: activate watchtower service
-  systemd:
+  ansible.builtin.systemd:
     name: watchtower
     state: "{{ _watchtower_enable |ternary('started','stopped') }}"
     enabled: "{{ _watchtower_enable }}"

@@ -1,6 +1,6 @@
 ---
 - name: extract item options for {{ item.name }}
-  set_fact:
+  ansible.builtin.set_fact:
     _name: "{{ item.name }}"
     _path: "{{ item.path }}"
     _unit_path: "/etc/systemd/system/{{ item.path |regex_replace('^/') |replace('/','-') }}"
@@ -12,40 +12,40 @@
     _nonroot: "{{ nonroot |bool }}"
     _bglog: "{{ bglog |bool }}"
     _proxy: "{{ proxy }}"
-    # explicitly convert token to string to avoid json being treated as a dict
+    ## explicitly convert token to string to avoid json being treated as a dict
     _token: "{{ token }}"
     _reuse_token: "{{ reuse_lower not in ['false','no','0',''] }}"
     _reuse_from: "{{ reuse_bool |ternary(item.name, reuse_str) }}"
     _options_str: "{{ options_list |select |join(',') }}"
   vars:
     options_list:
-      # basic options
+      ## basic options
       - rw
       - "{{ fstab |bool |ternary('noauto','') }}"
       - "{{ fstab |bool |ternary('nofail','') }}"
       - "{{ netdev |bool |ternary('_netdev','') }}"
-      # fuse options
+      ## fuse options
       - "{{ nonroot |bool |ternary('gid=%s' % group_gid, '') }}"
       - "{{ nonroot |bool |ternary('allow_other', '') }}"
-      # vfs options
+      ## vfs options
       - "{{ cache_mode |ternary('vfs-cache-mode=%s' % cache_mode, '') }}"
       - "{{ cache_time |ternary('dir-cache-time=%s' % cache_time, '') }}"
-      # proxy options
+      ## proxy options
       - "{{ (proxy and wrapper) |ternary('proxy=%s' % proxy, '') }}"
       - "{{ (proxy and not wrapper) |ternary('http_proxy=%s' % proxy, '') }}"
       - "{{ (proxy and not wrapper) |ternary('https_proxy=%s' % proxy, '') }}"
-      # rclone options
+      ## rclone options
       - "{{ '' if wrapper else ('config=%s' % lin_rclone_config) }}"
       - "{{ (cache_dir or not wrapper) |ternary('cache_dir=%s' % final_cache_dir, '') }}"
-      # systemd / automount options
+      ## systemd / automount options
       - "{{ fstab_automount |bool |ternary('x-systemd.automount', '') }}"
       - "{{ fstab_automount |bool |ternary('x-systemd.idle-timeout=%d' % lin_rclone_idle_timeout, '') }}"
-      # troubleshooting options
+      ## troubleshooting options
       - "{{ (lin_rclone_hide_args |bool and not wrapper) |ternary('args2env', '') }}"
       - "{{ (mount_verb_custom and wrapper) |ternary('mount-verb=%s' % mount_verb_str, '') }}"
       - "{{ (mount_verb_custom and not wrapper) |ternary('command=%s' % mount_verb_str, '') }}"
       - "{{ (bglog and wrapper) |ternary('bglog', '') }}"
-      # spread options
+      ## spread options
       - "{{ spread |bool |ternary(_rclone_mount_spread, '') }}"
     mount: "{{ item.mount |d(true) |bool }}"
     systemd: "{{ item.systemd |d(lin_rclone_prefer_systemd) |d(false) |bool }}"
@@ -72,7 +72,7 @@
   no_log: "{{ hide_secrets |bool }}"
 
 - name: validate name and path of {{ _name }}
-  assert:
+  ansible.builtin.assert:
     that:
       - _name is match('^[a-zA-Z0-9_]+$')
       - _path is match('^[a-zA-Z0-9_/]+$')
@@ -80,7 +80,7 @@
     quiet: true
 
 - name: validate config of {{ _name }}
-  assert:
+  ansible.builtin.assert:
     that:
       - _config.strip() is not match('^\[')
       - not _reuse_token or _config is search('\[TOKEN\]')
@@ -88,7 +88,7 @@
     quiet: true
 
 - name: obtain previous token for {{ _name }}
-  shell:
+  ansible.builtin.shell:
     cmd: |
       from __future__ import print_function
       try:
@@ -110,18 +110,18 @@
   changed_when: false
 
 - name: setup config section for {{ _name }}
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: "{{ lin_rclone_config |expanduser }}"
     marker: "# == {mark} {{ _name }} =="
-    # rclone token refresher adds empty lines after sections ends and so do we
+    ## rclone token refresher adds empty lines after sections ends and so do we
     block: |+
       [{{ _name }}]
       {{ new_config }}
 
     create: true
     mode: 0640
-    # rclone token refresher will strip the last end marker comment causing blockinfile mess
-    # as a workaround, insert an empty section at the end of file
+    ## rclone token refresher will strip the last end marker comment causing blockinfile mess
+    ## as a workaround, insert an empty section at the end of file
     insertbefore: "\\[end_of_ansible_blocks\\]"
   no_log: "{{ hide_secrets |bool }}"
   vars:
@@ -136,14 +136,14 @@
   notify: restart remote systemd mounts
 
 - name: create mountpoint for {{ _name }}
-  file:
+  ansible.builtin.file:
     path: "{{ _path }}"
     state: directory
     mode: 0755
   when: _path |d('')
 
 - name: setup fstab mount for {{ _name }}
-  mount:
+  ansible.posix.mount:
     path: "{{ _path }}"
     src: "{{ _name }}:"
     fstype: rclone
@@ -153,7 +153,7 @@
   notify: restart remote systemd mounts
 
 - name: setup systemd mount unit for {{ _name }}
-  template:
+  ansible.builtin.template:
     src: systemd.mount
     dest: "{{ _unit_path }}.mount"
     mode: 0644
@@ -164,7 +164,7 @@
   notify: restart remote systemd mounts
 
 - name: setup systemd automount unit for {{ _name }}
-  template:
+  ansible.builtin.template:
     src: systemd.automount
     dest: "{{ _unit_path }}.automount"
     mode: 0644
@@ -176,14 +176,14 @@
   notify: restart remote systemd mounts
 
 - name: remove systemd mount unit for {{ _name }}
-  file:
+  ansible.builtin.file:
     path: "{{ _unit_path }}.mount"
     state: absent
   when: not(_systemd and _mount)
   notify: restart remote systemd mounts
 
 - name: remove systemd automount unit for {{ _name }}
-  file:
+  ansible.builtin.file:
     path: "{{ _unit_path }}.automount"
     state: absent
   when: not(_systemd and _mount and _automount)

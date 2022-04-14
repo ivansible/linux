@@ -10,7 +10,7 @@
   register: latest_dman_release
 
 - name: download docker-machine
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ latest_dman_release.url }}"
     dest: "{{ docker_machine_binary_file }}"
     mode: 0755
@@ -21,7 +21,7 @@
   until: download_result.msg |d('') is not search('timed out')
 
 - name: bash completion scripts for docker-machine (optional, so ok to fail)
-  get_url:
+  ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/docker/machine/master/contrib/completion/bash/{{ item }}.bash
     dest: /etc/bash_completion.d/{{ item }}
     mode: 0644

@@ -1,6 +1,6 @@
 ---
 - name: configure syslog for docker engine
-  copy:
+  ansible.builtin.copy:
     dest: /etc/rsyslog.d/34-docker.conf
     content: |
       :programname,isequal,"dockerd" /var/log/docker.log
@@ -18,7 +18,7 @@
   notify: restart syslog service
 
 - name: rotate docker log file
-  copy:
+  ansible.builtin.copy:
     dest: /etc/logrotate.d/docker
     content: |
       /var/log/docker.log {

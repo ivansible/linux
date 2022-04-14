@@ -1,6 +1,6 @@
 ---
 - name: upload TLS-crypt key from settings
-  copy:
+  ansible.builtin.copy:
     dest: "{{ srv_ovpn_dir }}/tls-crypt.key"
     content: "{{ srv_ovpn_tlscrypt_key }}"
     owner: root
@@ -10,37 +10,37 @@
   notify: restart openvpn servers
 
 - name: generate new TLS-crypt key
-  command:
+  ansible.builtin.command:
     cmd: openvpn --genkey --secret "{{ srv_ovpn_dir }}/tls-crypt.key"
     creates: "{{ srv_ovpn_dir }}/tls-crypt.key"
   when: not tlscrypt_from_vars
   notify: restart openvpn servers
 
 - name: ensure permissions on common TLS-crypt key
-  file:
+  ansible.builtin.file:
     path: "{{ srv_ovpn_dir }}/tls-crypt.key"
     owner: root
     mode: 0600
 
 - name: slurp common TLS-crypt key content
-  slurp:
+  ansible.builtin.slurp:
     src: "{{ srv_ovpn_dir }}/tls-crypt.key"
   register: slurp_tlscrypt_key
   when: not tlscrypt_from_vars
 
 - name: decode content of common TLS-crypt key
-  set_fact:
+  ansible.builtin.set_fact:
     ovpn_tlscrypt_key: "{{ slurp_tlscrypt_key.content |b64decode }}"
   when: not tlscrypt_from_vars
 
 - name: register content of common TLS-crypt key
-  set_fact:
+  ansible.builtin.set_fact:
     ovpn_tlscrypt_key: "{{ srv_ovpn_tlscrypt_key }}"
   when: tlscrypt_from_vars
 
 
 - name: create directories for servers/clients and templates
-  file:
+  ansible.builtin.file:
     path: "{{ srv_ovpn_dir }}/{{ item }}"
     state: directory
     owner: root
@@ -51,7 +51,7 @@
     - templates
 
 - name: create common server/client templates
-  template:
+  ansible.builtin.template:
     src: "{{ item }}/global.tpl"
     dest: "{{ srv_ovpn_dir }}/templates/{{ item }}.tpl"
     owner: root
@@ -77,7 +77,7 @@
     - client
 
 - name: add template scripts
-  copy:
+  ansible.builtin.copy:
     src: "{{ item }}"
     dest: "{{ srv_ovpn_dir }}/templates/{{ item }}"
     owner: root
