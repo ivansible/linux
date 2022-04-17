@@ -104,12 +104,26 @@ jobs:
           cd ~/.ansible/collections/ansible_collections/$COLLNAME
           molecule test -s ${SCENARIO:-default}
 
-# galaxy:
-#   needs: test
-#   runs-on: ubuntu-latest
-#   steps:
-#     - name: push collection to galaxy
-#       uses: 0x022b/galaxy-role-import-action@v1
-#       with:
-#         galaxy_api_key: ${{ secrets.GALAXY_API_KEY }}
+  galaxy:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v2
+
+      - name: get the release version
+        run: |
+          VER=${GITHUB_REF#refs/tags/v}
+          SHA=${GITHUB_SHA:0:7}
+          VER=${VER%%-try*}              # throwaway tags: v1.0.0-try3
+          VER=${VER//-sha*/-$SHA}        # commitish tags: v1.0.0-sha1
+          echo VER=$VER
+          echo VER=$VER >> $GITHUB_ENV
+
+      - name: publish to galaxy
+        uses: artis3n/ansible_galaxy_collection@v2
+        with:
+          api_key: ${{ secrets.GALAXY_API_KEY }}
+          galaxy_version: ${{ env.VER }}
 ...
