@@ -1,0 +1,13 @@
+---
+- name: setup ecryptfs
+  ansible.builtin.import_tasks: root.yml
+  become: true
+  when:
+    - ecryptfs_enable |bool
+    - ecryptfs_mounts |d([])
+  tags: ecryptfs_all
+
+- name: run postponed tasks
+  ansible.builtin.meta: flush_handlers
+  tags: ecryptfs_all
+...

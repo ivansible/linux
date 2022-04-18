@@ -1,0 +1,50 @@
+---
+- name: install ecryptfs utils
+  ansible.builtin.apt:
+    name:
+      - ecryptfs-utils
+      - rsync
+
+- name: directory for ecryptfs configs
+  ansible.builtin.file:
+    path: "{{ ecryptfs_etc_dir }}"
+    state: directory
+    mode: 0700
+
+- name: setup ecryptfs mounts
+  ansible.builtin.include_tasks: _mount.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_rclone_config
+        - lin_rclone_mounts
+  loop: "{{ ecryptfs_mounts }}"
+  loop_control:
+    label: "{{ path }}"
+  vars:
+    path: "{{ item.path |d(item) |d('') |string }}"
+    name: "{{ path.strip('/') |replace('/','-') }}"
+    pasw: "{{ item.pass |d(ecryptfs_pass) |d('',true) |string }}"
+    sig: "{{ item.sig |d(ecryptfs_sig) |d('',true) |string }}"
+    cipher: "{{ item.cipher |d(ecryptfs_cipher) |d('',true) |string }}"
+    key_bytes: "{{ item.key_bytes |d(ecryptfs_key_bytes) |d(0,true) |int }}"
+    passthrough: "{{ item.passthrough |d(ecryptfs_passthrough) |d(false,true) |bool }}"
+    filename_crypto: "{{ item.filename_crypto |d(ecryptfs_filename_crypto) |d(false,true) |bool }}"
+    no_sig_cache: "{{ item.no_sig_cache |d(ecryptfs_no_sig_cache) |d(false,true) |bool }}"
+    verbosity: "{{ item.verbosity |d(ecryptfs_verbosity) |d(0,true) |int }}"
+    options:
+      - key=passphrase:passphrase_passwd_file={{ ecryptfs_etc_dir }}/{{ name }}.pf
+      - ecryptfs_sig={{ sig }}
+      - ecryptfs_cipher={{ cipher }}
+      - ecryptfs_key_bytes={{ key_bytes }}
+      - ecryptfs_passthrough={{ passthrough |ternary('y','n') }}
+      - ecryptfs_enable_filename_crypto={{ filename_crypto |ternary('y','n') }}
+      - "{{ 'no_sig_cache' if no_sig_cache else '' }}"
+      - verbosity={{ verbosity }}
+      - "{{ systemd_deps |map('regex_replace','^','x-systemd.before=') |join(',') }}"
+    systemd_deps: "{{ item.systemd_deps |d([],true) }}"
+  when:
+    - path |d('')
+    - item.enabled |d(true) |bool
+...

@@ -1,0 +1,57 @@
+---
+- name: validate config of {{ path }}
+  ansible.builtin.assert:
+    that:
+      - name is match('^[a-zA-Z0-9_.-]+$')
+      - pasw |d('')
+      - sig |d('')
+      - path |d('')
+      - path |d('') is not search("[ ']")
+    ## ' dummy quote to fix vim highlighter
+    quiet: true
+
+- name: create passphrase file for {{ path }}
+  ansible.builtin.copy:
+    dest: /etc/ecryptfs/{{ name }}.pf
+    mode: 0600
+    content: "passphrase_passwd={{ pasw }}\n"
+
+- name: check that {{ path }} is already mounted
+  ansible.builtin.shell:
+    # noqa command-instead-of-module
+    cmd: "mount |grep '{{ path }} on {{ path }} type ecryptfs' |wc -l"
+  changed_when: false
+  register: mount_check_result
+
+- name: setup fstab entry for {{ path }}
+  ansible.posix.mount:
+    path: "{{ path }}"
+    src: "{{ path }}"
+    fstype: ecryptfs
+    state: present
+    opts: "{{ options |select |join(',') }}"
+  register: mount_entry_result
+  notify: reload systemd daemon
+
+- name: migrate cleartext contents of {{ path }}
+  ansible.builtin.script:
+    cmd: "migrate-path.sh '{{ path }}'"
+  ## only when not yet encrypted (mounted)
+  when: mount_check_result.stdout |int == 0
+
+- name: force remount of {{ path }} (only when fstab changed)
+  ansible.posix.mount:
+    path: "{{ path }}"
+    src: "{{ path }}"
+    fstype: ecryptfs
+    state: unmounted
+  when: mount_entry_result is changed
+
+- name: activate ecryptfs mount for {{ path }}
+  ansible.posix.mount:
+    path: "{{ path }}"
+    src: "{{ path }}"
+    fstype: ecryptfs
+    state: mounted
+    opts: "{{ options |select |join(',') }}"
+...
