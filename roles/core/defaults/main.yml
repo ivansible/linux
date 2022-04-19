@@ -22,6 +22,7 @@ lin_cron_timers:
   monthly: monthly
 
 lin_core_swap_enable: false
+lin_core_swap_encrypt: false
 lin_core_swap_mb: 0
 lin_core_swap_file: /swapfile
 

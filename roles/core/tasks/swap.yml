@@ -24,13 +24,41 @@
     cmd: mkswap "{{ lin_core_swap_file }}"
   when: swap_status_result is changed
 
+- name: add swap file to crypttab
+  community.general.crypttab:
+    name: cryptswap1
+    backing_device: "{{ lin_core_swap_file }}"
+    password: /dev/urandom
+    opts: swap,offset=1024,cipher=aes-xts-plain64
+    state: present
+  no_log: "{{ hide_secrets |bool }}"
+  when: lin_core_swap_encrypt |bool
+  register: swap_crypttab_result
+
 - name: add swap file to fstab
   ansible.builtin.lineinfile:
     path: /etc/fstab
-    line: "{{ lin_core_swap_file }} none swap sw 0 0"
-    regexp: "{{ lin_core_swap_file }}"
+    line: "{{ device }} none swap sw 0 0"
+    regexp: "^({{ crypt_dev }}|{{ swap_file }}) "
+  vars:
+    device: "{{ lin_core_swap_encrypt |bool |ternary(crypt_dev, swap_file) }}"
+    crypt_dev: /dev/mapper/cryptswap1
+    swap_file: "{{ lin_core_swap_file }}"
+  register: swap_fstab_result
+
+- name: deactivate current swap (if fstab changed)
+  ansible.builtin.command: swapoff -a
+  when: swap_fstab_result is changed
+
+- name: refresh encrypted swaps (if crypttab changed)
+  ansible.builtin.systemd:
+    name: cryptsetup.target
+    state: restarted
+    daemon_reload: true
+  when: swap_crypttab_result is changed
 
 - name: activate swap file
   ansible.builtin.command: swapon -a
   when: swap_status_result is changed
+        or swap_fstab_result is changed
 ...
