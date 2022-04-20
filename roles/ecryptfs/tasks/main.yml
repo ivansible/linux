@@ -4,7 +4,23 @@
   become: true
   when:
     - ecryptfs_enable |bool
-    - ecryptfs_mounts |d([])
+    - active_mounts |length > 0
+  vars:
+    active_mounts: "{{ ecryptfs_mounts |d([]) |json_query('[?!disable]') }}"
+    webpass_mounts: >
+      {% set ns = namespace(items = []) -%}
+      {% for item in active_mounts -%}
+      {%   set ns.path = item.path |d(item) |d('') |string -%}
+      {%   set ns.name = ns.path.strip('/') |replace('/','-') -%}
+      {%   set ns.pass = item.pass |d(ecryptfs_pass) |d('',true) |string -%}
+      {%   if ns.pass == 'webpass' -%}
+      {%     set ns.items = ns.items + [ns.name] -%}
+      {%   endif -%}
+      {% endfor -%}
+      {{ ns.items }}
+    use_webpass: "{{ (ecryptfs_webpass_url
+                      and ecryptfs_webpass_prefix and ecryptfs_webpass_suffix
+                      and true) |bool }}"
   tags: ecryptfs_all
 
 - name: run postponed tasks

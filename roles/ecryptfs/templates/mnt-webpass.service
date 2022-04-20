@@ -1,0 +1,14 @@
+# ansible-managed
+[Unit]
+Description=mnt-webpass service
+After=network-online.target
+{% if webpass_mounts %}
+Before={{ webpass_mounts |map('regex_replace','$','.mount') |join(' ') }}
+{% endif %}
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/mnt-webpass - - {{ ecryptfs_webpass_prefix |d('-',true) }} {{ ecryptfs_webpass_suffix |d('-',true) }}
+EnvironmentFile=/etc/default/mnt-webpass
+KeyringMode=shared
+[Install]
+WantedBy=multi-user.target

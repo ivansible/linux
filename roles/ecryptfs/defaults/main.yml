@@ -1,8 +1,6 @@
 ---
 ecryptfs_enable: true
 
-ecryptfs_pass: ~
-ecryptfs_sig: ~
 ecryptfs_cipher: aes
 ecryptfs_key_bytes: 16
 ecryptfs_passthrough: false
@@ -10,17 +8,26 @@ ecryptfs_filename_crypto: false
 ecryptfs_no_sig_cache: true
 ecryptfs_verbosity: 0
 
+ecryptfs_sig: ~
+ecryptfs_pass: ~  # string or 'webpass'
+
+ecryptfs_webpass_url: ~
+ecryptfs_webpass_prefix: ~
+ecryptfs_webpass_suffix: ~
+ecryptfs_webpass_pass: ~
+
 ecryptfs_mounts: []
 # - path: /home/secret1
 #   sig: sig1
-#   pass: pass1
-#   enabled: true
+#   pass: pass1 | webpass
+#   disable: true
 #   systemd_deps:
 #     - systemd-unit1.service
 #     - systemd-unit2.service
 #
-# - /etc/secret2
+# - /path/to/secret2
 #   (use defaults for sig, pass, etc)
 
 ecryptfs_etc_dir: /etc/ecryptfs
+ecryptfs_force_migrate: false
 ...

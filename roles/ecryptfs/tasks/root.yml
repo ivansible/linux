@@ -5,11 +5,78 @@
       - ecryptfs-utils
       - rsync
 
-- name: directory for ecryptfs configs
+- name: install a wrapper mount helper to skip the utils mount helper
+  ## Normally `mount -t ecryptfs` will invoke /sbin/mount.ecryptfs
+  ## which works fine if the key passphrase is stored in a file,
+  ## but fails if it was added directly via ecryptfs-add-passphrase.
+  ## In the latter case we should bypass mount helper using the
+  ## `--internal-only` mount option (mount -t ecryptfs -i)
+  ## which is not supported by fstab or systemd.
+  ## Here we setup a mount helper which adds support for new
+  ## ecryptfs_internal filesystem type in fstab, right for that.
+  ansible.builtin.copy:
+    src: mount.ecryptfs_internal.sh
+    dest: /sbin/mount.ecryptfs_internal
+    force: true
+    mode: 0755
+
+- name: install script to migrate ecryptfs mounts
+  ## A note about `su -lc "mount /path"` in the script:
+  ## mount can fail if this is run by sudo with login session tied to original user
+  ## su -l will create a new untied root login session making keyctl work correctly
+  ## see https://mjg59.dreamwidth.org/37333.html
+  ansible.builtin.copy:
+    src: migrate-path.sh
+    dest: /usr/local/sbin/ecryptfs-migrate-path
+    force: true
+    mode: 0750
+
+- name: make directory for ecryptfs configs
   ansible.builtin.file:
     path: "{{ ecryptfs_etc_dir }}"
     state: directory
     mode: 0700
+
+
+- name: upload webpass script
+  ansible.builtin.copy:
+    src: mnt-webpass.sh
+    dest: /usr/local/sbin/mnt-webpass
+    mode: 0750
+    force: true
+  when: use_webpass |bool
+
+- name: create webpass service
+  ansible.builtin.template:
+    src: mnt-webpass.service
+    dest: /etc/systemd/system/mnt-webpass.service
+    mode: 0644
+  register: mnt_webpass_service_result
+
+- name: update webpass service variables
+  ansible.builtin.template:
+    src: mnt-webpass.env
+    dest: /etc/default/mnt-webpass
+    mode: 0600
+    owner: root
+  register: mnt_webpass_env_result
+
+- name: (de)activate webpass service
+  ansible.builtin.systemd:
+    name: mnt-webpass
+    state: "{{ active |ternary(start_state, 'stopped') }}"
+    enabled: "{{ active }}"
+    daemon_reload: "{{ mnt_webpass_service_result is changed }}"
+  vars:
+    active: "{{ use_webpass |bool and webpass_mounts |length > 0 }}"
+    start_state: "{{ service_changed |ternary('started', omit) }}"
+    service_changed: "{{ mnt_webpass_service_result is changed
+                         or mnt_webpass_env_result is changed }}"
+  register: mnt_webpass_systemd_result
+  failed_when:
+    - mnt_webpass_systemd_result is failed
+    - use_webpass |bool
+
 
 - name: setup ecryptfs mounts
   ansible.builtin.include_tasks: _mount.yml
@@ -17,15 +84,15 @@
     apply:
       become: true
       tags:
-        - lin_rclone_config
-        - lin_rclone_mounts
-  loop: "{{ ecryptfs_mounts }}"
+        - lin_ecryptfs_all
+  loop: "{{ active_mounts }}"
   loop_control:
     label: "{{ path }}"
   vars:
     path: "{{ item.path |d(item) |d('') |string }}"
     name: "{{ path.strip('/') |replace('/','-') }}"
-    pasw: "{{ item.pass |d(ecryptfs_pass) |d('',true) |string }}"
+    passwd: "{{ item.pass |d(ecryptfs_pass) |d('',true) |string }}"
+    is_webpass: "{{ passwd == 'webpass' }}"
     sig: "{{ item.sig |d(ecryptfs_sig) |d('',true) |string }}"
     cipher: "{{ item.cipher |d(ecryptfs_cipher) |d('',true) |string }}"
     key_bytes: "{{ item.key_bytes |d(ecryptfs_key_bytes) |d(0,true) |int }}"
@@ -33,18 +100,18 @@
     filename_crypto: "{{ item.filename_crypto |d(ecryptfs_filename_crypto) |d(false,true) |bool }}"
     no_sig_cache: "{{ item.no_sig_cache |d(ecryptfs_no_sig_cache) |d(false,true) |bool }}"
     verbosity: "{{ item.verbosity |d(ecryptfs_verbosity) |d(0,true) |int }}"
+    passfile: "{{ ecryptfs_etc_dir }}/{{ name }}.pf"
+    fstype: "{{ is_webpass |ternary('ecryptfs_internal','ecryptfs') }}"
     options:
-      - key=passphrase:passphrase_passwd_file={{ ecryptfs_etc_dir }}/{{ name }}.pf
+      - "{{ is_webpass |ternary('', _passfile_opt) }}"
       - ecryptfs_sig={{ sig }}
       - ecryptfs_cipher={{ cipher }}
       - ecryptfs_key_bytes={{ key_bytes }}
       - ecryptfs_passthrough={{ passthrough |ternary('y','n') }}
       - ecryptfs_enable_filename_crypto={{ filename_crypto |ternary('y','n') }}
-      - "{{ 'no_sig_cache' if no_sig_cache else '' }}"
+      - "{{ no_sig_cache |ternary('no_sig_cache', '') }}"
       - verbosity={{ verbosity }}
-      - "{{ systemd_deps |map('regex_replace','^','x-systemd.before=') |join(',') }}"
-    systemd_deps: "{{ item.systemd_deps |d([],true) }}"
-  when:
-    - path |d('')
-    - item.enabled |d(true) |bool
+      - "{{ _systemd_deps |map('regex_replace','^','x-systemd.before=') |join(',') }}"
+    _passfile_opt: "key=passphrase:passphrase_passwd_file={{ passfile }}"
+    _systemd_deps: "{{ item.systemd_deps |d([],true) }}"
 ...

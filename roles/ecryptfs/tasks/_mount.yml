@@ -3,18 +3,34 @@
   ansible.builtin.assert:
     that:
       - name is match('^[a-zA-Z0-9_.-]+$')
-      - pasw |d('')
+      - passwd |d('')
       - sig |d('')
       - path |d('')
       - path |d('') is not search("[ ']")
     ## ' dummy quote to fix vim highlighter
     quiet: true
 
-- name: create passphrase file for {{ path }}
+
+- name: create passphrase file for keyfile mount {{ path }}
   ansible.builtin.copy:
-    dest: /etc/ecryptfs/{{ name }}.pf
+    dest: "{{ passfile }}"
     mode: 0600
-    content: "passphrase_passwd={{ pasw }}\n"
+    content: "passphrase_passwd={{ passwd }}\n"
+  when: not is_webpass
+
+- name: remove passphrase file for webpass mount {{ path }}
+  ansible.builtin.file:
+    path: "{{ passfile }}"
+    state: absent
+  when: is_webpass |bool
+
+
+- name: ensure that path exists {{ path }}
+  ansible.builtin.file:
+    ## do not change directory permissions
+    # noqa risky-file-permissions
+    path: "{{ path }}"
+    state: directory
 
 - name: check that {{ path }} is already mounted
   ansible.builtin.shell:
@@ -23,13 +39,14 @@
   changed_when: false
   register: mount_check_result
 
+
 - name: setup fstab entry for {{ path }}
   ansible.posix.mount:
     path: "{{ path }}"
     src: "{{ path }}"
-    fstype: ecryptfs
-    state: present
+    fstype: "{{ fstype }}"
     opts: "{{ options |select |join(',') }}"
+    state: present
   register: mount_entry_result
   notify: reload systemd daemon
 
@@ -38,20 +55,34 @@
     cmd: "migrate-path.sh '{{ path }}'"
   ## only when not yet encrypted (mounted)
   when: mount_check_result.stdout |int == 0
+        or ecryptfs_force_migrate |bool
 
-- name: force remount of {{ path }} (only when fstab changed)
-  ansible.posix.mount:
-    path: "{{ path }}"
-    src: "{{ path }}"
-    fstype: ecryptfs
-    state: unmounted
+
+- name: force remount of {{ path }}
+  block:
+    - name: force remount of {{ path }} if fstab changed (can be rescued)
+      ansible.posix.mount:
+        path: "{{ path }}"
+        src: "{{ path }}"
+        fstype: "{{ fstype }}"
+        opts: "{{ options |select |join(',') }}"
+        state: unmounted
+  rescue:
+    - name: force lazy unmount (if fstab changed) of {{ path }}
+      ansible.builtin.command:
+        # noqa command-instead-of-module
+        cmd: umount -l "{{ path }}"
+      when: mount_check_result.stdout |int == 0
   when: mount_entry_result is changed
+        or ecryptfs_force_migrate |bool
 
 - name: activate ecryptfs mount for {{ path }}
-  ansible.posix.mount:
-    path: "{{ path }}"
-    src: "{{ path }}"
-    fstype: ecryptfs
-    state: mounted
-    opts: "{{ options |select |join(',') }}"
+  ## the ansible.posix.mount module (state=mounted) can fail if run by with become=sudo
+  ## because sudo keeps current login session tied to the original non-privileged user
+  ## resulting in keyctl failure to find webpass in the kernel keyring
+  ## systemd will run the mount process in a correct root keyring session
+  ansible.builtin.systemd:
+    name: "{{ name }}.mount"
+    state: started
+    daemon_reload: "{{ mount_entry_result is changed }}"
 ...
