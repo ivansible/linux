@@ -25,6 +25,14 @@
     extra_opts: --strip-components=1
   when: easyrsa_github_release is changed
 
+- name: silence shell message about illegal echo option
+  ansible.builtin.replace:
+    path: "{{ srv_ovpn_easyrsa_dir }}/easyrsa"
+    regexp: '^#!/bin/sh'
+    replace: '#!/bin/bash'
+    backup: false
+  when: easyrsa_github_release is changed
+
 - name: configure easy-rsa
   ansible.builtin.copy:
     dest: "{{ srv_ovpn_easyrsa_dir }}/vars"
