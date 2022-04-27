@@ -62,7 +62,6 @@
     ovpn_cc_cipher: "{{ srv_ovpn_cc_cipher }}"
     ovpn_hmac_alg: "{{ srv_ovpn_hmac_alg }}"
     ovpn_reneg_sec: "{{ srv_ovpn_reneg_sec }}"
-    ovpn_compress: "{{ srv_ovpn_compress }}"
 
     visible_port: "{{ server.visible_port |d(server_port, true) }}"
     client_proto: "{{ 'udp' if server_proto == 'udp' else 'tcp-client' }}"

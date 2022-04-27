@@ -3,7 +3,6 @@
   ansible.builtin.assert:
     that:
       - server_proto in ['tcp', 'udp']
-      - srv_ovpn_compress in ['lz4-v2', 'lz4', 'lzo', '', none]
     quiet: true
   tags:
     - srv_ovpn_firewall

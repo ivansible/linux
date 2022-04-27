@@ -89,7 +89,6 @@ srv_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
 srv_ovpn_hmac_alg: SHA256  # HMAC digest algorithm
 
 srv_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
-srv_ovpn_compress: ~  # one of: lz4-v2, lz4, lzo, none (default: no compression)
 srv_ovpn_tun_mtu: ~
 
 srv_ovpn_default_client_device: tun

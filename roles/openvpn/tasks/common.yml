@@ -65,7 +65,6 @@
     ovpn_cc_cipher: "{{ srv_ovpn_cc_cipher }}"
     ovpn_hmac_alg: "{{ srv_ovpn_hmac_alg }}"
     ovpn_reneg_sec: "{{ srv_ovpn_reneg_sec }}"
-    ovpn_compress: "{{ srv_ovpn_compress }}"
 
     ovpn_redirect_gateway: "{{ srv_ovpn_redirect_gateway }}"
     ovpn_prevent_dns_leak: "{{ srv_ovpn_prevent_dns_leak }}"
