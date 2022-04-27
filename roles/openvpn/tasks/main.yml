@@ -20,7 +20,7 @@
         state: "{{ enable |ternary('started','stopped') }}"
         enabled: "{{ enable }}"
       vars:
-        enable: "{{ srv_ovpn_servers |default([],true) |json_query('[?!disable]') |length > 0 }}"
+        enable: "{{ srv_ovpn_servers |d([],true) |json_query('[?!disable]') |length > 0 }}"
       when: false  # step disabled
 
     - name: stop disabled openvpn servers
@@ -29,7 +29,7 @@
         state: stopped
         enabled: false
       failed_when: false
-      loop: "{{ srv_ovpn_servers |default([],true) |json_query('[?!!disable]') }}"
+      loop: "{{ srv_ovpn_servers |d([],true) |json_query('[?!!disable]') }}"
       loop_control:
         label: "openvpn@{{ item.name }}"
       tags: srv_ovpn_servers

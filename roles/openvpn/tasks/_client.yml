@@ -73,12 +73,12 @@
     mode: 0644
     backup: "{{ srv_ovpn_backups |bool }}"
   vars:
-    proxy: "{{ client.proxy |default('',true) |string }}"
+    proxy: "{{ client.proxy |d('',true) |string }}"
     proxy_url: "{{ proxy if '//' in proxy else '//' + proxy }}"
     proxy_type: "{{ proxy_url |urlsplit('scheme') or 'socks5' }}"
     proxy_host: "{{ proxy_url |urlsplit('hostname') or '127.0.0.1' }}"
     proxy_port: "{{ proxy_url |urlsplit('port') or 1080 }}"
-    interface_name: "{{ client.interface_name |default('') }}"
+    interface_name: "{{ client.interface_name |d('') }}"
   notify: restart openvpn servers
 
 - name: update per-client routes for '{{ full_name }}'
@@ -92,8 +92,8 @@
     mode: 0644
     backup: "{{ srv_ovpn_backups |bool }}"
   vars:
-    client_config: "{{ client.config |default('') }}"
-    has_config: "{{ client.config |default(none) is not none }}"
+    client_config: "{{ client.config |d('') }}"
+    has_config: "{{ client.config |d(none) is not none }}"
 
     has_subnet4: "{{ true if client_subnet4 else false }}"
     has_subnet6: "{{ true if client_subnet6 else false }}"

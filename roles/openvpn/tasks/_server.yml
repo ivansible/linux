@@ -72,7 +72,7 @@
     mode: 0640
     backup: "{{ srv_ovpn_backups |bool }}"
   vars:
-    proto_ipv6: "{{ server.ipv6 |default(true) |bool }}"
+    proto_ipv6: "{{ server.ipv6 |d(true) |bool }}"
   notify: restart openvpn servers
 
 - name: update server routes for '{{ server_name }}'
@@ -127,7 +127,7 @@
         - srv_ovpn_servers
         - srv_ovpn_clients
         - srv_ovpn_all
-  loop: "{{ server.clients |default([],true) }}"
+  loop: "{{ server.clients |d([],true) }}"
   loop_control:
     loop_var: client
     label: "{{ full_name }}"
@@ -137,14 +137,14 @@
     full_name: "{{ server_name }}/{{ client_name }}"
     client_crt_path: "{{ server_dir }}/clients/{{ client_name }}.crt"
     client_key_path: "{{ server_dir }}/clients/{{ client_name }}.key"
-    client_crt_from_vars: "{{ true if client.cert |default('') else false }}"
+    client_crt_from_vars: "{{ true if client.cert |d('') else false }}"
 
-    client_subnet4: "{{ client.subnet4 |default('') }}"
-    client_subnet6: "{{ client.subnet6 |default('') }}"
-    _redirect_val: "{{ client.redirect_gateway |default(false,true) |string |lower }}"
+    client_subnet4: "{{ client.subnet4 |d('') }}"
+    client_subnet6: "{{ client.subnet6 |d('') }}"
+    _redirect_val: "{{ client.redirect_gateway |d(false,true) |string |lower }}"
     redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' and client_subnet4 and public_iface }}"
     redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' and client_subnet4 and public_iface }}"
-    public_iface: "{{ srv_ovpn_public_interface |default('') }}"
+    public_iface: "{{ srv_ovpn_public_interface |d('') }}"
   tags: srv_ovpn_clients
 
 - name: start openvpn server '{{ server_name }}'

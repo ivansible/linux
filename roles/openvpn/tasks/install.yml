@@ -75,7 +75,7 @@
       loop: "{{ srv_ovpn_libssl111_xenial_debs }}"
       notify: restart openvpn servers
       when: ansible_lsb.codename == 'xenial'
-  when: ansible_facts.packages['libssl1.1'].0.version |default('0') is version('1.1.1','<')
+  when: ansible_facts.packages['libssl1.1'].0.version |d('0') is version('1.1.1','<')
   tags: srv_ovpn_install_openssl
 
 - name: fix openvpn service template for openvz
