@@ -42,6 +42,7 @@ srv_ovpn_servers: ~
 #      - name: client                   - client name (REQUIRED)
 #        interace_name: ~               - optional interface name (windows only)
 #        proxy: socks://127.0.0.1:1080  - optional proxy (works only with tcp protocol)
+#        wintun: true                   - enables wintun driver on windows (default: false)
 #        subnet4: 10.10.1.2/24          - optional ipv4 subnet (default: dynamic)
 #        subnet6: fd00:0:10:10:2::/80   - optional ipv6 subnet (default: none)
 #        push_routes: [192.168.2.0/24, fd00:2::/64] - list of pushed ipv4/ipv6 routes (optional)
