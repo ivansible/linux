@@ -72,6 +72,7 @@
     ovpn_keepalive_interval: "{{ srv_ovpn_keepalive_interval }}"
     ovpn_keepalive_timeout: "{{ srv_ovpn_keepalive_timeout }}"
     client_device: "{{ srv_ovpn_default_client_device }}"
+    tun_mtu: "{{ srv_ovpn_tun_mtu |d(0,true) |int }}"
   loop:
     - server
     - client

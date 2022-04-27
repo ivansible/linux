@@ -35,6 +35,7 @@ srv_ovpn_servers: ~
 #    subnet6: fd00:0:10:10::/64         - ipv6 subnet in the form "network/bits" (optional)
 #    self_routes: [192.168.2.0/24, fd00:2::/64]  - list of extra ipv4/ipv6 routes (optional)
 #    metric: 1024                       - metric to assign for routes (optional)
+#    tun_mtu: ~                         - tun mtu (optional)
 #    cert: ~                            - static certificate text (default: generate)
 #    key: ~                             - static private key text (default: generate)
 #    clients:                           - list of clients
@@ -89,6 +90,7 @@ srv_ovpn_hmac_alg: SHA256  # HMAC digest algorithm
 
 srv_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
 srv_ovpn_compress: ~  # one of: lz4-v2, lz4, lzo, none (default: no compression)
+srv_ovpn_tun_mtu: ~
 
 srv_ovpn_default_client_device: tun
 ...

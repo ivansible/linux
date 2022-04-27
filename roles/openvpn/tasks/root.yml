@@ -55,6 +55,7 @@
     server_subnet4: "{{ server.subnet4 }}"
     server_subnet6: "{{ server.subnet6 |d('') }}"
     device: "{{ server.device |d('tun') }}"
+    tun_mtu: "{{ server.tun_mtu |d(srv_ovpn_tun_mtu) |d(0,true) |int }}"
 
     ovpn_curve: "{{ srv_ovpn_curve }}"
     ovpn_cipher: "{{ srv_ovpn_cipher }}"
