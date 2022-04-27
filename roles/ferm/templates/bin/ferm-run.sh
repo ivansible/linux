@@ -25,7 +25,7 @@ case "${1:-}" in
     ;;
   --condreset)
     shift 1
-    /sbin/iptables -C FORWARD -j _FORWARD 2>/dev/null
+    {{ sbin_dir }}/iptables -C FORWARD -j _FORWARD 2>/dev/null
     FERM_RESET=$?
     ;;
   *)
@@ -48,7 +48,7 @@ export FERM_RESET FERM_VZ FERM_VZ_DEFS
 
 get_chains() {
     local domain=$1 table=$2 prefix=$3
-    "/sbin/$domain" -t "$table" -S |
+    "{{ sbin_dir }}/$domain" -t "$table" -S |
     awk '/^-N '"$prefix"'-/{print $2}' |
     grep -Ev -- '-USER' ||:
 }

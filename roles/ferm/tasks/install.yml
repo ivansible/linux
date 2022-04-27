@@ -52,6 +52,11 @@
   ## this task always reports as changed in check mode
   when: not ansible_check_mode
 
+- name: find out iptables location
+  ansible.builtin.command: which iptables
+  register: iptables_sbin_path
+  changed_when: false
+
 - name: upload ferm helper scripts
   ansible.builtin.template:
     src: "bin/{{ item.name }}"
@@ -61,6 +66,7 @@
     mode: "{{ item.mode }}"
   vars:
     ferm_nofork: "{{ '--no-fork' if ansible_lsb.release is version('16.04','>') else '' }}"
+    sbin_dir: "{{ iptables_sbin_path.stdout |dirname |d('/usr/sbin', true) }}"
   loop:
     - {name: ferm-ipset.pl, mode: '754'}
     - {name: ferm-openvz.pl, mode: '754'}
