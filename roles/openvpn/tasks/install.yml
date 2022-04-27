@@ -35,7 +35,7 @@
       - ipcalc
       - ca-certificates
       - gnupg
-      # /usr/bin/file is missing on bionic, required by openvpn installer
+      ## /usr/bin/file is missing on bionic, required by openvpn installer
       - file
     state: present
 
@@ -55,28 +55,6 @@
     - update-resolv-conf
     - client
     - server
-
-- name: query openssl library version
-  ansible.builtin.package_facts:
-  tags: srv_ovpn_install_openssl
-
-- block:
-    - name: upgrade to latest openssl on bionic
-      ansible.builtin.apt:
-        name: openssl
-        # noqa 403
-        state: latest
-      notify: restart openvpn servers
-
-    - name: install libssl 1.1.1+ from ondrej sury ppa on xenial
-      ## https://launchpad.net/~ondrej/+archive/ubuntu/nginx-mainline
-      ansible.builtin.apt:
-        deb: "{{ item }}"
-      loop: "{{ srv_ovpn_libssl111_xenial_debs }}"
-      notify: restart openvpn servers
-      when: ansible_lsb.codename == 'xenial'
-  when: ansible_facts.packages['libssl1.1'].0.version |d('0') is version('1.1.1','<')
-  tags: srv_ovpn_install_openssl
 
 - name: fix openvpn service template for openvz
   ansible.builtin.copy:
