@@ -11,12 +11,18 @@ srv_ovpn_proto: ~  # default protocol for servers (default: udp)
 srv_ovpn_cname: "{{ ansible_fqdn }}"  # default common name for server certs
 srv_ovpn_ca_cname: ~  # default common name for CA cert (default: srv_ovpn_cname)
 
+## automatic cloudflare dns records
+srv_ovpn_cloudflare_email: ~
+srv_ovpn_cloudflare_token: ~
+
 srv_ovpn_ca_cert: ~        # predefined CA certificate text (default: generate)
 srv_ovpn_ca_key: ~         # predefined CA private key text (default: generate)
-srv_ovpn_tlscrypt_key: ~  # prefefined TLS-crypt key text (default: generate)
+srv_ovpn_tlscrypt_key: ~   # predefined TLS-crypt key text (default: generate)
 
 srv_ovpn_servers: ~
 #  - name: server                       - server name (REQUIRED)
+#    cname: ~                           - cname in certificate (default: srv_ovpn_cname)
+#    dns_cname: ~                       - makes dns record cname -> dns_cname (default: none)
 #    disable: false                     - stops the server (default: false)
 #    device: tun                        - optional tunX device name (default: tun)
 #    host: ~                            - optional per-server host name/address

@@ -1,6 +1,6 @@
 {% extends "client.ovpn" %}
 {% block client_header %}
-# CLIENT_NAME @ {{ server_host }} ({{ server_name }})
+# CLIENT_NAME @ {{ client_server_host }} ({{ server_name }})
 client
 {% endblock client_header %}
 {% block client_keys %}

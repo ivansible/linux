@@ -45,6 +45,9 @@
     server_proto: "{{ server.proto |default(srv_ovpn_proto, true) |default('udp', true) }}"
     server_port: "{{ server.port |default(srv_ovpn_port, true) |default(1194, true) |int }}"
     internal: "{{ server.internal |default(false) |bool }}"
+
+    dns_cname: "{{ server.dns_cname |d('') }}"
+    client_server_host: "{{ server_cname if (dns_cname and server_cname) else server_host }}"
     server_crt_from_vars: "{{ true if server.cert |default('') else false }}"
     ovpn_keepalive_interval: "{{ srv_ovpn_keepalive_interval }}"
     ovpn_keepalive_timeout: "{{ srv_ovpn_keepalive_timeout }}"

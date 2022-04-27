@@ -175,4 +175,25 @@
     - srv_ovpn_firewall
   notify: restart openvpn servers
   when: lin_firewall == 'ferm'
+
+
+- name: setup dns cname record in cloudflare for '{{ server_name }}'
+  community.general.cloudflare_dns:
+    account_email: "{{ srv_ovpn_cloudflare_email }}"
+    account_api_token: "{{ srv_ovpn_cloudflare_token }}"
+    zone: "{{ zone }}"
+    record: "{{ name }}"
+    type: CNAME
+    value: "{{ dns_cname }}"
+    proxied: false
+  delegate_to: localhost
+  vars:
+    fqdn: "{{ server_cname }}"
+    name: "{{ fqdn |regex_replace('^([^.]+)[.](.*)$', '\\1') }}"
+    zone: "{{ fqdn |regex_replace('^([^.]+)[.](.*)$', '\\2') }}"
+  when:
+    - srv_ovpn_cloudflare_email |d('')
+    - srv_ovpn_cloudflare_token |d('')
+    - dns_cname |d('')
+  tags: srv_ovpn_cloudflare
 ...
