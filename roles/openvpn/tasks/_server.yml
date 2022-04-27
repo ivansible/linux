@@ -141,9 +141,11 @@
     client_subnet4: "{{ client.subnet4 |d('') }}"
     client_subnet6: "{{ client.subnet6 |d('') }}"
     _redirect_val: "{{ client.redirect_gateway |d(false,true) |string |lower }}"
-    redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' and client_subnet4 and public_iface }}"
-    redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' and client_subnet4 and public_iface }}"
-    public_iface: "{{ srv_ovpn_public_interface |d('') }}"
+    redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' and client_subnet4 and public_ifs }}"
+    redirect_ipv6: "{{ _redirect_val in 'ipv6 true yes on 1' and client_subnet4 and public_ifs }}"
+    public_ifs: "{{ [srv_ovpn_public_ifs |d('',true)]
+                  | flatten |select |join(',')
+                  | replace('default', ansible_default_ipv4.interface) }}"
   tags: srv_ovpn_clients
 
 - name: start openvpn server '{{ server_name }}'
