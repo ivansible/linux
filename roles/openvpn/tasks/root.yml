@@ -6,6 +6,7 @@
 - name: setup easy-rsa
   ansible.builtin.import_tasks: easy-rsa.yml
   vars:
+    ovpn_tls13: "{{ srv_ovpn_tls13 |bool }}"
     ca_cname: "{{ srv_ovpn_ca_cname |d(srv_ovpn_cname, true) |d(ansible_fqdn) }}"
   tags: srv_ovpn_easyrsa
 
@@ -57,9 +58,8 @@
     device: "{{ server.device |d('tun') }}"
     tun_mtu: "{{ server.tun_mtu |d(srv_ovpn_tun_mtu) |d(0,true) |int }}"
 
-    ovpn_curve: "{{ srv_ovpn_curve }}"
+    ovpn_tls13: "{{ srv_ovpn_tls13 }}"
     ovpn_cipher: "{{ srv_ovpn_cipher }}"
-    ovpn_cc_cipher: "{{ srv_ovpn_cc_cipher }}"
     ovpn_hmac_alg: "{{ srv_ovpn_hmac_alg }}"
     ovpn_reneg_sec: "{{ srv_ovpn_reneg_sec }}"
 

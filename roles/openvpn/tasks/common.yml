@@ -60,9 +60,8 @@
     force: true
     backup: "{{ srv_ovpn_backups |bool }}"
   vars:
-    ovpn_curve: "{{ srv_ovpn_curve }}"
+    ovpn_tls13: "{{ srv_ovpn_tls13 }}"
     ovpn_cipher: "{{ srv_ovpn_cipher }}"
-    ovpn_cc_cipher: "{{ srv_ovpn_cc_cipher }}"
     ovpn_hmac_alg: "{{ srv_ovpn_hmac_alg }}"
     ovpn_reneg_sec: "{{ srv_ovpn_reneg_sec }}"
 

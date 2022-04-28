@@ -81,11 +81,10 @@ srv_ovpn_dns_servers:
 
 ## Settings below this line must be synchronized between openvpn roles
 
-srv_ovpn_curve: prime256v1
-srv_ovpn_cipher: AES-128-GCM
-srv_ovpn_cc_cipher: TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256
-srv_ovpn_hmac_alg: SHA256  # HMAC digest algorithm
-
+srv_ovpn_tls13: false
+srv_ovpn_cipher: "AES-{{ srv_ovpn_tls13 |bool |ternary(256,128) }}-GCM"
+## hmac digest algorithm is used for both encrypting and authenticating in the tls-crypt mode
+srv_ovpn_hmac_alg: SHA256
 srv_ovpn_reneg_sec: ~  # cipher renegotiantion interval (default: 1 hour)
 srv_ovpn_tun_mtu: ~
 

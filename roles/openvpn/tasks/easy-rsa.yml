@@ -34,16 +34,12 @@
   when: easyrsa_github_release is changed
 
 - name: configure easy-rsa
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: easy-rsa.vars
     dest: "{{ srv_ovpn_easyrsa_dir }}/vars"
-    content: |
-      set_var EASYRSA_ALGO ec
-      set_var EASYRSA_CURVE {{ srv_ovpn_curve }}
-      set_var EASYRSA_REQ_CN {{ ca_cname }}
     owner: root
     group: root
     mode: 0640
-    force: true
   notify: restart openvpn servers
 
 - name: setup pki for easy-rsa
