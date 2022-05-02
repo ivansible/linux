@@ -178,6 +178,7 @@
     ips: "{{ peer.server_ips |d(net.addr) |d([],true) }}"
     mtu: "{{ peer.mtu |d(net.mtu, true) |d(0) |int }}"
     keepalive: "{{ peer.keepalive |d(0) |int }}"
+    psk: "{{ peer.psk |d(net.psk, true) |d('',true) }}"
 
     _redirect_val: "{{ peer.redirect_gateway |d(false,true) |string |lower }}"
     redirect_ipv4: "{{ _redirect_val in 'ipv4 true yes on 1' }}"
