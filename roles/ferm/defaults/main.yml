@@ -1,10 +1,10 @@
 ---
-# defaults for ivansible.lin_ferm
+## defaults for ivansible.lin_ferm
 
 ferm_install: false
 ferm_mimic_ufw: true
 
-# don't install extras by default, it fails on focal
+## don't install extras by default, it fails on focal
 ferm_extras: false
 
 ferm_public_interface: "{{ ansible_default_ipv4.interface
@@ -13,11 +13,13 @@ ferm_public_interface: "{{ ansible_default_ipv4.interface
 ferm_ports_external:
   - 22/tcp
 ferm_ports_internal: []
+ferm_ports_media: []
 ferm_ports_block: []
 
 ferm_hosts_internal:
   - 192.168.0.0/16
   - 10.0.0.0/8
+ferm_hosts_media: []
 ferm_hosts_block: []
 
 ## comma-separated strings, can be used as CLI arguments like follows:

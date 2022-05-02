@@ -55,4 +55,26 @@
     - skip_ansible_lint
     - lin_ferm_hosts
     - lin_ferm_hosts_extras
+
+
+- name: add media hosts in ferm
+  ivansible.base.ferm_host:
+    host: "{{ ferm_hosts_media |d([],true) }}"
+    comment: ferm core
+    zone: media
+    ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags:
+    - skip_ansible_lint
+    - lin_ferm_hosts
+    - lin_ferm_hosts_extras
+
+- name: open media ports in ferm
+  ivansible.base.ferm_port:
+    port: "{{ ferm_ports_media |d([],true) }}"
+    comment: ferm core
+    zone: media
+    ferm_dir: "{{ ferm_dir }}"
+  ignore_errors: "{{ ansible_check_mode }}"
+  tags: skip_ansible_lint
 ...
