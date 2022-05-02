@@ -162,7 +162,10 @@
 
     net: "{{ item.0 }}"
     peer: "{{ item.1 }}"
-    label: "{{ peer.name |d('none') }}{% if peer.via |d('') %}@{{ peer.via }}{% endif %}/{{ net.name |d('none') }}"
+
+    label: "{{ peer.name |d('peer') }}{{ _sep }}{{ peer.via |d(server_name) }}/{{ net.name |d('net') }}"
+    _sep: "{{ '@' if peer.via |d('') else '>' }}"
+    filename: "{{ label |regex_replace('[@>/]','-') }}"
 
     server_name: "{{ peer.via |d(inventory_hostname) }}"
     server_host: "{{ peer.host |d(net_host4, true) |d(lin_wg_host) |d('',true) }}"
@@ -170,7 +173,6 @@
 
     active: "{{ peer.active |d(true) |bool }}"
     client_config: "{{ peer.client_config |d(false) |bool }}"
-    filename: "{{ peer.name |d('peer') }}-{{ peer.via |d(server_name) }}-{{ net.name |d('net') }}"
 
     addr: "{{ peer.client_ips |d(peer.ips) |d([],true) }}"
     ips: "{{ peer.server_ips |d(net.addr) |d([],true) }}"
