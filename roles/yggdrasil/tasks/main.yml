@@ -21,4 +21,31 @@
     - lin_ygg_cloudflare
     - lin_ygg_all
     - lin_yggdrasil_all
+
+- name: see if yggdrasil helpers should be installed
+  ansible.builtin.stat:
+    path: "{{ ygg_peer_database }}"
+  register: _ygg_db_file
+  when: is_permitted |d(false) |bool
+  tags:
+    - lin_ygg_user
+    - lin_ygg_all
+    - lin_yggdrasil_all
+
+- name: install yggdrasil user helpers
+  ansible.builtin.include_tasks: user.yml
+  args:
+    apply:
+      become: false
+      tags:
+        - lin_ygg_user
+        - lin_ygg_all
+        - lin_yggdrasil_all
+  when:
+    - ygg_update_db |bool
+    - _ygg_db_file.stat.exists |d(false) |bool
+  tags:
+    - lin_ygg_user
+    - lin_ygg_all
+    - lin_yggdrasil_all
 ...

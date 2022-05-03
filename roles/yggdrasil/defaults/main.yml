@@ -65,4 +65,9 @@ ygg_internal_hosts: false
 
 ## short peer name to use as a comment in config files
 ygg_alias: ~
+
+## user helpers
+ygg_update_db: false
+ygg_peer_database: "{{ ansible_user_dir }}/.local/bashrc/yggdrasil.db"
+ygg_shell_helpers: "{{ ansible_user_dir }}/.local/bashrc/3common.sh"
 ...

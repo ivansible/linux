@@ -1,0 +1,40 @@
+---
+- name: setup shell helpers for yggdrasil
+  ansible.builtin.blockinfile:
+    path: "{{ ygg_shell_helpers }}"
+    block: "{{ lookup('file', 'bash-helpers.sh') }}"
+    marker: "# {mark} YGGDRASIL HELPERS"
+    create: true
+    mode: 0644
+
+- name: stuff public peers into yggdrasil database
+  ansible.builtin.lineinfile:
+    path: "{{ ygg_peer_database }}"
+    regexp: "^{{ nick }} "
+    line: "{{ _fmt.format(nick, addr, pkey) }}"
+  loop: "{{ ygg_public_peers |d([],true) }}"
+  loop_control:
+    loop_var: peer
+    label: "{{ nick }}"
+  vars:
+    _fmt: &FORMAT "{:<8} {:<40} {:0>64}"
+    nick: "{{ peer.nick |string }}"
+    addr: "{{ peer.addr |string }}"
+    pkey: "{{ peer.pubk |string }}"
+
+- name: stuff local peers into yggdrasil database
+  ansible.builtin.lineinfile:
+    path: "{{ ygg_peer_database }}"
+    regexp: "^{{ nick }} "
+    line: "{{ _fmt.format(nick, addr, pkey) }}"
+  loop: "{{ groups[ygg_peer_group] |d([],true) }}"
+  loop_control:
+    loop_var: host
+    label: "{{ nick }}"
+  vars:
+    _fmt: *FORMAT
+    peer: "{{ hostvars[host] }}"
+    nick: "{{ peer.ygg_alias |d(host, true) }}"
+    addr: "{{ peer.ygg_ipv6 }}"
+    pkey: "{{ peer.ygg_pub }}"
+...
