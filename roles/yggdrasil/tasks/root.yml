@@ -3,6 +3,7 @@
   ansible.builtin.group:
     name: proxy
     gid: 13
+  when: ygg_unix_group == 'proxy'
   tags:
     - lin_ygg_install
     - lin_ygg_config

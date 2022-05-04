@@ -4,7 +4,7 @@
     path: /etc/yggdrasil
     state: directory
     owner: root
-    group: proxy
+    group: "{{ ygg_unix_group }}"
     mode: 0750
 
 - name: update yggdrasil configuration
@@ -12,7 +12,7 @@
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.conf
     owner: root
-    group: proxy
+    group: "{{ ygg_unix_group }}"
     mode: 0640
     backup: "{{ ygg_backups |bool }}"
   vars:
@@ -31,7 +31,7 @@
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.{{ alias }}
     owner: root
-    group: proxy
+    group: "{{ ygg_unix_group }}"
     mode: 0640
     backup: "{{ ygg_backups |bool }}"
   vars:
@@ -46,7 +46,7 @@
     src: yggdrasil.conf.j2
     dest: /etc/yggdrasil/yggdrasil.{{ alias }}-isolate
     owner: root
-    group: proxy
+    group: "{{ ygg_unix_group }}"
     mode: 0640
     backup: "{{ ygg_backups |bool }}"
   vars:

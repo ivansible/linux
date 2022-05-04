@@ -5,6 +5,8 @@ ygg_enable: true
 ygg_upgrade: false
 ygg_backups: false
 
+ygg_unix_group: "{{ use_sslh |bool |ternary('proxy', 'yggdrasil') }}"
+
 ygg_ifname: tun0
 ygg_mtu: 65535
 
