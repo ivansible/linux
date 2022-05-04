@@ -1,17 +1,21 @@
 [Unit]
 Description=yggdrasil
-Wants=network.target
-After=network.target
+Wants=network-online.target
+{# Wants=yggdrasil-default-config.service #}
+After=network-online.target
+{# After=yggdrasil-default-config.service #}
 
 [Service]
 Group={{ ygg_unix_group }}
-{% set comment = ferm_openvz |default(false) |bool |ternary('#','') %}
-{% set as_root = '-' if ansible_lsb.codename == 'xenial' else '+-' %}
+{% set no_openvz = ferm_openvz |d(false) |bool |ternary('#','') %}
+{{ no_openvz }}ProtectHome=true
+{{ no_openvz }}ProtectSystem=true
 SyslogIdentifier=yggdrasil
-{{ comment }}ProtectHome=true
-{{ comment }}ProtectSystem=true
-{{ comment }}CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW
-{{ comment }}ExecStartPre={{ as_root }}/sbin/modprobe tun
+{% set old_systemd = ansible_lsb.codename == 'xenial' %}
+{% set capability2 = old_systemd |ternary('CAP_NET_RAW', 'CAP_NET_BIND_SERVICE') %}
+{{ no_openvz }}CapabilityBoundingSet=CAP_NET_ADMIN {{ capability2 }}
+{% set run_as_root = old_systemd |ternary('-', '+-') %}
+{{ no_openvz }}ExecStartPre={{ run_as_root }}/sbin/modprobe tun
 ExecStart=/usr/bin/yggdrasil -useconffile /etc/yggdrasil/yggdrasil.conf
 ExecReload=/bin/kill -HUP $MAINPID
 Restart=always
