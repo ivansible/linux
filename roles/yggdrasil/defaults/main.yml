@@ -60,6 +60,12 @@ ygg_cf_token: ~
 ygg_cf_zone: ~
 ygg_cf_suffix: ~
 
+## proxy yggdrasil tls behind nginx by sni
+ygg_nginx_host: ~
+ygg_nginx_cname: ~
+ygg_nginx_in_prod: false    # for better performance (assume secure network on prod)
+ygg_nginx_in_clients: true  # for better hiding (assume insecure network on client side)
+
 ## add yggdrasil peer IPs to the list of internal ferm hosts?
 ygg_internal_hosts: false
 

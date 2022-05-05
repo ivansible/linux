@@ -1,4 +1,24 @@
 ---
+- name: setup cloudflare cname for nginx sni upstream
+  community.general.cloudflare_dns:
+    account_email: "{{ ygg_cf_email }}"
+    account_api_token: "{{ ygg_cf_token }}"
+    zone: "{{ zone }}"
+    record: "{{ name }}"
+    type: CNAME
+    value: "{{ ygg_nginx_cname }}"
+    ## yggdrasil tls behind cloudflare failed with "tls not exactly 1 cert"
+    proxied: false
+  delegate_to: localhost
+  vars:
+    fqdn: "{{ ygg_nginx_host }}"
+    name: "{{ fqdn |regex_replace('^([^.]+)[.](.*)$', '\\1') }}"
+    zone: "{{ fqdn |regex_replace('^([^.]+)[.](.*)$', '\\2') }}"
+  when:
+    - ygg_nginx_host |d('')
+    - ygg_nginx_cname |d('')
+  tags: lin_ygg_nginx
+
 - name: update yggdrasil ipv6 in cloudflare
   community.general.cloudflare_dns:
     account_email: "{{ ygg_cf_email }}"

@@ -1,7 +1,7 @@
 ---
 dependencies:
   - ivansible.base.linux  # for lin_firewall
-  - ivansible.base.nginx  # for use_sslh
+  - ivansible.base.nginx  # for use_sslh, nginx sni
 
 galaxy_info:
   role_name: lin_yggdrasil

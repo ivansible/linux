@@ -24,4 +24,16 @@
 - name: setup yggdrasil service
   ansible.builtin.import_tasks: service.yml
   tags: lin_ygg_service
+
+- name: setup nginx sni upstream for yggdrasil
+  ansible.builtin.include_role:
+    name: ivansible.base.nginx
+    tasks_from: setup_sni_upstream.yml
+  vars:
+    facility: yggdrasil
+    hostname: "{{ ygg_nginx_host |d('') }}"
+    port: "{{ ygg_tls_port |int }}"
+  when:
+    - ygg_tls_port |d(0) |int
+  tags: lin_ygg_nginx
 ...

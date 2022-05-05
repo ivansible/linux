@@ -17,6 +17,7 @@
     backup: "{{ ygg_backups |bool }}"
   vars:
     name: "{{ inventory_hostname }}"
+    via_nginx: "{{ ygg_nginx_in_prod |bool }}"
   notify: restart yggdrasil service
 
 - name: make symbolic link to config for yggdrasilctl
@@ -37,6 +38,7 @@
   vars:
     name: "{{ item }}"
     alias: "{{ hostvars[item].ygg_alias |d(name) }}"
+    via_nginx: "{{ ygg_nginx_in_clients |bool }}"
   loop: "{{ ygg_slave_peers |d([],true) }}"
   loop_control:
     label: "{{ alias }}"
@@ -52,6 +54,7 @@
   vars:
     name: "{{ item }}"
     alias: "{{ hostvars[item].ygg_alias |d(name) }}"
+    via_nginx: "{{ ygg_nginx_in_clients |bool }}"
     isolate: true
   loop: "{{ ygg_slave_peers |d([],true) }}"
   loop_control:

@@ -36,9 +36,14 @@
 {%     set _host = _item.ipv6 |d(false) |bool |ternary(_host6, _host4) %}
 {%     set _tcp_port = _peer.ygg_tcp_port |d(0,true) |int %}
 {%     set _tls_port = _peer.ygg_tls_port |d(0,true) |int %}
+{%     set _via_nginx = via_nginx |d(false) |bool %}
+{%     set _nginx_host = _peer.ygg_nginx_host |d('',true) |string %}
 {%     if _host and _socks and _tcp_port |int %}
     # {{ _alias }}
     socks://{{ _socks }}/{{ _host |ipwrap }}:{{ _tcp_port }}
+{%     elif _via_nginx and _nginx_host and _tls and _tls_port |int %}
+    # {{ _alias }}
+    tls://{{ _nginx_host }}:443
 {%     elif _host and _tls and _tls_port |int %}
     # {{ _alias }}
     tls://{{ _host |ipwrap }}:{{ _tls_port }}
