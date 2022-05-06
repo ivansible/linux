@@ -4,6 +4,7 @@
 ygg_enable: true
 ygg_upgrade: false
 ygg_backups: false
+ygg_debug: false
 
 ygg_unix_group: "{{ use_sslh |bool |ternary('proxy', 'yggdrasil') }}"
 
