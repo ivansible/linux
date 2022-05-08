@@ -19,7 +19,7 @@
   tags: lin_core_timesync
 
 - name: adjust cron timers
-  ansible.builtin.include_tasks: cron.yml
+  ansible.builtin.include_tasks: cron-adjust.yml
   args:
     apply:
       tags: lin_core_cron
@@ -28,6 +28,10 @@
   loop_control:
     label: "{{ item.0 }}"
   when: lin_cron_adjust |bool
+  tags: lin_core_cron
+
+- name: setup cron tasks
+  ansible.builtin.import_tasks: cron-tasks.yml
   tags: lin_core_cron
 
 

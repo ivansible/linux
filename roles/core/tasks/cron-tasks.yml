@@ -1,0 +1,23 @@
+---
+- name: setup daily cron tasks
+  ansible.builtin.copy:
+    dest: "/etc/cron.daily/{{ item.0 }}"
+    content: "{{ item.1 }}"
+    mode: 0755
+  when: item.1 |d('')
+  notify: reload systemd daemon
+  loop: "{{ lin_cron_daily_tasks |d({},true) |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+
+- name: setup weekly cron tasks
+  ansible.builtin.copy:
+    dest: "/etc/cron.weekly/{{ item.0 }}"
+    content: "{{ item.1 }}"
+    mode: 0755
+  when: item.1 |d('')
+  notify: reload systemd daemon
+  loop: "{{ lin_cron_weekly_tasks |d({},true) |dictsort }}"
+  loop_control:
+    label: "{{ item.0 }}"
+...
