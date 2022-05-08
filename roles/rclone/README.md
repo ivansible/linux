@@ -3,9 +3,8 @@
 [![Github Test Status](https://github.com/ivansible/lin-rclone/workflows/test/badge.svg?branch=master)](https://github.com/ivansible/lin-rclone/actions)
 [![Ansible Galaxy](https://img.shields.io/badge/galaxy-ivansible.lin__rclone-68a.svg?style=flat)](https://galaxy.ansible.com/ivansible/lin_rclone/)
 
-This role installs rclone on linux, creates fuse wrapper for mount,
-configures remotes, adds fstab entries or systemd mount units
-and triggers systemd automounter.
+This role installs rclone on linux, configures remotes,
+adds fstab entries or systemd mount units and triggers systemd automounter.
 It also creates the `rclone` group for read-only access to rclone
 configuration and non-root mounts.
 
@@ -97,16 +96,12 @@ be enabled for the corresponding fstab entry.
 Normally rclone mounts are only accessible to root. If `nonroot` is true,
 the mount will be read-only accessible by the members of group `rclone`.
 
-    bglog: false
-If true, the background rclone process will dump a debugging log in /tmp.
-
     proxy: proto://host:port
 Optional proxy, protocol is one of `http`,`https`,`socks`,`socks5`.
 
 ## Tags
 
 - `lin_rclone_install` -- install rclone
-- `lin_rclone_wrapper` -- create fuse wrapper for mount
 - `lin_rclone_config` -- add remotes in config file
 - `lin_rclone_mounts` -- create fstab/systemd entries and configure automount
 - `lin_rclone_bashrc` -- create bash alias for rclone

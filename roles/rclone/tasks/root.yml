@@ -3,24 +3,14 @@
   ansible.builtin.import_tasks: install.yml
   tags: lin_rclone_install
 
-- name: create rclone fuse wrapper
-  ansible.builtin.template:
-    src: rclonefs.sh
-    dest: /sbin/mount.rclone
-    mode: 0755
-  when: lin_rclone_use_wrapper |bool
-  notify: restart remote systemd mounts
-  tags: lin_rclone_wrapper
-
 - name: link to rclone as mount helper
   ansible.builtin.file:
     state: link
     src: "{{ lin_rclone_binary }}"
     dest: /sbin/mount.rclone
     force: true
-  when: not lin_rclone_use_wrapper |bool
   notify: restart remote systemd mounts
-  tags: lin_rclone_wrapper
+  tags: lin_rclone_install
 
 - name: create group for access to rclone config and mounts
   ansible.builtin.group:

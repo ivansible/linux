@@ -10,7 +10,6 @@
     _fstab: "{{ fstab |bool }}"
     _automount: "{{ automount |bool }}"
     _nonroot: "{{ nonroot |bool }}"
-    _bglog: "{{ bglog |bool }}"
     _proxy: "{{ proxy }}"
     ## explicitly convert token to string to avoid json being treated as a dict
     _token: "{{ token }}"
@@ -31,20 +30,17 @@
       - "{{ cache_mode |ternary('vfs-cache-mode=%s' % cache_mode, '') }}"
       - "{{ cache_time |ternary('dir-cache-time=%s' % cache_time, '') }}"
       ## proxy options
-      - "{{ (proxy and wrapper) |ternary('proxy=%s' % proxy, '') }}"
-      - "{{ (proxy and not wrapper) |ternary('http_proxy=%s' % proxy, '') }}"
-      - "{{ (proxy and not wrapper) |ternary('https_proxy=%s' % proxy, '') }}"
+      - "{{ proxy |ternary('env.http_proxy=%s' % proxy, '') }}"
+      - "{{ proxy |ternary('env.https_proxy=%s' % proxy, '') }}"
       ## rclone options
-      - "{{ '' if wrapper else ('config=%s' % lin_rclone_config) }}"
-      - "{{ (cache_dir or not wrapper) |ternary('cache_dir=%s' % final_cache_dir, '') }}"
+      - "config={{ lin_rclone_config }}"
+      - "cache_dir={{ final_cache_dir }}"
       ## systemd / automount options
       - "{{ fstab_automount |bool |ternary('x-systemd.automount', '') }}"
       - "{{ fstab_automount |bool |ternary('x-systemd.idle-timeout=%d' % lin_rclone_idle_timeout, '') }}"
       ## troubleshooting options
-      - "{{ (lin_rclone_hide_args |bool and not wrapper) |ternary('args2env', '') }}"
-      - "{{ (mount_verb_custom and wrapper) |ternary('mount-verb=%s' % mount_verb_str, '') }}"
-      - "{{ (mount_verb_custom and not wrapper) |ternary('command=%s' % mount_verb_str, '') }}"
-      - "{{ (bglog and wrapper) |ternary('bglog', '') }}"
+      - "{{ lin_rclone_hide_args |bool |ternary('args2env', '') }}"
+      - "{{ mount_verb_custom |ternary('command=%s' % mount_verb_str, '') }}"
       ## spread options
       - "{{ spread |bool |ternary(_rclone_mount_spread, '') }}"
     mount: "{{ item.mount |d(true) |bool }}"
@@ -54,7 +50,6 @@
     fstab_automount: "{{ fstab |bool and automount |bool }}"
     netdev: "{{ fstab |bool and not lin_rclone_disable_netdev |bool }}"
     nonroot: "{{ item.nonroot |d(false) |bool }}"
-    bglog: "{{ item.bglog |d(false) |bool }}"
     spread: "{{ item.spread |d(lin_rclone_mount_spread) |bool }}"
     proxy: "{{ item.proxy |d('') }}"
     token: "{{ item.token |d('') |string }}"
@@ -66,7 +61,6 @@
     group_gid: "{{ lin_rclone_group_gid |d(1000) }}"
     cache_mode: "{{ lin_rclone_vfs_cache_mode |d('',true) }}"
     cache_time: "{{ lin_rclone_dir_cache_time |d('',true) }}"
-    wrapper: "{{ lin_rclone_use_wrapper |bool }}"
     mount_verb_str: "{{ lin_rclone_mount_verb |d('',true) |string }}"
     mount_verb_custom: "{{ mount_verb_str not in ['mount', 'default', ''] }}"
   no_log: "{{ hide_secrets |bool }}"
