@@ -1,0 +1,19 @@
+---
+## Hurricane Electric IPv6
+
+lin_he6_enable: false
+lin_he6_local: "{{ ansible_default_ipv4.address }}"
+lin_he6_endpoint: 127.0.0.1
+lin_he6_net64: 2001:470:aa:bb::/64
+lin_he6_net48: 2001:470:cc::/48
+
+lin_he6_gateway6: "{{ lin_he6_net64 |ipmath(1) }}"
+lin_he6_address6: "{{ lin_he6_net64 |ipmath(2) }}"
+lin_he6_net32: 2001:470::/32
+
+lin_he6_device: he0
+lin_he6_metric: 3192
+
+## loopback ip for testing HE ipv6
+lin_he6_loopip: beef
+...
