@@ -20,7 +20,7 @@
   ivansible.base.ferm_rule:
     name: "ipv6-he-{{ lin_he6_device }}"
     prio: 40
-    rule: "{{ lookup('template', 'he6.ferm.j2') }}"
+    rule: "{{ lookup('template', 'he6-ferm.j2') }}"
   tags: skip_ansible_lint
   when: lin_firewall == 'ferm'
 
