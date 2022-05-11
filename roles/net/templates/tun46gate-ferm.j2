@@ -1,0 +1,16 @@
+domain ip6 table filter chain $INPUT
+  saddr {{ peer_ipv6 }} proto ipencap
+  ACCEPT;
+
+domain ip table filter chain $FORWARD
+  saddr {{ ip4subnet30 }} outerface {{ nat_outerface }}
+  ACCEPT;
+
+domain ip table mangle chain $FORWARD
+  saddr {{ ip4subnet30 }}
+  proto tcp syn
+  TCPMSS clamp-mss-to-pmtu;
+
+domain ip table nat chain $POSTROUTING
+  saddr {{ ip4subnet30 }} outerface {{ nat_outerface }}
+  MASQUERADE;

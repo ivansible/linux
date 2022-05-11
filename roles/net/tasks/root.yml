@@ -42,4 +42,62 @@
   loop: "{{ lin_net_ntp_interfaces |d([],1) }}"
   tags: lin_net_ntp
   notify: restart ntp daemon
+
+
+- name: setup tun46 peer on an ip6only host
+  ansible.builtin.include_tasks: tun46peer.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_net_tun46_peer
+        - lin_net_tun46
+        - lin_net_all
+  vars:
+    device: tun46peer
+    ip4subnet24: "{{ lin_tun46_ip4subnet16 }}.{{ lin_tun46_peer_index }}"
+    peer_ipv6: "{{ lin_tun46_peer_ipv6 }}"
+    gate_host: "{{ lin_tun46_gate_host |d('',true) }}"
+    gate_vars: "{{ hostvars[gate_host] }}"
+    gate_ipv6: "{{ gate_vars.lin_tun46_peer_ipv6 |d(gate_vars.ansible_default_ipv6.address) }}"
+  when:
+    - gate_host |d('')
+    - lin_firewall == 'ferm'  # TODO vanilla iptables
+  tags:
+    - lin_net_tun46_peer
+    - lin_net_tun46
+    - lin_net_all
+
+- name: setup tun46 gateway interface
+  ansible.builtin.include_tasks: tun46gate.yml
+  args:
+    apply:
+      become: true
+      tags:
+        - lin_net_tun46_gate
+        - lin_net_tun46
+        - lin_net_all
+  loop: "{{ groups[lin_tun46_ip6only_group] |map('extract', hostvars)
+          | json_query(jmes_extract)
+          | selectattr('gate','eq',inventory_hostname)
+          | sort(attribute='name') }}"
+  loop_control:
+    loop_var: peer
+    index_var: idx
+    label: "{{ name }}"
+  vars:
+    name: "{{ peer.name }}"
+    index: "{{ peer.index |d(idx+1, true) }}"
+    device: "tun46gate{{ index }}"
+    ip4subnet24: "{{ lin_tun46_ip4subnet16 }}.{{ index }}"
+    peer_ipv6: "{{ hostvars[name].lin_tun46_peer_ipv6 |d(hostvars[name].ansible_default_ipv6.address) }}"
+    gate_ipv6: "{{ lin_tun46_gate_ipv6 }}"
+    jmes_extract: '[].{name:inventory_hostname, index:peer.lin_tun46_peer_index, gate:lin_tun46_gate_host}'
+  when:
+    - lin_tun46_gate_enable |bool
+    - lin_firewall == 'ferm'  # TODO vanilla iptables
+  tags:
+    - lin_net_tun46_gate
+    - lin_net_tun46
+    - lin_net_all
 ...

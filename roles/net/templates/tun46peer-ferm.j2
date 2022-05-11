@@ -1,0 +1,3 @@
+domain ip6 table filter chain $INPUT
+  saddr {{ gate_ipv6 }} proto ipencap
+  ACCEPT;

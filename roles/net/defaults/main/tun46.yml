@@ -1,0 +1,16 @@
+---
+## Tunnel 4-in-6 (Peer aka Client)
+lin_tun46_gate_host: ~
+lin_tun46_peer_index: 1
+lin_tun46_peer_ipv6: "{{ ansible_default_ipv6.address }}"
+
+## Tunnel 4-in-6 (Gateway aka Gate)
+lin_tun46_gate_enable: false
+lin_tun46_gate_ipv6: "{{ ansible_default_ipv6.address }}"
+
+## Tunnel 4-in-6 (Common)
+lin_tun46_ip4subnet16: '10.46'
+lin_tun46_ttl: 255
+lin_tun46_permissive_nat: false
+lin_tun46_ip6only_group: ip6only
+...

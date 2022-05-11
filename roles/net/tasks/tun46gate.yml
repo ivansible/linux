@@ -1,0 +1,31 @@
+---
+- name: configure tun46 gateway interface
+  ansible.builtin.template:
+    src: tun46gate-iface.j2
+    dest: "/etc/network/interfaces.d/{{ device }}"
+    mode: 0644
+  vars:
+    ttl: "{{ lin_tun46_ttl }}"
+    not_xenial: "{{ ansible_lsb.release is version('16.04','>') }}"
+  register: tun46gate_iface_result
+
+- name: configure ferm firewall on tun46 gateway interface
+  ivansible.base.ferm_rule:
+    name: "{{ device }}"
+    prio: 77
+    rule: "{{ lookup('template', 'tun46gate-ferm.j2') }}"
+  vars:
+    ip4subnet30: "{{ ip4subnet24 }}.0/30"
+    nat_outerface: "{{ lin_tun46_permissive_nat |bool
+                     | ternary('!'+device, ansible_default_ipv4.interface) }}"
+  tags: skip_ansible_lint
+  register: tun46gate_ferm_result
+
+- name: reset tun46 gateway interface
+  ansible.builtin.shell: |
+    ifdown {{ device }} >/dev/null 2>&1
+    sleep 1
+    ifup {{ device }}
+  when: tun46gate_iface_result is changed
+        or tun46gate_ferm_result is changed
+...

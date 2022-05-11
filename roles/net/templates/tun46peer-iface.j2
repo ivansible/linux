@@ -1,0 +1,11 @@
+# Tunnel 4-in-6 Peer
+auto {{ device }}
+iface {{ device }} inet tunnel
+{# note: xenial is not supported on peer side #}
+  mode ipip6
+  endpoint {{ gate_ipv6 }}
+  local {{ peer_ipv6 }}
+  ttl {{ ttl }}
+  address {{ ip4subnet24 }}.2
+  netmask 30
+  gateway {{ ip4subnet24 }}.1

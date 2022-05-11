@@ -1,0 +1,21 @@
+# Tunnel 4-in-6 Gateway ({{ name }})
+auto {{ device }}
+{% if not_xenial %}
+iface {{ device }} inet tunnel
+  mode ipip6
+  endpoint {{ peer_ipv6 }}
+  local {{ gate_ipv6 }}
+  ttl {{ ttl }}
+  address {{ ip4subnet24 }}.1
+  netmask 30
+{# Note: use netmask 30 rather than add route manually
+  up ip route add {{ ip4subnet24 }}.2/32 dev {{ device }}
+#}
+{% else %}
+{# Workaround for xenial error: Unknown tunnel mode "ipip6" #}
+iface {{ device }} inet static
+  address {{ ip4subnet24 }}.1
+  netmask 30
+  pre-up ip -6 tunnel add {{ device }} mode ipip6 remote {{ peer_ipv6 }} local {{ gate_ipv6 }} ttl {{ ttl }}
+  post-down ip tunnel del {{ device }}
+{% endif %}

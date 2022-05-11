@@ -1,0 +1,26 @@
+---
+- name: configure tun46 peer interface
+  ansible.builtin.template:
+    src: tun46peer-iface.j2
+    dest: "/etc/network/interfaces.d/{{ device }}"
+    mode: 0644
+  vars:
+    ttl: "{{ lin_tun46_ttl }}"
+  register: tun46peer_iface_result
+
+- name: configure ferm firewall on tun46 peer interface
+  ivansible.base.ferm_rule:
+    name: "{{ device }}"
+    prio: 77
+    rule: "{{ lookup('template', 'tun46peer-ferm.j2') }}"
+  tags: skip_ansible_lint
+  register: tun46peer_ferm_result
+
+- name: reset tun46 peer interface
+  ansible.builtin.shell: |
+    ifdown {{ device }} >/dev/null 2>&1
+    sleep 1
+    ifup {{ device }}
+  when: tun46peer_iface_result is changed
+        or tun46peer_ferm_result is changed
+...
